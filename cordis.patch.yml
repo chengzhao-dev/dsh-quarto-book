@@ -1,0 +1,13 @@
+# dsh-quarto-book bundle patch.
+#
+# Additive only: insert one host row. No official row is edited, disabled or
+# replaced. Installed through the official CLI, e.g.
+#
+#   dsh plugin --profile desktop add D:\Github\dsh-quarto-book
+#
+# The row contributes:
+#   * quarto_book_audit — read-only structural audit of a Quarto book.
+#   * quarto-book skill — bundled authoring/reorder instructions.
+- insert:
+    - id: quarto-book
+      name: dsh-quarto-book

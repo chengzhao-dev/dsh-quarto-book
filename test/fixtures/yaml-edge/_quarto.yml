@@ -1,0 +1,22 @@
+project:
+  type: book   # inline comment
+
+book:
+  title: "Edge: # not a comment"
+  chapters:
+    - index.qmd
+    - part: 'Part ''One'''
+      chapters:
+        - href: "01-edge.qmd"
+          text: "Edge chapter"
+
+format:
+  html:
+    toc-depth: 2
+
+execute:
+  freeze: auto
+
+description: |
+  line one
+  line two

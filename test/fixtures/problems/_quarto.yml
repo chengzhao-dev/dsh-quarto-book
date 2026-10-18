@@ -1,0 +1,17 @@
+project:
+  type: article
+
+book:
+  title: "Problems"
+  chapters:
+    - index.qmd
+    - missing.qmd
+    - ../problems-outside.qmd
+    - dup.qmd
+    - dup.qmd
+    - part: "Empty part"
+      chapters: []
+
+format:
+  html:
+    toc-depth: 3

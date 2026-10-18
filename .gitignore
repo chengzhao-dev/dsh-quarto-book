@@ -1,0 +1,6 @@
+node_modules/
+_book/
+.quarto/
+coverage/
+*.log
+.DS_Store

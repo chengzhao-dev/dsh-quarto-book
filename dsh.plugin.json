@@ -1,0 +1,17 @@
+{
+  "id": "dsh-external/dsh-quarto-book",
+  "version": "0.1.0",
+  "main": "./src/index.js",
+  "description": "Quarto book authoring for DSH: read-only book audit plus the bundled quarto-book skill for heading reorders.",
+  "engines": {
+    "dsh": ">=0.1.7-rc"
+  },
+  "contributes": {
+    "tools": [
+      "quarto_book_audit"
+    ],
+    "skills": [
+      "quarto-book"
+    ]
+  }
+}
