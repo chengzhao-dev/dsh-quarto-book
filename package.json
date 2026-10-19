@@ -25,7 +25,7 @@
   ],
   "engines": {
     "node": ">=22",
-    "dsh": ">=0.2.0 <0.3.0"
+    "dsh": ">=0.2.0-rc.1 <0.3.0-0"
   },
   "dsh": {
     "bundle": {
@@ -61,9 +61,9 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-skill": ">=0.2.0 <0.3.0"
+    "@deepseek-ai/dsh-skill": ">=0.2.0-rc.1 <0.3.0-0"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-skill": ">=0.2.0 <0.3.0"
+    "@deepseek-ai/dsh-skill": ">=0.2.0-rc.1 <0.3.0-0"
   }
 }
