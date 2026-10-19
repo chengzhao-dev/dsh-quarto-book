@@ -1,44 +1,50 @@
 {
   "name": "dsh-quarto-book",
   "version": "0.1.0",
-  "description": "Quarto book authoring for DeepSeek Harness: a read-only book audit tool and a bundled heading-reorder skill.",
+  "description": "Quarto Book 写作与主题技能包：章节写作、结构校验与可复用主题 · Quarto Book authoring and theme skills for DeepSeek Harness",
   "type": "module",
-  "main": "./src/index.js",
+  "main": "./lib/index.js",
   "exports": {
-    ".": "./src/index.js",
-    "./package.json": "./package.json"
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
-    "src",
-    "assets",
+    "lib",
+    "skills",
     "cordis.patch.yml",
-    "dsh.plugin.json",
+    "locale",
+    "icon.svg",
     "README.md",
     "README.en.md",
-    "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "templates",
+    "docs",
+    "scripts"
   ],
   "engines": {
     "node": ">=22",
-    "dsh": ">=0.1.7-rc"
+    "dsh": ">=0.2.0 <0.3.0"
   },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
+  "icon": "./icon.svg",
   "scripts": {
-    "test": "node test/audit.test.js && node test/yaml-lite.test.js && node test/plugin.test.js && node test/manifest.test.js",
-    "test:runner": "node --test test"
+    "check": "node --check lib/index.js",
+    "pack:check": "npm pack --dry-run"
   },
   "keywords": [
     "dsh",
-    "dsh-plugin",
     "deepseek-harness",
+    "dsh-plugin",
     "quarto",
     "quarto-book",
-    "markdown",
-    "publishing",
+    "technical-writing",
+    "theme",
     "skill"
   ],
   "license": "MIT",
@@ -53,5 +59,11 @@
   "homepage": "https://github.com/chengzhao-dev/dsh-quarto-book#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-skill": ">=0.2.0 <0.3.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-skill": ">=0.2.0 <0.3.0"
   }
 }

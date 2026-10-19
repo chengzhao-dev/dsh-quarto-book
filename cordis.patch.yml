@@ -1,13 +1,13 @@
 # dsh-quarto-book bundle patch.
 #
 # Additive only: insert one host row. No official row is edited, disabled or
-# replaced. Installed through the official CLI, e.g.
+# replaced. The row loads this package's `main` entry, which registers the
+# packaged writing-quarto and designing-theme skills through `ctx.skills`.
 #
-#   dsh plugin --profile desktop add D:\Github\dsh-quarto-book
+# Install from Git or npm, for example:
 #
-# The row contributes:
-#   * quarto_book_audit — read-only structural audit of a Quarto book.
-#   * quarto-book skill — bundled authoring/reorder instructions.
+#   dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
+#
 - insert:
     - id: quarto-book
       name: dsh-quarto-book

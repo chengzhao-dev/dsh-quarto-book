@@ -1,178 +1,129 @@
 # dsh-quarto-book
 
-Heading reorganization and structural auditing for [Quarto](https://quarto.org) books, packaged as a host-only plugin for DeepSeek Harness (DSH).
+**English** | [简体中文](README.md)
 
-Instead of hand-moving headings once, the plugin turns the job into a repeatable workflow: audit the book, move whole sections to a target outline, then render and re-audit. It is read-only: it never executes book code and never edits files.
+Two skills for [DeepSeek Harness](https://github.com/deepseek-ai) (DSH): authoring Quarto Book chapters and maintaining a reusable book theme. The plugin is read-only — it never executes book code and never edits your `.qmd` files. It brings writing conventions, check scripts and theme assets into the current workspace.
 
-## What it contributes
+## Skills
 
-| Contribution | Kind | Purpose |
+| Skill | Use it for | Out of scope |
 | --- | --- | --- |
-| `quarto-book` | Skill | Heading-level rules, whole-section move procedure, Chinese technical prose, Quarto book structure |
-| `quarto_book_audit` | Tool | Reads `_quarto.yml`, checks the chapter tree and every chapter's headings, returns JSON + Markdown |
+| `writing-quarto` | Creating or editing `content/**/*.qmd`, `index.qmd`, `_quarto.yml`; chapter skeletons, Chinese prose, code and figures, render verification | CSS, fonts and colours |
+| `designing-theme` | Theme CSS, SCSS, fonts, palettes, navigation and callout styling | Chapter prose |
 
-Both are additive: `cordis.patch.yml` inserts a single row and leaves every official row untouched.
+Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill (`references/`, `conventions/`, `knowledge/`, `scripts/`, `assets/`) resolve against that skill's directory.
 
 ## Install
 
-From this checkout:
-
-```powershell
-dsh plugin --profile desktop add D:\Github\dsh-quarto-book
+```bash
+dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 ```
 
-From npm once published:
+Requires DSH 0.2.x and Node.js 22 or newer. The plugin is plain JavaScript with no build step.
 
-```powershell
-dsh plugin --profile desktop add dsh-quarto-book
-```
+After installation, ask for "writing-quarto" or "designing-theme" in a session, or let the model load them from the task context.
 
-Restart the DSH session afterwards. Confirm the composed row:
+## Project-level conventions
 
-```powershell
-dsh --profile desktop --dump-config | Select-String -Pattern 'quarto-book' -Context 1,2
-```
-
-```yaml
-# == dsh-quarto-book
-- id: quarto-book
-  name: dsh-quarto-book
-```
-
-## Use
-
-### Skill
-
-After DSH boots, `quarto-book` appears in the skill catalog. Ask directly:
+The general skills cannot know a particular book's title, chapter table, stack or terminology. A project can provide its own skill:
 
 ```text
-Using the quarto-book skill, reorganize the headings of content/tictactoe/03-board.qmd
-to this target outline:
-## 棋盘的类型
-  ### 棋盘格子坐标
-  ### 棋盘格子类型
-## 棋盘成员
-  ...
+<book>/.agents/skills/quarto-book-project/SKILL.md
 ```
 
-The skill insists on: audit first, write the target outline, move whole sections, fix only the seams, then render and re-audit.
+Start from `templates/quarto-book-project/SKILL.md`. When the file exists, both general skills tell the model to read it after the general skill; when it does not, they skip it and do not guess project conventions. A same-name project skill wins: `.agents/skills` (rank 200) outranks the packaged provider (rank 550).
 
-### Tool
+## Theme
 
-```json
-{
-  "root": "D:\\Github\\cpp-board-games",
-  "includeUnlisted": true,
-  "maxIssues": 200
-}
+Theme assets live in `skills/designing-theme/assets/theme/`:
+
+```text
+assets/theme/
+├── assets/          # brand mark, favicon, fonts and OFL licence
+├── css/             # base, content, nav, sidebar, callouts, code, mermaid…
+├── includes/        # font and footer snippets
+└── palettes/github/ # light/dark SCSS, highlight themes, tokens.css
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `root` | string | Book root containing `_quarto.yml`; relative paths resolve against the session cwd; defaults to cwd |
-| `includeUnlisted` | boolean | Also report qmd files that exist but are absent from `book.chapters` |
-| `maxIssues` | integer | Issue cap, 1–500, default 200 |
+After copying the theme into a book, reference it from `_quarto.yml` using paths relative to the book root:
 
-Returns `{ json, markdown }`. A real audit:
-
-```json
-{
-  "ok": true,
-  "book": { "title": "C++ 棋盘游戏实践", "projectType": "book" },
-  "summary": { "chapters": 12, "headings": 111, "errors": 0, "warnings": 0, "infos": 0 },
-  "issues": []
-}
+```yaml
+format:
+  html:
+    theme:
+      light: path/to/theme/palettes/github/theme-light.scss
+      dark: path/to/theme/palettes/github/theme-dark.scss
+    css:
+      - path/to/theme/css/tokens.css
+      - path/to/theme/css/base.css
+    include-in-header:
+      - path/to/theme/includes/fonts.html
+    include-after-body:
+      - path/to/theme/includes/footer.html
 ```
 
-### Rules
+The theme belongs to this plugin; it is not claimed to be shared with any external repository. If a project already has an authoritative copy, the paths in its `_quarto.yml` win.
 
-| Code | Severity | Trigger |
-| --- | --- | --- |
-| `missing-config` | error | No `_quarto.yml` / `_quarto.yaml` |
-| `config-parse-error` | error | YAML parse failure (falls back to a lenient chapter scan) |
-| `missing-chapter` | error | Chapter file missing or unreadable |
-| `not-book-project` | warning | `project.type` is not `book` |
-| `missing-book` / `no-chapters` | error | No `book:` block or empty chapter list |
-| `empty-part` | warning | A `part` has no chapters |
-| `chapter-outside-root` | warning | Chapter path escapes the book root |
-| `duplicate-chapter` | warning | Same chapter listed twice |
-| `heading-level-skip` | warning | Level jump, e.g. H2 → H4 |
-| `heading-start-level` | warning | First heading in a chapter is deeper than H2 |
-| `multiple-h1` | warning | More than one H1 in a chapter |
-| `duplicate-heading` | warning | Duplicate heading in a chapter |
-| `empty-section` | warning | No body before the next same-level heading |
-| `heading-relative-reference` | warning | Heading says “previous/next section” |
-| `heading-manual-number` | info | Hand-written number such as `1.1 Install` |
-| `heading-trailing-punctuation` | warning | Heading ends with `。！？；，、` |
-| `heading-beyond-toc-depth` | info | Heading deeper than `format.html.toc-depth` |
-| `unlisted-qmd` | info | qmd exists but is not listed (requires `includeUnlisted`) |
+## Check scripts
 
-`ok` is false only when an error exists; warnings never block rendering.
+`writing-quarto` ships Python checks under its `scripts/` directory. Run them from that skill directory (installed at `skills/writing-quarto/`):
 
-## Design
+```bash
+python scripts/verifying-content.py --root <book>
+python scripts/checking-links.py --root <book>
+python scripts/checking-callouts.py --root <book>
+python scripts/checking-output.py --root <book>
+python scripts/checking-names.py --root <book>
+```
 
-- **Read-only** — no writes, no `quarto render`, no execution of book code.
-- **Zero runtime dependencies** — uses `js-yaml` when present, otherwise the bundled `src/yaml-lite.js` covering the mapping, sequence, inline collection, block scalar and quoting/comment subset used by `_quarto.yml`.
-- **Heading scan** — skips YAML frontmatter, backtick/tilde fences, HTML comments and four-space-indented code, then strips `{#id}` attributes before duplicate/level checks.
-- **Part landing pages** — `- part: path/to/index.qmd` counts as a listed page, avoiding a false “unlisted” report.
-- **Diagnosable** — every issue carries `severity`, `code`, `path`, optional `line`, and a Chinese message.
+`verifying-content.py` checks heading depth and length, body size budgets, forbidden wording, code fences, fragment sources and chapter-table consistency. Project-specific checks run only when the project skill exists; otherwise they are skipped so another book's chapter names never become rules.
 
-### DSH conventions followed
+`designing-theme` ships `scripts/checking-layout.py`, which inspects rendered HTML for overflow, contrast and page structure, and `scripts/measuring-pages.mjs` for measuring the content column.
 
-The implementation mirrors the public structure of installed plugins and the most-downloaded market entries:
+## Package layout
 
-- [dsh-gitbash-shell](https://github.com/KannaKuron/dsh-gitbash-shell) — `dsh.bundle.patch` with an additive `insert` row; never mutate official rows.
-- [dsh-market](https://github.com/dsh-market/dsh-market) — `dsh.plugin.json` manifest and market metadata.
-- [dsh-code-review](https://github.com/f-e-n-g-0531/dsh-code-review) — `ctx.tools.register` with `output.schema` / `output.render`.
-- [dsh-skills-manager](https://github.com/MichengAI/dsh-skills-manager) — `ctx.skills.registerProvider` candidate and `get` shape.
-- [Plugin market index](https://dsh.works/awesome-dsh-plugins/market/index.json) — capability layout of top entries such as `@liustack/modlens`, `dsh-better-sidebar`, `dsh-mnemon`.
+```text
+dsh-quarto-book/
+├── lib/index.js            # registers both skills at rank 550
+├── cordis.patch.yml        # inserts exactly one row
+├── locale/{en,zh}.json     # marketplace title and description
+├── icon.svg
+├── skills/
+│   ├── writing-quarto/
+│   └── designing-theme/
+├── templates/
+│   └── quarto-book-project/SKILL.md
+├── docs/creation-references.md
+└── scripts/embedding-agents.ps1
+```
 
-This plugin is host-only: it has no Web client and registers no UI slots.
+`templates/` is outside `skills/` and is never registered. `scripts/embedding-agents.ps1` is a maintainer tool that copies the skill trees into another repository's `.agents/` directory; it is not loaded as part of either skill.
 
-## Compatibility
+## Embedding into another book
 
-| Item | Requirement |
-| --- | --- |
-| Node.js | ≥ 22 |
-| DSH | ≥ 0.1.7-rc (`engines.dsh`) |
-| Platform | Any (pure Node, paths resolved per platform) |
+Copy both skills into a target repository:
+
+```powershell
+pwsh -File scripts/embedding-agents.ps1 -Target D:\Github\my-book
+```
+
+For repositories that split `context/` and `knowledge/`:
+
+```powershell
+pwsh -File scripts/embedding-agents.ps1 -Target D:\Github\my-book -SplitLayout
+```
+
+The script refuses to copy `package.json`, `cordis.patch.yml`, `lib/`, `locale/` or `icon.svg`, so bundle manifests never leak into a book repository.
 
 ## Development
 
-```powershell
-npm test          # 27 tests, each file run in-process
-npm run test:runner  # standard node --test (needs child-process spawning)
-npm pack --dry-run   # inspect the published file set
+```bash
+npm run check        # node --check lib/index.js
+npm run pack:check   # npm pack --dry-run
 ```
 
-`npm test` runs each file separately to avoid `spawn EPERM` in sandboxed environments where `node --test` cannot fork; in a normal terminal both are equivalent.
+The plugin ships as a bundle: `package.json` points `dsh.bundle.patch` at `cordis.patch.yml`, and the patch inserts only `id: quarto-book` / `name: dsh-quarto-book`. The entry imports nothing from the host, so it loads under pnpm's strict dependency layout.
 
-Layout:
+## Licence
 
-```text
-src/index.js              entry: registers the tool and the skill provider
-src/audit.js              book audit and heading scan
-src/yaml-lite.js          dependency-free YAML subset
-assets/skills/quarto-book/  skill plus three references
-test/                     unit, fixture and plugin-loading tests
-cordis.patch.yml          additive quarto-book row
-dsh.plugin.json           manifest and market metadata
-```
-
-## Real-world check
-
-Auditing `D:\Github\cpp-board-games` yields:
-
-```text
-chapters: 12, headings: 111, errors: 0, warnings: 0, infos: 0, unlisted: 0
-```
-
-`content/tictactoe/03-board.qmd` now matches the target tree: `棋盘的类型` keeps only the coordinate/type H3s, the member-query headings moved under `棋盘成员`, and `判定终局` groups its four H3s. The audit reports no relative-reference headings, empty sections or level jumps.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
----
-
-中文：[README.md](README.md)
+MIT. The bundled LXGW Bright fonts are used under `assets/fonts/OFL.txt`.
