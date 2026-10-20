@@ -14,7 +14,7 @@ metadata:
 - 调整颜色、字体、间距、导航、Callout 或落地页样式。
 - 新增 palette 或页面组件样式。
 - **不适用**：`.qmd` 正文写法（转 `writing-quarto`）；书里项目的业务领域内容（由项目自己的技能负责）。
-- 如果项目带有 `.agents/skills/quarto-book-project`，读完本技能后再读它；没有就跳过。
+- 项目带有 `.agents/skills/quarto-book-project/SKILL.md` 时，先读它的「主题与过滤器路径」，只改 `_quarto.yml` 实际引用的书内副本；没有就跳过。书内副本默认在 `theme/`，过滤器在 `filters/`。
 
 ## 任务路由
 

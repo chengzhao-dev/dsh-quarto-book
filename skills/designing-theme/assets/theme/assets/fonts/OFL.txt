@@ -1,16 +1,132 @@
-Self-hosted fonts in this directory are licensed under SIL Open Font License 1.1:
+dsh-quarto-book — 自托管 Web 字体许可
+=====================================
 
-- LXGW Bright (Medium subset) — https://github.com/lxgw/LxgwBright
-  Based on Klee One (Fontworks) and Ysabeau Office:
-  - Klee — https://github.com/fontworks-fonts/Klee
-  - Ysabeau — https://github.com/CatharsisFonts/Ysabeau
-  Subset source file: LXGWBright/LXGWBright-Medium.ttf (v5.528)
-  Web subset generated with fontTools/pyftsubset for WOFF2 delivery.
-- LXGW Bright Code v2.922 — https://github.com/lxgw/LxgwBright-Code
-  Based on Klee One (Fontworks) and Monaspace Argon:
-  - Monaspace — https://github.com/githubnext/monaspace
-  Subset source commit: 6106564927bc6e1099a3eeb625d76a3e5a684595
-  Source file: LxgwBrightCode/LXGWBrightCode-Regular.ttf
-  Web subset generated with fontTools/pyftsubset for WOFF2 delivery.
+本目录只有两个 Web 字体子集，都来自 SIL Open Font License 1.1 授权的开源字体：
 
-Full license text: https://openfontlicense.org
+- lxgw-bright-medium-common.woff2
+  对外家族名 LXGW Bright Medium，用于正文、标题、导航、侧栏与 Callout。
+  上游：LXGW Bright（由 Klee One 与 Ysabeau Office 派生）
+  https://github.com/lxgw/LxgwBright
+
+- lxgw-bright-code-common.woff2
+  对外家族名 LXGW Bright Code，用于代码与等宽文本。
+  上游：LXGW Bright Code（由 Klee One 与 Monaspace Argon 派生）
+  https://github.com/lxgw/LxgwBright-Code
+
+两个 woff2 用 fontTools/pyftsubset 从上游 TTF 生成，只保留常用字与符号，
+字形未改动。按上游 OFL 的附加许可，这份子集只用于网页字体分发，不作为
+可安装的桌面字体另行发布。字体文件本身不单独出售；再分发时随本文件一起
+提供版权声明与许可全文。
+
+上游版权声明
+------------
+
+LXGW Bright（https://github.com/lxgw/LxgwBright）OFL.txt：
+
+Copyright 2022-2026 LXGW (https://github.com/lxgw/LxgwBright)
+Copyright 2021-2026 LXGW (https://github.com/lxgw/LxgwWenKai-Lite), with Reserved Font Name '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW'. [ADDITIONAL PERMISSION] The Reserved Font Names '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW' may continue to be used in Modified Versions recompiled from the Original Version, without modifications to the font source code; or in Modified Versions subsetted or converted to other formats (e.g., WOFF/WOFF2) solely for web font delivery, provided such Modified Versions are not made available as installable desktop fonts (e.g., on mainstream platforms like Google Fonts, or third-party non-commercial platforms recognized by the author @lxgw; other web font platforms please contact the author @lxgw for confirmation).
+Copyright 2024-2026 LXGW (https://github.com/lxgw/LxgwWenKaiGB-Lite), with Reserved Font Name '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW'. [ADDITIONAL PERMISSION] The Reserved Font Names '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW' may continue to be used in Modified Versions recompiled from the Original Version, without modifications to the font source code; or in Modified Versions subsetted or converted to other formats (e.g., WOFF/WOFF2) solely for web font delivery, provided such Modified Versions are not made available as installable desktop fonts (e.g., on mainstream platforms like Google Fonts, or third-party non-commercial platforms recognized by the author @lxgw; other web font platforms please contact the author @lxgw for confirmation).
+Copyright 2022-2026 The LXGW WenKai Project Authors (https://github.com/lxgw/LxgwWenkaiTC)
+Copyright 2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)
+Copyright 2023 The Ysabeau Project Authors (https://github.com/CatharsisFonts/Ysabeau)
+
+LXGW Bright Code（https://github.com/lxgw/LxgwBright-Code）OFL.txt：
+
+Copyright 2024-2026 LXGW (https://github.com/lxgw/LxgwBright)
+Copyright 2021-2026 LXGW (https://github.com/lxgw/LxgwWenKai-Lite), with Reserved Font Name '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW'. [ADDITIONAL PERMISSION] The Reserved Font Names '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW' may continue to be used in Modified Versions recompiled from the Original Version, without modifications to the font source code; or in Modified Versions subsetted or converted to other formats (e.g., WOFF/WOFF2) solely for web font delivery, provided such Modified Versions are not made available as installable desktop fonts (e.g., on mainstream platforms like Google Fonts, or third-party non-commercial platforms recognized by the author @lxgw; other web font platforms please contact the author @lxgw for confirmation).
+Copyright 2024-2026 LXGW (https://github.com/lxgw/LxgwWenKaiGB-Lite), with Reserved Font Name '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW'. [ADDITIONAL PERMISSION] The Reserved Font Names '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW' may continue to be used in Modified Versions recompiled from the Original Version, without modifications to the font source code; or in Modified Versions subsetted or converted to other formats (e.g., WOFF/WOFF2) solely for web font delivery, provided such Modified Versions are not made available as installable desktop fonts (e.g., on mainstream platforms like Google Fonts, or third-party non-commercial platforms recognized by the author @lxgw; other web font platforms please contact the author @lxgw for confirmation).
+Copyright 2022-2026 The LXGW WenKai Project Authors (https://github.com/lxgw/LxgwWenkaiTC)
+Copyright 2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)
+Copyright 2023 GitHub (https://github.com/githubnext/monaspace) with Reserved Font Name "Monaspace", including subfamilies: "Argon", "Neon", "Xenon", "Radon", and "Krypton"
+
+SIL Open Font License 全文
+--------------------------
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+许可全文也见 https://openfontlicense.org

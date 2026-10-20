@@ -13,7 +13,7 @@ metadata:
 
 - 新建或修改 `content/**/*.qmd` 章节、`index.qmd` 或 `_quarto.yml`；渲染验证与产物契约走本技能 `scripts/` 下的脚本。
 - **不适用**：改主题样式、颜色或字体（转 `designing-theme`）；讲解书里项目的业务领域知识（那是项目正文的职责，不是本技能）。
-- 如果项目带有 `.agents/skills/quarto-book-project`，读完本技能后再读它；没有就跳过，不要凭猜测补项目约定。
+- 项目带有 `.agents/skills/quarto-book-project/SKILL.md` 时，读完本技能再读它，并只按它指向的 `writing/` 文件读章节对照；没有就跳过，不要凭猜测补项目约定。书内旧的通用副本（例如 `.agents/context/conventions/quarto-writing/`）不再打开，写法以本技能为准。
 
 ## 任务路由
 
