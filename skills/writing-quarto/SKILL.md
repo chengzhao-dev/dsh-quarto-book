@@ -11,7 +11,7 @@ metadata:
 
 ## 适用场景
 
-- 新建或修改 `content/**/*.qmd` 章节、`index.qmd` 或 `_quarto.yml`；渲染验证与产物契约走本技能 `scripts/` 下的脚本。
+- 新建或修改 `content/**/*.qmd` 章节、`index.qmd` 或 `_quarto.yml`；内容与链接核对走本技能 `scripts/` 下的脚本，HTML 是否可用走 `quarto_render_check` 工具。
 - **不适用**：改主题样式、颜色或字体（转 `designing-theme`）；讲解书里项目的业务领域知识（那是项目正文的职责，不是本技能）。
 - 项目带有 `.agents/skills/quarto-book-project/SKILL.md` 时，读完本技能再读它，并只按它指向的 `writing/` 文件读章节对照；没有就跳过，不要凭猜测补书名、章节名和术语。书内 `context/` 下的旧通用副本不再打开，写法以本技能为准。
 
@@ -31,10 +31,10 @@ metadata:
 6. 定用词：统一术语、主动语态和语气。规则在 `steps/06-wording.md`。
 7. 定版式：标点、中英混排、列表和加粗。规则在 `steps/07-layout.md`。
 8. 回读并退回：按现象判断属于哪一步，退回那一步改。规则在 `steps/08-reread.md`。
-9. 检查与渲染：跑脚本，改了渲染语义再跑 `quarto render`。规则在 `steps/09-check.md`。
+9. 检查与渲染：先核对内容与链接，再调 `quarto_render_check` 渲染并检查 HTML。规则在 `steps/09-check.md`。
 
 ## 完成判据
 
 - [ ] 九步走完，每一步的产出都落在正文里。
-- [ ] 在书根运行 `python <skill>/scripts/verifying-content.py --help`，按它列出的模式执行内容核对；改了渲染语义再运行 `quarto render`。
-- [ ] qmd 验证只跑 `scripts/` 里的脚本与 `quarto render`，不截图 PNG、不做视觉评审。
+- [ ] 内容与链接核对通过：项目技能存在时跑它列出的 `run.ps1 verify --changed`，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
+- [ ] 调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。不手跑 `quarto render`，也不截图 PNG。

@@ -2,37 +2,38 @@
 
 [English](README.en.md) | **简体中文**
 
-为 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）提供两个技能：写 Quarto Book 章节，以及维护可复用的书主题。插件只读，不执行书里的代码，也不改写你的 `.qmd`；它只把写作约定、检查脚本和主题资产带进 Quarto Book 工作区。
+为 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）提供两个技能和一个工具：写 Quarto Book 章节、维护可复用的书主题、在渲染后检查 HTML 是否可发布。技能只读，不执行书里的代码，也不改写 `.qmd`；`quarto_render_check` 只在被调用时运行一次 `quarto render`，会执行书配置的引擎并写入 `_book/`。
 
-## 两个技能
+## 提供什么
 
-| 技能 | 用途 | 不做什么 |
+| 名称 | 用途 | 不做什么 |
 | --- | --- | --- |
-| `writing-quarto` | 新建或修改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml`；章节骨架、中文行文、代码与图表、渲染验证 | 不改 CSS、字体和颜色 |
+| `writing-quarto` | 新建或修改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml`；章节骨架、中文行文、代码与图表、内容检查 | 不改 CSS、字体和颜色 |
 | `designing-theme` | 调整主题的 CSS、SCSS、字体、palette、导航与 Callout 样式 | 不改章节正文 |
+| `quarto_render_check` | 先判断 `output-dir` 是否安全，再按需渲染一次，检查 `_book/` 里的 HTML 是否可发布 | 不改 `.qmd`，不自动修配置，不重复渲染 |
 
-两个技能都从包内 `skills/` 目录发现，按需加载；技能里的相对路径以技能目录为基准解析：`writing-quarto` 用 `steps/`、`examples/`、`quarto/`、`scripts/`，`designing-theme` 用 `references/`、`knowledge/`、`assets/`、`scripts/`。
+两个技能从包内 `skills/` 目录发现，按需加载；技能里的相对路径以技能目录为基准解析：`writing-quarto` 用 `steps/`、`examples/`、`quarto/`、`scripts/`，`designing-theme` 用 `references/`、`knowledge/`、`assets/`、`scripts/`。
 
 ## 安装
 
 ```bash
-dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.0
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」填同样的地址即可。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.0`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.0`。
 
-要求 DSH 0.2.x、Node.js 22 及以上。插件是纯 JavaScript，没有构建步骤。
+要求 DSH 0.2.x、Node.js 22 及以上。源码是 TypeScript，发布包已带编译后的 `lib/`；安装后不需要构建。
 
 安装单位是 profile，不是仓库：只影响执行 `add` 的那个 profile。装好之后还要过下面的工作区门禁，目录里才会出现这两个技能名。
 
 ## 工作区门禁
 
-`apply()` 只注册技能 provider，不扫描、不写文件。`list({ cwd })` 决定这一次会话能不能看见两个技能：
+`apply()` 注册技能 provider 和 `quarto_render_check` 工具，不扫描、不写文件。provider 的 `list({ cwd })` 决定这一次会话能不能看见两个技能：
 
 - 从会话 `cwd` 向上找到 git 根，沿途目录的 `_quarto.yml` 里只要有独立的一行 `type: book`，就返回这两个技能；否则返回空列表。
 - 没有 `cwd`、不在 git checkout 里、`_quarto.yml` 缺失，或者只在注释里写了 `# type: book`，都按「不是书」处理。
-- 所以普通 C++ 仓库和本插件仓库自己的会话里不会出现这两个名字；书仓库的子目录会话与书根会话一样生效。
-- 门禁只影响目录与加载，不影响已经加载的技能正文；`get()` 仍只服务本 provider 的 candidate。
+- 普通 C++ 仓库和本插件仓库自己的会话里不会出现这两个名字；书仓库的子目录会话与书根会话一样生效。
+- 门禁只影响技能发现与加载，不影响已经加载的技能正文；`get()` 仍只服务本 provider 的 candidate。工具不受这道门禁限制，但它的 `qmd_path` 只是卡片定位，实际渲染目录取会话 `cwd`。
 
 社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。
 
@@ -42,14 +43,64 @@ dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 
 ```text
 <book>/.agents/skills/quarto-book-project/
-├── SKILL.md            # 项目约定：书名、读者、术语、渲染与检查命令、主题与过滤器路径
-└── writing         #/ 章节对照：文件名与标题
-    └── chapter-map.md  # 章节表：文件名、类章或能力章、title、二级标题
+├── SKILL.md                        # 项目约定
+└── writing/                    #/ 项目文件
+    └── chapter-map.md              # 章节表
 ```
 
 模板见 `templates/quarto-book-project/`。存在时，两个通用技能会先读 `SKILL.md`，再按它指向的 `writing/` 文件读章节对照；不存在就跳过，不猜测项目约定。通用写法、结构和主题规则留在插件里，不复制进项目技能。
 
 **不要把同名技能嵌进书仓库。** DSH 在同一个技能层里按 rank 取一个，数字小的赢：`.agents/skills`（rank 200）优先于插件（rank 550）。书里再放 `writing-quarto` 或 `designing-theme`，插件正文就不会生效，还会把两套通用写法带进项目。
+
+## 渲染检查工具
+
+`quarto_render_check` 有两个参数：
+
+- `qmd_path`：正在改的 `.qmd` 路径，用于卡片定位。
+- `dry_run`：`true` 只判断输出目录，`false` 才运行一次 `quarto render`。
+
+调用次数有上限。`dry_run: true` 最多 2 次：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`；第 2 次仍不安全就停住，把 `warnings` 交给用户。`dry_run: false` 最多 1 次：渲染失败就停住，把 `errors` 交给用户，不自动重跑。成功时同一次返回里带 `html_report`，不再为同一份文件重跑。
+
+返回字段：
+
+| 字段 | 内容 |
+| --- | --- |
+| `warnings` | 输出目录不安全，或入口文件缺失等提示 |
+| `errors` | 渲染失败、超时或找不到 `quarto` 时的一句话原因；成功时为空 |
+| `safe_to_render` | 是否允许执行渲染 |
+| `suggested_output_dir` | 固定为 `_book` |
+| `render_result` | `ok`、`exit_code`、`duration_ms` 与末尾输出；`dry_run: true` 时为 `null` |
+| `html_report` | `usable`、`checks`、`output_files`、`output_files_total`；`dry_run: true` 时为 `null` |
+
+`html_report.checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`。固定项有 `index_html`、`utf8`、`charset`、`no_file_uri`；条件项有 `sitemap`、`search_index`、`callouts`、`dom`。`usable` 在没有 `fail` 时为 true。`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。
+
+拦截、修正与成功各一次，演示如下。书的 `_quarto.yml` 先把输出目录写错：
+
+```yaml
+project:
+  type: book
+  output-dir: ./
+```
+
+调用 `quarto_render_check(qmd_path: "content/chapter.qmd", dry_run: true)`，返回 `safe_to_render: false`，`warnings` 指出 `./` 会覆盖书根，并建议 `output-dir: _book`。把该行改成 `output-dir: _book` 后再查一次，返回 `safe_to_render: true`、`render_result: null`。最后调用 `dry_run: false`，同一次返回：
+
+```json
+{
+  "errors": [],
+  "render_result": { "ok": true, "exit_code": 0 },
+  "html_report": {
+    "usable": true,
+    "checks": [
+      { "id": "index_html", "status": "pass" },
+      { "id": "charset", "status": "pass" },
+      { "id": "sitemap", "status": "pass" },
+      { "id": "search_index", "status": "pass" }
+    ]
+  }
+}
+```
+
+渲染进程的原始输出不单独占一张终端卡片。命令超时是 120 秒；超时、找不到 `quarto` 或非零退出都写进 `errors`。
 
 ## 主题
 
@@ -84,19 +135,17 @@ format:
 
 ## 校验脚本
 
-`writing-quarto` 自带一组 Python 脚本。在 `writing-quarto` 技能目录下运行（安装后位于插件的 `skills/writing-quarto/`）：
+`writing-quarto` 自带内容与链接检查脚本。在 `writing-quarto` 技能目录下运行（安装后位于插件的 `skills/writing-quarto/`）：
 
 ```bash
 python scripts/verifying-content.py --root <book>
 python scripts/checking-links.py --root <book>
-python scripts/checking-callouts.py --root <book>
-python scripts/checking-output.py --root <book>
 python scripts/checking-names.py --root <book>
 ```
 
 `verifying-content.py` 检查标题层级与字数、正文篇幅、禁用措辞、代码围栏、本地链接和章节表一致性。项目专属检查只在 `.agents/skills/quarto-book-project/` 存在时启用；不存在时跳过，不把别的书的章节名当成规则。
 
-`designing-theme` 自带 `scripts/checking-layout.py`，在渲染后的 HTML 上检查溢出、对比度和页面结构；`scripts/measuring-pages.mjs` 用于测量正文列宽。
+渲染后的 Callout、HTML 产物与 DOM 契约由 `quarto_render_check` 调用包内脚本完成；不要再手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`。`designing-theme` 自带 `scripts/checking-layout.py`，在渲染后的 HTML 上检查溢出、对比度和页面结构；`scripts/measuring-pages.mjs` 用于测量正文列宽。
 
 `apply()` 不在加载时跑这些脚本，也不跑 `quarto render`。校验由技能正文的完成判据触发，发生在用户要求写章节或改主题之后。
 
@@ -104,64 +153,56 @@ python scripts/checking-names.py --root <book>
 
 ```text
 dsh-quarto-book/
-├── .gitattributes                # 行尾与编码规则
-├── .gitignore                    # 被忽略的构建产物
-├── .npmignore                    # 不打进包的文件
-├── LICENSE                       # MIT 许可
-├── README.en.md                  # 英文说明
-├── README.md                     # 中文说明
-├── cordis.patch.yml              # 宿主补丁仅一行插入
-├── docs                      #/ 设计说明与发布规则
-│   ├── creation-references.md    # 设计来源
-│   ├── versioning.md             # 版本与发布
-│   └── writing-quarto-layout.md  # 技能目录分层
-├── icon.svg                      # 插件图标
-├── lib                       #/ 插件代码
-│   └── index.js                  # 注册两个技能的入口，rank 550
-├── locale                    #/ 界面文案
-│   ├── en.json                   # 英文
-│   └── zh.json                   # 中文
-├── package-lock.json             # 依赖锁
-├── package.json                  # 包清单
-├── scripts                   #/ 仓库脚本
-│   ├── checking-skill-links.mjs  # 技能自检
-│   └── embedding-agents.ps1      # 技能装机脚本
-├── skills                    #/ 两个技能
-│   ├── designing-theme       #/ 主题技能
-│   │   ├── SKILL.md              # 入口
-│   │   ├── assets                # 主题资产与字体
-│   │   ├── knowledge             # 阅读面说明
-│   │   ├── references            # 主题规则
-│   │   └── scripts               # 布局检查
-│   └── writing-quarto        #/ 写作技能
-│       ├── SKILL.md              # 九步入口
-│       ├── examples              # 正反例
-│       ├── quarto                # 渲染层约定
-│       ├── scripts               # 内容检查
-│       └── steps                 # 九步正文
-└── templates                 #/ 项目技能模板
-    └── quarto-book-project   #/ 书内项目技能
-        ├── SKILL.md              # 项目约定模板
-        └── writing           #/ 章节对照
-            └── chapter-map.md    # 章节表模板
+├── .github/workflows/publish.yml       # 标签发布
+├── .gitattributes                      # 行尾与编码
+├── .gitignore                          # 忽略的构建产物
+├── .npmignore                          # 排除的文件
+├── LICENSE                             # MIT 许可
+├── README.en.md                        # 英文说明
+├── README.md                           # 中文说明
+├── cordis.patch.yml                    # 宿主补丁
+├── docs                            #/ 设计说明
+├── icon.svg                            # 插件图标
+├── lib                             #/ 编译产物
+│   ├── index.js                        # 注册入口
+│   └── tools/render-check.js           # 渲染检查工具
+├── locale                          #/ 界面文案
+├── package-lock.json                   # 依赖锁
+├── package.json                        # 包清单
+├── scripts                         #/ 仓库脚本
+│   ├── checking-skill-links.mjs        # 技能自检
+│   └── embedding-agents.ps1            # 旧装机脚本
+├── skills                          #/ 两个技能
+│   ├── designing-theme             #/ 主题技能
+│   └── writing-quarto              #/ 写作技能
+├── src                             #/ TypeScript 源码
+│   ├── index.ts                        # 插件入口
+│   └── tools/render-check.ts           # 渲染检查实现
+├── templates                       #/ 项目技能模板
+├── tests                           #/ 工具单元测试
+└── tsconfig.json                       # TypeScript 配置
 ```
 
 `templates/` 不在 `skills/` 下，不会被注册。技能的目录分层见 `docs/writing-quarto-layout.md`，版本与发布规则见 `docs/versioning.md`。
 
 ## 本地开发
 
-纯 JavaScript，没有构建。开发时把本仓库链接进写书用的 profile，而不是把技能复制进书：
+源码用 TypeScript，构建产物 `lib/` 提交进仓库；发布包直接加载 `lib/`，安装后不需要构建。开发时把本仓库链接进写书用的 profile，而不是把技能复制进书：
+
+```bash
+npm ci
+npm test
+npm run check
+npm run pack:check
+```
+
+`npm test` 会先编译再跑工具测试；`npm run check` 做类型检查与技能路径自检。开发安装：
 
 ```bash
 dsh plugin --profile web add D:\Github\dsh-quarto-book
 ```
 
-`SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
-
-```bash
-npm run check        # node --check lib/index.js && node scripts/checking-skill-links.mjs
-npm run pack:check   # npm pack --dry-run
-```
+`SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根运行 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
 
 插件以 bundle 形式发布：`package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，补丁只插入 `id: quarto-book`、`name: dsh-quarto-book` 一行。入口不 import 宿主实现，因此在 pnpm 的严格依赖布局下也能加载。
 
