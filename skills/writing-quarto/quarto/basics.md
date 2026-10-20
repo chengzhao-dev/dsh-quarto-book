@@ -4,6 +4,8 @@
 
 > 速查：`.qmd` = YAML front matter + Markdown 正文 · `title:` 与 `# H1` 二选一 · `index.qmd` 必须存在 · Book 输出 `_book/` · `part:` 分组章节
 
+Quarto 接受 `.qmd`、`.md`、`.ipynb`、`.Rmd` 四种章节源文件；Book 的章节以 `.qmd` 为主，本技能只按 `.qmd` 与 `.md` 讲正文写法，其他类型按 Quarto 官方文档处理。
+
 ## .qmd 文档结构
 
 一个 `.qmd` 文件由两部分组成：

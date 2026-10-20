@@ -38,7 +38,7 @@
 
 这套「目标、解释、验证、少重复」原则也适用于 skill 与知识库文件，但它们优先保持短小、可检索和可执行。Skill 与说明文档默认使用段落、表格、编号步骤和代码块，不为凑结构加入图片或 Mermaid。
 
-README 遵循 GitHub Markdown。根目录 `README.md` 是在线阅读链接的唯一入口，根目录 `index.qmd` 不重复该链接。`AGENTS.md` 只保留硬性执行规则。
+README 遵循 GitHub Markdown。根目录 `README.md` 是在线阅读链接的唯一入口，根目录 `index.qmd` 不重复该链接。`AGENTS.md` 只保留硬性执行规则。根目录 README 不是章节：不套九步骨架，只按 `SKILL.md`「适用场景」走第 5–8 步。
 
 ## 行内代码与链接
 

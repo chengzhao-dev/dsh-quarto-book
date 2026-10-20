@@ -205,7 +205,7 @@ function runProcess(
       try {
         child.kill()
       } catch {
-        // The process may already have exited.
+        // 进程可能已经退出。
       }
       finish({
         ok: false,

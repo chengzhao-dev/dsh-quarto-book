@@ -1,19 +1,16 @@
-// dsh-quarto-book bundle entry.
+// dsh-quarto-book 的 bundle 入口。
 //
-// Registers the two packaged skills as one bundle-scoped skill provider and the
-// `quarto_render_check` tool. The provider is read-only and scans only
-// `skills/<name>/SKILL.md`; each skill directory becomes the resourceBase so
-// relative references, scripts and theme assets resolve from the installed
-// package.
+// 把包内两个技能注册成一个 bundle 作用域的技能 provider，并注册
+// `quarto_render_check` 工具。provider 只读，只扫描 `skills/<name>/SKILL.md`；
+// 每个技能目录作为 resourceBase，使相对引用、脚本和主题资源都从安装后的
+// 包内解析。
 //
-// The provider also scopes itself to Quarto Book workspaces: `list()` returns
-// nothing unless the session cwd sits inside a git checkout whose
-// `_quarto.yml` declares `type: book`. A normal C++ checkout therefore never
-// sees these two names in its catalog.
+// provider 还把自身限定在 Quarto Book 工作区：除非会话 cwd 位于一个
+// `_quarto.yml` 声明了 `type: book` 的 git 检出内，`list()` 一律返回空。
+// 普通检出（例如 C++ 项目）因此在技能目录里看不到这两个名字。
 //
-// Rank 550 sits above the bundled root (600) but below project `.dsh/skills`
-// (100) and `.agents/skills` (200), so a project can override either skill by
-// name without editing the package.
+// rank 550 高于内置根（600），低于项目级 `.dsh/skills`（100）和
+// `.agents/skills`（200），因此项目可以按名字覆盖这两个技能，而不必改动本包。
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -61,7 +58,7 @@ export interface DshContext {
   tools?: ToolRegistry
 }
 
-/** Minimal YAML frontmatter reader for the keys SKILL.md actually uses. */
+/** 读取 SKILL.md 实际用到的几个键，只做最简单的 YAML frontmatter 解析。 */
 function parseFrontmatter(source: string): { data: Record<string, unknown>; body: string } {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(source)
   if (!match) return { data: {}, body: source }
@@ -170,9 +167,8 @@ async function listSkills(options: ListOptions = {}): Promise<SkillCandidate[]> 
 async function getSkill(candidate: SkillCandidate | undefined, options: ListOptions = {}) {
   if (options.signal?.aborted) return undefined
   if (!candidate || candidate.provider !== PROVIDER) return undefined
-  // A candidate can outlive a directory change in the same session. Re-check
-  // only when the caller supplies a cwd; a plain `get()` keeps working for
-  // candidates that were already discovered in this workspace.
+  // 候选可能在同一次会话中因目录切换而失效。仅在调用方传入 cwd 时重新检查；
+  // 普通的 `get()` 仍对当前工作区里已经发现过的候选有效。
   if (options.cwd !== undefined && !(await findBookRoot(options.cwd))) return undefined
   const skillDir = candidate.locator
   if (typeof skillDir !== 'string') return undefined

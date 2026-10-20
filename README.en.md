@@ -14,15 +14,19 @@ Two skills and one tool for [DeepSeek Harness](https://github.com/deepseek-ai) (
 | `designing-theme` | Theme CSS, SCSS, fonts, palettes, navigation and callout styling | Chapter prose |
 | `quarto_render_check` | Check that `output-dir` is safe, render once when asked, and inspect HTML in `_book/` for publishing | Editing `.qmd`, fixing config automatically, or re-running a failed render |
 
+For when the skills appear and which rule each step maps to, see [`docs/plugin-flow.md`](docs/plugin-flow.md). It is a human-facing walkthrough, not the rule source used while a skill runs.
+
 Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill resolve against that skill's directory: `writing-quarto` uses `steps/`, `examples/`, `quarto/`, `scripts/`; `designing-theme` uses `references/`, `knowledge/`, `assets/`, `scripts/`.
 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.3
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.4
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.3` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.3`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.3.4` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.4`.
+
+Upgrading from the old unscoped package `dsh-quarto-book`: remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
 Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
 
@@ -221,7 +225,7 @@ dsh plugin --profile web add D:\Github\dsh-quarto-book
 
 `SKILL.md`, `steps/`, `examples/` and `quarto/` are re-read on the next `skill` tool call, so no npm release is needed after an edit. Theme edits inside the package do not reach the book's HTML automatically; to see a page, sync the changed files into the book's `theme/` and run `quarto render` at the book root. Never point `_quarto.yml` at the plugin checkout — that path stops existing on another machine.
 
-The plugin ships as a bundle: `package.json` points `dsh.bundle.patch` at `cordis.patch.yml`, and the patch inserts only `id: quarto-book` / `name: dsh-quarto-book`. The entry imports nothing from the host, so it loads under pnpm's strict dependency layout.
+The plugin ships as a bundle: `package.json` points `dsh.bundle.patch` at `cordis.patch.yml`, and the patch inserts only `id: quarto-book` / `name: '@chengzhao-dev/dsh-quarto-book'`. The entry imports nothing from the host, so it loads under pnpm's strict dependency layout.
 
 ## Embedding into another book (not recommended)
 

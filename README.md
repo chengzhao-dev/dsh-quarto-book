@@ -14,15 +14,19 @@
 | `designing-theme` | 调整主题的 CSS、SCSS、字体、palette、导航与 Callout 样式 | 不改章节正文 |
 | `quarto_render_check` | 先判断 `output-dir` 是否安全，再按需渲染一次，检查 `_book/` 里的 HTML 是否可发布 | 不改 `.qmd`，不自动修配置，不重复渲染 |
 
+装上之后什么时候出现、每一步对应哪条规则，见 [`docs/plugin-flow.md`](docs/plugin-flow.md)。那是给人回看的流程说明，不是技能执行时的规则来源。
+
 两个技能从包内 `skills/` 目录发现，按需加载；技能里的相对路径以技能目录为基准解析：`writing-quarto` 用 `steps/`、`examples/`、`quarto/`、`scripts/`，`designing-theme` 用 `references/`、`knowledge/`、`assets/`、`scripts/`。
 
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.3
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.4
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.3`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.3`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.3.4`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.4`。
+
+从旧的无作用域包 `dsh-quarto-book` 升级时，先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book` 再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
 要求 DSH 0.2.x、Node.js 22 及以上。源码是 TypeScript，发布包已带编译后的 `lib/`；安装后不需要构建。
 
@@ -221,7 +225,7 @@ dsh plugin --profile web add D:\Github\dsh-quarto-book
 
 `SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根运行 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
 
-插件以 bundle 形式发布：`package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，补丁只插入 `id: quarto-book`、`name: dsh-quarto-book` 一行。入口不 import 宿主实现，因此在 pnpm 的严格依赖布局下也能加载。
+插件以 bundle 形式发布：`package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，补丁只插入 `id: quarto-book`、`name: '@chengzhao-dev/dsh-quarto-book'` 一行。入口不 import 宿主实现，因此在 pnpm 的严格依赖布局下也能加载。
 
 ## 嵌入到另一本书（不推荐）
 

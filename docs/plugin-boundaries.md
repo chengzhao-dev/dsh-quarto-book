@@ -1,6 +1,6 @@
 # 两个插件的使用边界
 
-本文回答三个问题：什么时候 `dsh-quarto-book` 和 `dsh-cpp-workflow` 应该出现，两个插件同时出现时会不会冲突，以及怎么避免它们在无关项目里参与任务。
+本文回答三个问题：什么时候 `dsh-quarto-book` 和 `dsh-cpp-workflow` 应该出现，两个插件同时出现时会不会冲突，以及怎么避免它们在无关项目里参与任务。文中 `dsh-quarto-book` 指插件模块的短名，npm 包名是 `@chengzhao-dev/dsh-quarto-book`。
 
 ## 一分钟判断
 
