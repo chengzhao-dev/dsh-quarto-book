@@ -75,6 +75,51 @@ test('dry_run 为 true 时只做安全检查，不启动渲染', async () => {
   }
 })
 
+test('非 Quarto Book 的 _quarto.yml 直接拒绝，不启动渲染', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-check-'))
+  try {
+    await writeFile(path.join(root, '_quarto.yml'), 'project:\n  type: website\n', 'utf8')
+    await writeFile(path.join(root, 'index.qmd'), '# 首页\n', 'utf8')
+    let calls = 0
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'index.qmd',
+      dryRun: false,
+      spawn: () => {
+        calls += 1
+        throw new Error('不应调用')
+      },
+    })
+    assert.equal(result.safe_to_render, false)
+    assert.match(result.warnings.join('\n'), /type: book/)
+    assert.equal(calls, 0)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('书配置存在但没有章节源文件时拒绝渲染', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-check-'))
+  try {
+    await writeFile(path.join(root, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+    let calls = 0
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn: () => {
+        calls += 1
+        throw new Error('不应调用')
+      },
+    })
+    assert.equal(result.safe_to_render, false)
+    assert.match(result.warnings.join('\n'), /没有 \.qmd 或 \.md 源文件/)
+    assert.equal(calls, 0)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('quarto 失败时返回错误报告，不抛异常', async () => {
   const root = await bookFixture()
   try {

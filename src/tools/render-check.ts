@@ -4,6 +4,7 @@ import { spawn as nodeSpawn } from 'node:child_process'
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { BOOK_PROJECT_RE, findBookRoot, hasBookSource } from '../workspace.js'
 
 const PACKAGE_ROOT = path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url))))
 const SKILL_DIR = path.join(PACKAGE_ROOT, 'skills', 'writing-quarto')
@@ -540,6 +541,14 @@ export async function runRenderCheck(input: RunRenderCheckInput): Promise<Render
     warnings.push(`书根 ${root} 没有 _quarto.yml，无法判断渲染输出目录。`)
     return result
   }
+  if (!BOOK_PROJECT_RE.test(yaml)) {
+    warnings.push(`书根 ${root} 的 _quarto.yml 没有声明 type: book；quarto_render_check 只服务 Quarto Book 项目。`)
+    return result
+  }
+  if (!(await hasBookSource(root))) {
+    warnings.push(`书根 ${root} 没有 .qmd 或 .md 源文件；没有可渲染的章节。`)
+    return result
+  }
 
   const qmdPath = path.resolve(root, input.qmdPath)
   try {
@@ -679,11 +688,22 @@ const RESULT_SCHEMA = {
   required: ['warnings', 'errors', 'safe_to_render', 'suggested_output_dir', 'render_result', 'html_report'],
 }
 
+function refusedResult(warning: string): RenderCheckResult {
+  return {
+    warnings: [warning],
+    errors: [],
+    safe_to_render: false,
+    suggested_output_dir: DEFAULT_OUTPUT_DIR,
+    render_result: null,
+    html_report: null,
+  }
+}
+
 export function registerRenderCheckTool(tools: ToolRegistry): void {
   tools.register({
     name: 'quarto_render_check',
     description:
-      '检查 Quarto Book 的渲染输出目录，按需运行一次 quarto render，并检查 HTML 可用性。先传 dry_run:true；不安全时最多改一次 output-dir 再查。dry_run:false 只调用一次，成功才返回 html_report。',
+      '只在 Quarto Book 项目中使用：检查渲染输出目录，按需运行一次 quarto render，并检查 HTML 可用性。先传 dry_run:true；不安全时最多改一次 output-dir 再查。dry_run:false 只调用一次，成功才返回 html_report。非书项目直接拒绝，不启动渲染。',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -710,8 +730,14 @@ export function registerRenderCheckTool(tools: ToolRegistry): void {
     },
     async execute(args, exec) {
       const cwd = exec?.agent?.session?.header?.cwd
-      const root = typeof cwd === 'string' && cwd.trim() ? cwd : process.cwd()
-      return runRenderCheck({ root, qmdPath: args.qmd_path, dryRun: args.dry_run })
+      if (typeof cwd !== 'string' || cwd.trim() === '') {
+        return refusedResult('当前会话没有 cwd；quarto_render_check 只在 Quarto Book 项目的会话 cwd 内工作。')
+      }
+      const root = await findBookRoot(cwd)
+      if (!root) {
+        return refusedResult('当前会话不在 Quarto Book 项目内：需要 git checkout、_quarto.yml 的 type: book，以及至少一个 .qmd 或 .md 源文件。')
+      }
+      return runRenderCheck({ root, qmdPath: path.resolve(cwd, args.qmd_path), dryRun: args.dry_run })
     },
     presentCall(args) {
       return {

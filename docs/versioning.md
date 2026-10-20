@@ -10,7 +10,7 @@
 - 磁盘：profile 的 `package.json` 里 `dependencies`，以及 `node_modules/dsh-quarto-book/package.json` 的 `version`。
 - 运行时加载清单：`dsh --profile <profile> --dump-config`，确认 `# == dsh-quarto-book` 这一层在。官方「设置 → 插件」只显示模块名和启用状态，不显示版本。
 
-README 里的安装命令钉住一次发布：npm 写 `@0.3.0`，git 写 `#v0.3.0`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
+README 里的安装命令钉住一次发布：npm 写 `@0.3.1`，git 写 `#v0.3.1`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
 
 ## 三档
 
@@ -34,20 +34,20 @@ flowchart TD
 
 ## 发布
 
-发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.3.0` 对应 `v0.3.0`）。不在 `SKILL.md` 里再维护一套包版本。
+发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.3.1` 对应 `v0.3.1`）。不在 `SKILL.md` 里再维护一套包版本。
 
 发布走 npm trusted publisher，本机不执行 `npm publish`，也不执行 `npm trust github`。顺序固定：
 
 1. 提交并推送默认分支，先不打标签。
 2. 只读核对：`npm view dsh-quarto-book version` 应仍是上一个发布号；`npm whoami` 未登录就停；`npm trust list dsh-quarto-book --json` 要能匹配 GitHub Actions、仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`。
 3. 关联不匹配就停住，把 `npm trust github dsh-quarto-book --repository chengzhao-dev/dsh-quarto-book --file publish.yml --allow-publish` 交给用户执行。用户回复「publisher 已配置」后重查，不自行执行，也不跳过。
-4. 关联匹配后打 annotated `v0.3.0` 并推送；`publish.yml` 在 `v*` 标签上运行。
-5. 以 Actions 全绿且 `npm view dsh-quarto-book@0.3.0 version` 返回 `0.3.0` 为发布完成。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
+4. 关联匹配后打 annotated `v0.3.1` 并推送；`publish.yml` 在 `v*` 标签上运行。
+5. 以 Actions 全绿且 `npm view dsh-quarto-book@0.3.1 version` 返回 `0.3.1` 为发布完成。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
 
 关联登记后两天内必须推标签；过期就重新登记，不沿用旧凭据。
 
 `.github/workflows/publish.yml` 只在 `v*` 标签上运行，权限是 `contents: read` 与 `id-token: write`，不设 GitHub Environment。步骤是 checkout、`actions/setup-node@v6`（Node 24、`registry-url: https://registry.npmjs.org`）、`npm ci`、`npm test`、`npm run build`、`npm publish --provenance`。`package.json` 的 `repository.url` 保持 `git+https://github.com/chengzhao-dev/dsh-quarto-book.git`，`publishConfig` 为 `access: public` 与 `provenance: true`。
 
-发布后两种安装各钉各的：git 用 `#v0.3.0`，npm 用 `@0.3.0`。
+发布后两种安装各钉各的：git 用 `#v0.3.1`，npm 用 `@0.3.1`。
 
 写书时不读这份文档：它是本仓库的维护规则，不进任何一步。

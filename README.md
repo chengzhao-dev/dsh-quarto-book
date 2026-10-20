@@ -17,10 +17,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.0
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.1
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.0`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.0`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.1`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.1`。
 
 要求 DSH 0.2.x、Node.js 22 及以上。源码是 TypeScript，发布包已带编译后的 `lib/`；安装后不需要构建。
 
@@ -28,14 +28,15 @@ dsh plugin --profile web add npm:dsh-quarto-book@0.3.0
 
 ## 工作区门禁
 
-`apply()` 注册技能 provider 和 `quarto_render_check` 工具，不扫描、不写文件。provider 的 `list({ cwd })` 决定这一次会话能不能看见两个技能：
+`apply()` 注册技能 provider 和 `quarto_render_check` 工具，不写文件。provider 的 `list({ cwd })` 只在发现候选时做一次有界只读检查：
 
-- 从会话 `cwd` 向上找到 git 根，沿途目录的 `_quarto.yml` 里只要有独立的一行 `type: book`，就返回这两个技能；否则返回空列表。
-- 没有 `cwd`、不在 git checkout 里、`_quarto.yml` 缺失，或者只在注释里写了 `# type: book`，都按「不是书」处理。
-- 普通 C++ 仓库和本插件仓库自己的会话里不会出现这两个名字；书仓库的子目录会话与书根会话一样生效。
-- 门禁只影响技能发现与加载，不影响已经加载的技能正文；`get()` 仍只服务本 provider 的 candidate。工具不受这道门禁限制，但它的 `qmd_path` 只是卡片定位，实际渲染目录取会话 `cwd`。
+- 从会话 `cwd` 向上找到 git 根，沿途目录的 `_quarto.yml` 里只要有独立的一行 `type: book`，并且这本书至少有一个 `.qmd` 或 `.md` 章节源文件，就返回这两个技能；否则返回空列表。书根下的 `README.md`、`CHANGELOG.md`、`LICENSE.md` 等仓库说明文件不算章节源文件。
+- 没有 `cwd`、不在 git checkout 里、`_quarto.yml` 缺失、只在注释里写了 `# type: book`、或只有 book 配置没有任何章节源文件，都按「不是书」处理。
+- 扫描跳过 `_book`、`node_modules`、`vendor`、`third_party` 等生成或依赖目录，最多 4000 个目录项；普通 C++ 仓库和本插件仓库自己的会话里不会出现这两个名字；书仓库的子目录会话与书根会话一样生效。
+- 门禁只影响技能发现与加载。`get()` 带 `cwd` 时重新过同一道门禁，不带 `cwd` 时只服务已经加载的本 provider candidate。
+- `quarto_render_check` 与技能共用同一道门禁：没有会话 `cwd`、不在书里、`_quarto.yml` 不是 `type: book`、或书里没有章节源文件时直接拒绝，不启动 `quarto render`。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只按会话 `cwd` 定位卡片。
 
-社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。
+社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。完整判定矩阵、与 `dsh-cpp-workflow` 的共存规则和实际校验记录见 [docs/plugin-boundaries.md](docs/plugin-boundaries.md)。
 
 ## 项目级约定
 

@@ -17,10 +17,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.0
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.1
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so a command-line `add` is rejected; use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.0`. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.0`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so a command-line `add` is rejected; use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.1`. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.1`.
 
 Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
 
@@ -28,14 +28,15 @@ Installation is scoped to a profile, not to a repository: it only affects the pr
 
 ## Workspace gate
 
-`apply()` registers the skill provider and the `quarto_render_check` tool; it scans nothing and writes nothing. The provider's `list({ cwd })` decides whether the session can see the two skills:
+`apply()` registers the skill provider and the `quarto_render_check` tool; it writes nothing. The provider's `list({ cwd })` performs one bounded read-only check:
 
-- Walk up from the session `cwd` to the enclosing git root. If any directory on the way has a `_quarto.yml` with a standalone `type: book` line, return both skills; otherwise return an empty list.
-- No `cwd`, no enclosing git checkout, a missing `_quarto.yml`, or only a commented `# type: book` all count as "not a book".
-- A normal C++ repository and this plugin's own checkout therefore never see these names; a subdirectory of a book repository behaves like the book root.
-- The gate affects discovery and loading only. `get()` still serves this provider's own candidates. The tool is not gated, but `qmd_path` only locates the card; the render root comes from the session `cwd`.
+- Walk up from the session `cwd` to the enclosing git root. A `_quarto.yml` with a standalone `type: book` line plus at least one `.qmd` or `.md` chapter source returns both skills; otherwise the list is empty. Repository metadata such as `README.md`, `CHANGELOG.md` or `LICENSE.md` at the book root does not count as a chapter.
+- No `cwd`, no enclosing git checkout, a missing `_quarto.yml`, only a commented `# type: book`, or a book config with no chapter sources all count as "not a book".
+- The scan skips `_book`, `node_modules`, `vendor`, `third_party` and similar generated/dependency trees, and stops after 4000 directory entries. A normal C++ repository and this plugin's own checkout therefore never see these names; a subdirectory of a book repository behaves like the book root.
+- The gate affects discovery and loading. `get()` re-runs the gate when a `cwd` is supplied; without one it serves this provider's already-loaded candidates only.
+- `quarto_render_check` shares the gate: no session `cwd`, a non-book workspace, a `_quarto.yml` without `type: book`, or a book without chapter sources is refused before `quarto render` starts. The render root is the nearest valid book root above `cwd`; `qmd_path` only locates the card relative to the session `cwd`.
 
-Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing.
+Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](docs/plugin-boundaries.md) for the full decision matrix, coexistence rules with `dsh-cpp-workflow`, and verification records.
 
 ## Project-level conventions
 

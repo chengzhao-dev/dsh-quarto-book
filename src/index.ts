@@ -14,9 +14,10 @@
 // Rank 550 sits above the bundled root (600) but below project `.dsh/skills`
 // (100) and `.agents/skills` (200), so a project can override either skill by
 // name without editing the package.
-import { access, readdir, readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { findBookRoot } from './workspace.js'
 import { registerRenderCheckTool, type ToolRegistry } from './tools/render-check.js'
 
 export const name = 'dsh-quarto-book'
@@ -27,10 +28,6 @@ const RANK = 550
 const SKILL_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const PACKAGE_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 const SKILLS_ROOT = path.join(PACKAGE_ROOT, 'skills')
-const MAX_ASCENT = 64
-// `type: book` must stand on its own line; a commented-out sample does not
-// count, so only the first non-space character of the line is inspected.
-const BOOK_PROJECT_RE = /^(?![\t ]*#)[\t ]*type:[\t ]*['"]?book['"]?[\t ]*$/m
 
 interface SkillCandidate {
   name: string
@@ -62,62 +59,6 @@ export interface DshContext {
     registerProvider: (factory: () => SkillProvider) => unknown
   }
   tools?: ToolRegistry
-}
-
-async function exists(target: string): Promise<boolean> {
-  try {
-    await access(target)
-    return true
-  } catch {
-    return false
-  }
-}
-
-async function declaresBookProject(dir: string): Promise<boolean> {
-  let source: string
-  try {
-    source = await readFile(path.join(dir, '_quarto.yml'), 'utf8')
-  } catch {
-    return false
-  }
-  return BOOK_PROJECT_RE.test(source)
-}
-
-// Walk up from the session cwd to the enclosing git root, checking each
-// ancestor for a Quarto Book project file. Without a cwd, or outside any git
-// checkout, the answer is no: profile installation alone must not expose the
-// skills, and an unrelated `_quarto.yml` above the workspace is not evidence.
-async function isQuartoBookWorkspace(cwd: string | undefined): Promise<boolean> {
-  if (typeof cwd !== 'string' || cwd.trim() === '') return false
-  let start: string
-  try {
-    start = path.resolve(cwd)
-  } catch {
-    return false
-  }
-
-  let gitRoot: string | undefined
-  let cursor = start
-  for (let depth = 0; depth < MAX_ASCENT; depth += 1) {
-    if (await exists(path.join(cursor, '.git'))) {
-      gitRoot = cursor
-      break
-    }
-    const parent = path.dirname(cursor)
-    if (parent === cursor) break
-    cursor = parent
-  }
-  if (!gitRoot) return false
-
-  cursor = start
-  for (let depth = 0; depth < MAX_ASCENT; depth += 1) {
-    if (await declaresBookProject(cursor)) return true
-    if (cursor === gitRoot) return false
-    const parent = path.dirname(cursor)
-    if (parent === cursor) return false
-    cursor = parent
-  }
-  return false
 }
 
 /** Minimal YAML frontmatter reader for the keys SKILL.md actually uses. */
@@ -207,7 +148,7 @@ async function readCandidate(skillDir: string): Promise<SkillCandidate | undefin
 
 async function listSkills(options: ListOptions = {}): Promise<SkillCandidate[]> {
   if (options.signal?.aborted) return []
-  if (!(await isQuartoBookWorkspace(options.cwd))) return []
+  if (!(await findBookRoot(options.cwd))) return []
   if (options.signal?.aborted) return []
   let entries
   try {
@@ -229,6 +170,10 @@ async function listSkills(options: ListOptions = {}): Promise<SkillCandidate[]> 
 async function getSkill(candidate: SkillCandidate | undefined, options: ListOptions = {}) {
   if (options.signal?.aborted) return undefined
   if (!candidate || candidate.provider !== PROVIDER) return undefined
+  // A candidate can outlive a directory change in the same session. Re-check
+  // only when the caller supplies a cwd; a plain `get()` keeps working for
+  // candidates that were already discovered in this workspace.
+  if (options.cwd !== undefined && !(await findBookRoot(options.cwd))) return undefined
   const skillDir = candidate.locator
   if (typeof skillDir !== 'string') return undefined
   const resolved = path.resolve(skillDir)
