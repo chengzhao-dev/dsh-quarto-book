@@ -26,8 +26,8 @@
 ### 改动约定
 
 1. 改 `format: html:` 任何取值都属于主题级改动，会触发整本渲染，先确认代价再走 `quarto render`。
-2. 新增或删减 `.agents/skills/visual-theme/designing-theme/assets/theme/css/**` 组件样式表时，同步修改配置里的样式表清单，否则新样式不参与渲染。
-3. 页面视觉问题（提示符配色、文件名条、术语色）改 `.agents/skills/visual-theme/designing-theme/assets/theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../designing-theme/references/theme-system.md`。
+2. 新增或删减主题样式表（`.agents/skills/designing-theme/assets/theme/css/**` 或书内 `theme/css/**`）时，同步修改配置里的样式表清单，否则新样式不参与渲染。
+3. 页面视觉问题（提示符配色、文件名条、术语色）改 `.agents/skills/designing-theme/assets/theme/**` 或书内 `theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../designing-theme/references/theme-system.md`。
 4. 流程图使用 `{mermaid}` 属性围栏，配色由主题样式控制。配置里不指定图表主题名；围栏与 init 指令细则见`quarto/mermaid.md`。
 5. 拿不准选项名、默认值或嵌套层级时查官方参考页，不凭记忆写 YAML（入口见本文件 #8）。
 
@@ -97,7 +97,7 @@
 ### 10. YAML `title:` 与同文本 `# H1` 重复 → 页面出现两个标题
 
 - **症状**：标题重复出现两遍，Book 章节结构错位。
-- **处置**：章节标题**二选一**，用 YAML `title:` 后不再写同文本 `# H1`。规范唯一出处见 `quarto/basics.md`「章节标题约定」。
+- **处置**：章节标题**二选一**，用 YAML `title:` 后不再写同文本 `# H1`。规范唯一出处见 `quarto/basics.md`「章节标题约定（规范，唯一出处）」。
 
 ### 11. `---` 紧接段落 → 前一段被解析为 setext 二级标题
 
@@ -147,7 +147,7 @@ qmd 指向仓库内路径的链接仍**一律使用 GitHub 绝对链接**，不�
 - 行文叙述少用行内代码路径指代目录：正文指向仓库内目录或文件时，首次出现处用中文锚文本的 GitHub 链接，此后用中文短指称；行内代码路径只保留在目录树与目录映射表格，正文里的实现目录用 GitHub 链接（模板见 `quarto/authoring.md`）；
 - 外部官方文档非必要不链接：命令与概念默认用行内代码加正文一句话讲清；引用第三方内容注明出处与章末参考资料清单是外链的合法位置；
 - 全路径在行文首次出现后改用中文短指称（工程目录、一键脚本、构建规则），不重复全路径；
-- 跨仓锚文本禁止「写法依据见 / 依据见 / 机制见 / 选型见 / 承诺见 / 用法见 / 陷阱见」式；默认不挂链，可选尾置用「若要系统阅读…」；细则见 `writing-quarto` 技能 `steps/01-task.md`「叙事范围」；
+- 跨仓锚文本禁止「写法依据见 / 依据见 / 机制见 / 选型见 / 承诺见 / 用法见 / 陷阱见」式；默认不挂链，可选尾置用「若要系统阅读…」；细则见 `writing-quarto` 技能 `steps/01-task.md`「叙事范围（硬边界）」；
 - 新增链接后渲染检查 HTML：锚文本与 URL 对应、无相对路径仓库链接混入（章节互引除外）；
 - 正文与代码块 filename 标注不引用 `.agents/` 内部路径：读者所需的解释就地写清，仓库内路径一律链 GitHub；内部知识路径的读者/作者分离依据见`steps/03-blocks.md`「内容块前后的闭环」；
 - 页面级 GitHub 入口只有「查看源码」：`_quarto.yml` 的 `book.repo-actions` 钉为 `[source]`，不开放编辑与议题按钮（取舍见 `quarto/render.md`）。

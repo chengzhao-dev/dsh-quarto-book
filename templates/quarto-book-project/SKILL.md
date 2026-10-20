@@ -36,6 +36,7 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 - 渲染：在书根运行 `quarto render`。
 - 内容检查：`<插件技能目录>/scripts/verifying-content.py --root <book>`。
 - 布局检查：`<插件技能目录>/scripts/checking-layout.py`（渲染后）。
+- 项目专属词表：同目录 `checks.json`（`forbidden_terms`、`fragment_prefixes`、`chapter_titles`）；不写就只跑通用规则。
 - 项目自己的封装命令（如 `run.ps1 check`）与它覆盖的 profile：
 - 命令在哪个环境执行（本机 / WSL / 容器）：
 

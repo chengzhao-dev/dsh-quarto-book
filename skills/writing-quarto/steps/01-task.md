@@ -47,7 +47,7 @@
 
 ### 定任务：先让新人完成任务
 
-- 开篇场景的写法见`steps/02-structure.md`「无标题引言」。
+- 开篇场景的写法见`steps/02-structure.md`「六段块序列」。
 - 每页一条成功路径与后置内容的判定见`steps/06-wording.md`；主线闭合见`steps/02-structure.md`。
 - 标准术语的首次解释与术语卡落点见`steps/02-structure.md`（写法见 `quarto/authoring.md`）；缩写先写全称。
 - 不假设读者知道工具名、命令参数、目录布局或错误输出代表的含义。

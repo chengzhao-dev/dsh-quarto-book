@@ -8,14 +8,14 @@
 
 脚本在技能目录下的 `scripts/` 里，用命令执行，不把源码读进上下文。常用入口：
 
-- `python scripts/verifying-content.py`：查标题层级与字数、正文篇幅、禁用措辞、代码围栏、本地链接和章节表一致性。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
-- `python scripts/checking-links.py`：查本地链接和图片路径。
-- `python scripts/checking-callouts.py`：查 Callout 的类型与位置。
-- `python scripts/checking-output.py`：查代码块里的实测输出。
-- `python scripts/checking-names.py`：查文件与标题命名。
-- `python scripts/testing-content.py`：跑脚本自带的用例。
+- `python scripts/verifying-content.py`：查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字和本地链接。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
+- `python scripts/checking-links.py`：查源文件里的本地链接和图片路径。
+- `python scripts/checking-callouts.py`：在 `_book/` 产物里查 Callout 有没有退化成普通 section。
+- `python scripts/checking-output.py`：产物发布前 smoke：首页、编码、charset 与 site-url。
+- `python scripts/checking-names.py`：查仓库路径是不是 ASCII 与小写连字符。
+- `python scripts/testing-content.py`、`python scripts/testing-check-ascii-names.py`：跑脚本自带的用例。
 
-先跑 `verifying-content.py`，其余按本步的情况决定。
+先跑 `verifying-content.py`，其余按本步的情况决定。`checking-callouts.py` 和 `checking-output.py` 读 `_book/`，还没渲染过就先 `quarto render`。
 
 ### 完成判据
 

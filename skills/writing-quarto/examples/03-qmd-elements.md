@@ -188,7 +188,7 @@ constexpr bool IsInRange(Position position) { … }
 
 ## Callout 升级与行内括号对照
 
-升级判据见 `writing-quarto` 技能 `quarto/authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「Callout 克制且尾置」。
+升级判据见 `writing-quarto` 技能 `quarto/authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「元素边界」。
 
 ```text
 正确（升级：交代超过一句同位短语，术语卡含业界叫法与通过条件）：

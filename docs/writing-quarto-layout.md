@@ -6,11 +6,11 @@
 
 ```text
 skills/writing-quarto/
-├── SKILL.md              # 入口：九步与完成判据
-├── examples/             # 案例：每步的正反例
-├── quarto/               # 渲染：Book 结构、元素与排错
-├── scripts/              # 检查：内容核对脚本
-└── steps/                # 步骤：九步的规则正文
+├── SKILL.md       # 入口：九步与完成判据
+├── examples/  #/ 案例：每步的正反例
+├── quarto/    #/ 渲染：Book 结构、元素与排错
+├── scripts/   #/ 检查：内容核对脚本
+└── steps/     #/ 步骤：九步的规则正文
 ```
 
 ## 四层各放什么
@@ -31,12 +31,6 @@ skills/writing-quarto/
 
 只在渲染层成立的内容放 `quarto/`，写作层不回引。
 
-## 目录树的注释
-
-文档里的目录树只有两档注释：`名词` 与 `名词：一句`。同一棵树只用其中一档，不混用。冒号前必须是名词，冒号后只做一件事，不写第二句，也不出现第二个冒号。目录行用 `#/` 标记，文件行用 `#` 右移四列对齐；节点按 `tree -a` 的字母序排列。
-
-这条规则只在这里和 `steps/03-blocks.md`「情况：目录树」出现，别处提到目录树时指向这两处。
-
 ## 自检
 
-`npm run check` 跑 `scripts/checking-skill-links.mjs`，核对：九步、案例、渲染文件都在；旧目录 `references/`、`conventions/`、`knowledge/` 不再出现；`kb_id` 不再出现；反引号里的路径能解析；已收口的冲突句不再出现；目录树标记只在 `steps/03-blocks.md`，列表项格式只在 `steps/07-layout.md`；文档目录树的注释只有一档。
+`npm run check` 跑 `scripts/checking-skill-links.mjs`，核对：九步、案例、渲染文件、两份技能的脚本都在；每一步的 H1 编号与 SKILL.md 的九步清单对齐；旧目录 `references/`、`conventions/`、`knowledge/` 不再出现，装机脚本也不引用它们；`kb_id` 不再出现；反引号里的路径能解析；`` `steps/…md`「节」 `` 这种引用里的节名真在目标文件的标题里；已收口的冲突句不再出现；目录树的标记规则只在 `steps/03-blocks.md`，列表项格式只在 `steps/07-layout.md`；README、docs 与案例「改写」围栏里的树，目录行带 `#/`、文件行 `#` 比它右移 4 列、同一棵树的两档注释不混用。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，别处提到时指过去。

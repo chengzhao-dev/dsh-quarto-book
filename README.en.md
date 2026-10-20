@@ -19,6 +19,8 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 ```
 
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so a command-line `add` is rejected; use the app's Settings → Plugins → Add plugin with the same address instead.
+
 Requires DSH 0.2.x and Node.js 22 or newer. The plugin is plain JavaScript with no build step.
 
 Installation is scoped to a profile, not to a repository: it only affects the profile that ran `add`. The workspace gate below still decides whether the two names appear in a session.
@@ -40,9 +42,9 @@ The general skills cannot know a particular book's title, chapter table, stack o
 
 ```text
 <book>/.agents/skills/quarto-book-project/
-├── SKILL.md              # title, audience, terminology, render and check commands, theme and filter paths
-└── writing/
-    └── chapter-map.md    # this book's chapter table: file, class/ability chapter, title, H2 headings
+├── SKILL.md            # title, audience, terminology, render and check commands, theme and filter paths
+└── writing         #/ chapter table: file names and titles
+    └── chapter-map.md  # this book's chapter table: file, class/ability chapter, title, H2 headings
 ```
 
 Start from `templates/quarto-book-project/`. When the file exists, both general skills read `SKILL.md` and then the `writing/` files it points to; when it does not, they skip it and do not guess project conventions. General writing, structure and theme rules stay in the plugin and are not copied into the project skill.
@@ -55,10 +57,10 @@ Theme assets live in `skills/designing-theme/assets/theme/`:
 
 ```text
 assets/theme/
-├── assets/          # brand mark, favicon, fonts and OFL licence
-├── css/             # base, content, nav, sidebar, callouts, code, mermaid…
-├── includes/        # font and footer snippets
-└── palettes/github/ # light/dark SCSS, highlight themes, tokens.css
+├── assets/           #/ brand mark, favicon, fonts and OFL licence
+├── css/              #/ base, content, nav, sidebar, callouts, code, mermaid…
+├── includes/         #/ font and footer snippets
+└── palettes/github/  #/ light/dark SCSS, highlight themes, tokens.css
 ```
 
 Quarto reads relative paths inside the book; it reads neither npm packages nor DSH profiles. A book that renders uses its own `theme/` copy, and `_quarto.yml` references only that copy:
@@ -102,46 +104,46 @@ python scripts/checking-names.py --root <book>
 
 ```text
 dsh-quarto-book/
-├── .gitattributes
-├── .gitignore
-├── .npmignore
-├── LICENSE
-├── README.en.md
-├── README.md
-├── cordis.patch.yml      # patch: inserts exactly one row
-├── docs/
-│   ├── creation-references.md
-│   ├── versioning.md
-│   └── writing-quarto-layout.md
-├── icon.svg
-├── lib/
-│   └── index.js          # plugin entry: registers both skills at rank 550
-├── locale/
-│   ├── en.json
-│   └── zh.json
-├── package-lock.json
-├── package.json
-├── scripts/
-│   ├── checking-skill-links.mjs
-│   └── embedding-agents.ps1
-├── skills/
-│   ├── designing-theme/
-│   │   ├── SKILL.md
-│   │   ├── assets/
-│   │   ├── knowledge/
-│   │   ├── references/
-│   │   └── scripts/
-│   └── writing-quarto/
-│       ├── SKILL.md
-│       ├── examples/
-│       ├── quarto/
-│       ├── scripts/
-│       └── steps/
-└── templates/
-    └── quarto-book-project/
-        ├── SKILL.md
-        └── writing/
-            └── chapter-map.md
+├── .gitattributes                # line endings and encoding
+├── .gitignore                    # ignored build output
+├── .npmignore                    # files kept out of the package
+├── LICENSE                       # MIT licence
+├── README.en.md                  # English guide
+├── README.md                     # Chinese guide
+├── cordis.patch.yml              # single-row host patch
+├── docs                      #/ design notes and release rules
+│   ├── creation-references.md    # where the design came from
+│   ├── versioning.md             # versioning and release
+│   └── writing-quarto-layout.md  # skill directory layout
+├── icon.svg                      # plugin icon
+├── lib                       #/ plugin code
+│   └── index.js                  # entry registering both skills at rank 550
+├── locale                    #/ UI strings
+│   ├── en.json                   # English
+│   └── zh.json                   # Chinese
+├── package-lock.json             # dependency lock
+├── package.json                  # package manifest
+├── scripts                   #/ repository scripts
+│   ├── checking-skill-links.mjs  # skill self-check
+│   └── embedding-agents.ps1      # skill install script
+├── skills                    #/ both skills
+│   ├── designing-theme       #/ theme skill
+│   │   ├── SKILL.md              # entry
+│   │   ├── assets                # theme assets and fonts
+│   │   ├── knowledge             # reading surface notes
+│   │   ├── references            # theme rules
+│   │   └── scripts               # layout checks
+│   └── writing-quarto        #/ writing skill
+│       ├── SKILL.md              # entry, nine steps
+│       ├── examples              # good and bad examples
+│       ├── quarto                # rendering conventions
+│       ├── scripts               # content checks
+│       └── steps                 # the nine steps
+└── templates                 #/ project skill template
+    └── quarto-book-project   #/ the in-book project skill
+        ├── SKILL.md              # project conventions template
+        └── writing           #/ chapter map
+            └── chapter-map.md    # chapter table template
 ```
 
 `templates/` is outside `skills/` and is never registered. The skill layout is described in `docs/writing-quarto-layout.md`; versioning and release rules in `docs/versioning.md`.
@@ -157,7 +159,7 @@ dsh plugin --profile web add D:\Github\dsh-quarto-book
 `SKILL.md`, `steps/`, `examples/` and `quarto/` are re-read on the next `skill` tool call, so no npm release is needed after an edit. Theme edits inside the package do not reach the book's HTML automatically; to see a page, sync the changed files into the book's `theme/` and run `quarto render` at the book root. Never point `_quarto.yml` at the plugin checkout — that path stops existing on another machine.
 
 ```bash
-npm run check        # node --check lib/index.js
+npm run check        # node --check lib/index.js && node scripts/checking-skill-links.mjs
 npm run pack:check   # npm pack --dry-run
 ```
 
@@ -165,7 +167,7 @@ The plugin ships as a bundle: `package.json` points `dsh.bundle.patch` at `cordi
 
 ## Embedding into another book (not recommended)
 
-`scripts/embedding-agents.ps1` is a maintainer tool from the older layout. It copies whole skill trees into the target repository's `.agents/`, including the `context/` and `knowledge/` copies produced by `SplitLayout`. Those copies use the same names as the packaged skills and outrank them (rank 200 vs 550), so plugin updates stop taking effect.
+`scripts/embedding-agents.ps1` is a maintainer tool from the older layout. It copies both skill trees verbatim into the target repository's `.agents/`. Those copies use the same names as the packaged skills and outrank them (rank 200 vs 550), so plugin updates stop taking effect.
 
 Do not use it for new books: keep only `.agents/skills/quarto-book-project/` in the book and let the installed plugin supply the rest. Run it only to archive a standalone skill tree offline:
 

@@ -19,6 +19,8 @@
 dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 ```
 
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」填同样的地址即可。
+
 要求 DSH 0.2.x、Node.js 22 及以上。插件是纯 JavaScript，没有构建步骤。
 
 安装单位是 profile，不是仓库：只影响执行 `add` 的那个 profile。装好之后还要过下面的工作区门禁，目录里才会出现这两个技能名。
@@ -40,9 +42,9 @@ dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 
 ```text
 <book>/.agents/skills/quarto-book-project/
-├── SKILL.md              # 书名、读者、术语、渲染与检查命令、主题与过滤器路径
-└── writing/
-    └── chapter-map.md    # 这本书的章节表：文件名、类章或能力章、title、二级标题
+├── SKILL.md            # 项目约定：书名、读者、术语、渲染与检查命令、主题与过滤器路径
+└── writing         #/ 章节对照：文件名与标题
+    └── chapter-map.md  # 章节表：文件名、类章或能力章、title、二级标题
 ```
 
 模板见 `templates/quarto-book-project/`。存在时，两个通用技能会先读 `SKILL.md`，再按它指向的 `writing/` 文件读章节对照；不存在就跳过，不猜测项目约定。通用写法、结构和主题规则留在插件里，不复制进项目技能。
@@ -55,10 +57,10 @@ dsh plugin --profile web add github:chengzhao-dev/dsh-quarto-book
 
 ```text
 assets/theme/
-├── assets/          # brand mark、favicon、字体与 OFL 许可
-├── css/             # base、content、nav、sidebar、callouts、code、mermaid…
-├── includes/        # 字体与页脚片段
-└── palettes/github/ # light/dark SCSS、highlight theme、tokens.css
+├── assets/           #/ brand mark、favicon、字体与 OFL 许可
+├── css/              #/ base、content、nav、sidebar、callouts、code、mermaid…
+├── includes/         #/ 字体与页脚片段
+└── palettes/github/  #/ light/dark SCSS、highlight theme、tokens.css
 ```
 
 Quarto 只读书里的相对路径，不读 npm 包，也不读 DSH profile。书要渲染时使用书根下的 `theme/` 副本，`_quarto.yml` 也只引用这份副本：
@@ -102,46 +104,46 @@ python scripts/checking-names.py --root <book>
 
 ```text
 dsh-quarto-book/
-├── .gitattributes
-├── .gitignore
-├── .npmignore
-├── LICENSE
-├── README.en.md
-├── README.md
-├── cordis.patch.yml      # 补丁：只 insert 一行
-├── docs/
-│   ├── creation-references.md
-│   ├── versioning.md
-│   └── writing-quarto-layout.md
-├── icon.svg
-├── lib/
-│   └── index.js          # 插件入口：注册两个技能，rank 550
-├── locale/
-│   ├── en.json
-│   └── zh.json
-├── package-lock.json
-├── package.json
-├── scripts/
-│   ├── checking-skill-links.mjs
-│   └── embedding-agents.ps1
-├── skills/
-│   ├── designing-theme/
-│   │   ├── SKILL.md
-│   │   ├── assets/
-│   │   ├── knowledge/
-│   │   ├── references/
-│   │   └── scripts/
-│   └── writing-quarto/
-│       ├── SKILL.md
-│       ├── examples/
-│       ├── quarto/
-│       ├── scripts/
-│       └── steps/
-└── templates/
-    └── quarto-book-project/
-        ├── SKILL.md
-        └── writing/
-            └── chapter-map.md
+├── .gitattributes                # 行尾与编码规则
+├── .gitignore                    # 被忽略的构建产物
+├── .npmignore                    # 不打进包的文件
+├── LICENSE                       # MIT 许可
+├── README.en.md                  # 英文说明
+├── README.md                     # 中文说明
+├── cordis.patch.yml              # 宿主补丁仅一行插入
+├── docs                      #/ 设计说明与发布规则
+│   ├── creation-references.md    # 设计来源
+│   ├── versioning.md             # 版本与发布
+│   └── writing-quarto-layout.md  # 技能目录分层
+├── icon.svg                      # 插件图标
+├── lib                       #/ 插件代码
+│   └── index.js                  # 注册两个技能的入口，rank 550
+├── locale                    #/ 界面文案
+│   ├── en.json                   # 英文
+│   └── zh.json                   # 中文
+├── package-lock.json             # 依赖锁
+├── package.json                  # 包清单
+├── scripts                   #/ 仓库脚本
+│   ├── checking-skill-links.mjs  # 技能自检
+│   └── embedding-agents.ps1      # 技能装机脚本
+├── skills                    #/ 两个技能
+│   ├── designing-theme       #/ 主题技能
+│   │   ├── SKILL.md              # 入口
+│   │   ├── assets                # 主题资产与字体
+│   │   ├── knowledge             # 阅读面说明
+│   │   ├── references            # 主题规则
+│   │   └── scripts               # 布局检查
+│   └── writing-quarto        #/ 写作技能
+│       ├── SKILL.md              # 九步入口
+│       ├── examples              # 正反例
+│       ├── quarto                # 渲染层约定
+│       ├── scripts               # 内容检查
+│       └── steps                 # 九步正文
+└── templates                 #/ 项目技能模板
+    └── quarto-book-project   #/ 书内项目技能
+        ├── SKILL.md              # 项目约定模板
+        └── writing           #/ 章节对照
+            └── chapter-map.md    # 章节表模板
 ```
 
 `templates/` 不在 `skills/` 下，不会被注册。技能的目录分层见 `docs/writing-quarto-layout.md`，版本与发布规则见 `docs/versioning.md`。
@@ -157,7 +159,7 @@ dsh plugin --profile web add D:\Github\dsh-quarto-book
 `SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
 
 ```bash
-npm run check        # node --check lib/index.js
+npm run check        # node --check lib/index.js && node scripts/checking-skill-links.mjs
 npm run pack:check   # npm pack --dry-run
 ```
 
@@ -165,7 +167,7 @@ npm run pack:check   # npm pack --dry-run
 
 ## 嵌入到另一本书（不推荐）
 
-`scripts/embedding-agents.ps1` 是旧形态的维护工具，会把整棵技能复制进目标仓库的 `.agents/`，包括 `SplitLayout` 拆分出的 `context/` 与 `knowledge/` 副本。复制后书里会出现与插件同名的技能，按 rank 200 盖住插件（rank 550），插件更新也不再生效。
+`scripts/embedding-agents.ps1` 是旧形态的维护工具，会把两棵技能原样复制进目标仓库的 `.agents/`。复制后书里会出现与插件同名的技能，按 rank 200 盖住插件（rank 550），插件更新也不再生效。
 
 新书不要用它：书里只放 `.agents/skills/quarto-book-project/`，其余交给已安装的插件。只有需要离线归档一份独立技能树时才执行：
 
