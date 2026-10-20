@@ -1,6 +1,6 @@
 {
   "name": "dsh-quarto-book",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Quarto Book 写作与主题技能包：章节写作、结构校验与可复用主题 · Quarto Book authoring and theme skills for DeepSeek Harness",
   "type": "module",
   "main": "./lib/index.js",

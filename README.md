@@ -17,10 +17,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.1
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.2
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，命令行 `add` 会被拒绝；在应用里走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.1`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.1`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.2`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.2`。
 
 要求 DSH 0.2.x、Node.js 22 及以上。源码是 TypeScript，发布包已带编译后的 `lib/`；安装后不需要构建。
 

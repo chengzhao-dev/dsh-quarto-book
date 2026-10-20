@@ -17,10 +17,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.1
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.2
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so a command-line `add` is rejected; use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.1`. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.1`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.2` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.2`.
 
 Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
 
