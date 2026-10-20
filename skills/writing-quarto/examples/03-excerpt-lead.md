@@ -85,7 +85,7 @@
 ```
 ````
 
-判定信号：块后第一段删掉后，块前导语仍缺「谁调用」；或块后只是把块前半句补全。合并后一句须满足简洁边界（见 `steps/01-task.md`「简洁边界」），不得电报省略。
+判定信号：块后第一段删掉后，块前导语仍缺「谁调用」；或块后只是把块前半句补全。合并后一句须满足简洁边界（见 `steps/05-sentences.md`「简洁边界」），不得电报省略。
 
 ## 递进片段合并
 
@@ -142,7 +142,7 @@ constexpr bool IsInRange(Position position) {
 
 ## 函数导语与成员列表的 示例章对照
 
-以 示例章改稿前三句为对照，规则见`steps/04-paragraphs.md`「段 → 代码」、`steps/07-layout.md`「列表选择」、`scripts/verifying-content.py`「禁用与替换」（座位）：
+以 示例章改稿前三句为对照，规则见`steps/03-blocks.md`「内容块前后的闭环」、`steps/07-layout.md`「列表选择」、`scripts/verifying-content.py`「禁用与替换」（座位）：
 
 ```text
 不佳（「另一座位」用了座位术语，且第二句未沿用 PlayerToOpponent 注释的说法）：
