@@ -3,8 +3,7 @@
 
 Quarto 章节里的 ``{python}`` 可执行单元调用本助手生成坐标轴网格图
 （棋盘行列、二维数组下标等），绘图逻辑只存在于本文件；正文单元应
-只含调用，不内联第二套 SVG 逻辑（口径见标识 conventions/rendering/coords-diagram.md
-的知识文件）。只用标准库拼 SVG；描边与文字用 currentColor，跟随
+只含调用，不内联第二套 SVG 逻辑（口径见 `quarto/coords.md`）。只用标准库拼 SVG；描边与文字用 currentColor，跟随
 页面明暗主题，不写死颜色。
 """
 

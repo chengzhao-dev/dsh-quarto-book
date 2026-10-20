@@ -2,8 +2,7 @@
 
 本文件只收通用技能不知道的事实：每一章的文件名、类章或能力章、关键对象、
 YAML `title` 与二级标题。类章与能力章的定义、一章一个关键、标题分层与收尾节名
-由插件 `writing-quarto` 的 `conventions/writing/chapter-key.md` 与
-`conventions/writing/heading-fit/hierarchy.md` 负责，这里不抄。
+由插件 `writing-quarto` 的 `steps/02-structure.md` 负责，这里不抄。
 
 章节顺序以根 `_quarto.yml` 的 `book.chapters` 为准；下表只用于核对章节骨架。
 

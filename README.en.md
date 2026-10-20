@@ -11,7 +11,7 @@ Two skills for [DeepSeek Harness](https://github.com/deepseek-ai) (DSH): authori
 | `writing-quarto` | Creating or editing `content/**/*.qmd`, `index.qmd`, `_quarto.yml`; chapter skeletons, Chinese prose, code and figures, render verification | CSS, fonts and colours |
 | `designing-theme` | Theme CSS, SCSS, fonts, palettes, navigation and callout styling | Chapter prose |
 
-Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill (`references/`, `conventions/`, `knowledge/`, `scripts/`, `assets/`) resolve against that skill's directory.
+Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill resolve against that skill's directory: `writing-quarto` uses `steps/`, `examples/`, `quarto/`, `scripts/`; `designing-theme` uses `references/`, `knowledge/`, `assets/`, `scripts/`.
 
 ## Install
 
@@ -102,22 +102,49 @@ python scripts/checking-names.py --root <book>
 
 ```text
 dsh-quarto-book/
-├── lib/index.js            # registers both skills at rank 550, with the cwd gate
-├── cordis.patch.yml        # inserts exactly one row
-├── locale/{en,zh}.json     # marketplace title and description
+├── .gitattributes
+├── .gitignore
+├── .npmignore
+├── LICENSE
+├── README.en.md
+├── README.md
+├── cordis.patch.yml      # patch: inserts exactly one row
+├── docs/
+│   ├── creation-references.md
+│   ├── versioning.md
+│   └── writing-quarto-layout.md
 ├── icon.svg
+├── lib/
+│   └── index.js          # plugin entry: registers both skills at rank 550
+├── locale/
+│   ├── en.json
+│   └── zh.json
+├── package-lock.json
+├── package.json
+├── scripts/
+│   ├── checking-skill-links.mjs
+│   └── embedding-agents.ps1
 ├── skills/
-│   ├── writing-quarto/
-│   └── designing-theme/
-├── templates/
-│   └── quarto-book-project/
+│   ├── designing-theme/
+│   │   ├── SKILL.md
+│   │   ├── assets/
+│   │   ├── knowledge/
+│   │   ├── references/
+│   │   └── scripts/
+│   └── writing-quarto/
 │       ├── SKILL.md
-│       └── writing/chapter-map.md
-├── docs/creation-references.md
-└── scripts/embedding-agents.ps1
+│       ├── examples/
+│       ├── quarto/
+│       ├── scripts/
+│       └── steps/
+└── templates/
+    └── quarto-book-project/
+        ├── SKILL.md
+        └── writing/
+            └── chapter-map.md
 ```
 
-`templates/` is outside `skills/` and is never registered.
+`templates/` is outside `skills/` and is never registered. The skill layout is described in `docs/writing-quarto-layout.md`; versioning and release rules in `docs/versioning.md`.
 
 ## Local development
 
@@ -127,7 +154,7 @@ Plain JavaScript with no build. During development, link this checkout into the 
 dsh plugin --profile web add D:\Github\dsh-quarto-book
 ```
 
-`SKILL.md` and `references/` are re-read on the next `skill` tool call, so no npm release is needed after an edit. Theme edits inside the package do not reach the book's HTML automatically; to see a page, sync the changed files into the book's `theme/` and run `quarto render` at the book root. Never point `_quarto.yml` at the plugin checkout — that path stops existing on another machine.
+`SKILL.md`, `steps/`, `examples/` and `quarto/` are re-read on the next `skill` tool call, so no npm release is needed after an edit. Theme edits inside the package do not reach the book's HTML automatically; to see a page, sync the changed files into the book's `theme/` and run `quarto render` at the book root. Never point `_quarto.yml` at the plugin checkout — that path stops existing on another machine.
 
 ```bash
 npm run check        # node --check lib/index.js

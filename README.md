@@ -11,7 +11,7 @@
 | `writing-quarto` | 新建或修改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml`；章节骨架、中文行文、代码与图表、渲染验证 | 不改 CSS、字体和颜色 |
 | `designing-theme` | 调整主题的 CSS、SCSS、字体、palette、导航与 Callout 样式 | 不改章节正文 |
 
-两个技能都从包内 `skills/` 目录发现，按需加载；技能里的相对路径（`references/`、`conventions/`、`knowledge/`、`scripts/`、`assets/`）以技能目录为基准解析。
+两个技能都从包内 `skills/` 目录发现，按需加载；技能里的相对路径以技能目录为基准解析：`writing-quarto` 用 `steps/`、`examples/`、`quarto/`、`scripts/`，`designing-theme` 用 `references/`、`knowledge/`、`assets/`、`scripts/`。
 
 ## 安装
 
@@ -102,22 +102,49 @@ python scripts/checking-names.py --root <book>
 
 ```text
 dsh-quarto-book/
-├── lib/index.js            # 注册两个技能，rank 550，带 cwd 门禁
-├── cordis.patch.yml        # 只 insert 一行
-├── locale/{en,zh}.json     # 插件市场展示文案
+├── .gitattributes
+├── .gitignore
+├── .npmignore
+├── LICENSE
+├── README.en.md
+├── README.md
+├── cordis.patch.yml      # 补丁：只 insert 一行
+├── docs/
+│   ├── creation-references.md
+│   ├── versioning.md
+│   └── writing-quarto-layout.md
 ├── icon.svg
+├── lib/
+│   └── index.js          # 插件入口：注册两个技能，rank 550
+├── locale/
+│   ├── en.json
+│   └── zh.json
+├── package-lock.json
+├── package.json
+├── scripts/
+│   ├── checking-skill-links.mjs
+│   └── embedding-agents.ps1
 ├── skills/
-│   ├── writing-quarto/
-│   └── designing-theme/
-├── templates/
-│   └── quarto-book-project/
+│   ├── designing-theme/
+│   │   ├── SKILL.md
+│   │   ├── assets/
+│   │   ├── knowledge/
+│   │   ├── references/
+│   │   └── scripts/
+│   └── writing-quarto/
 │       ├── SKILL.md
-│       └── writing/chapter-map.md
-├── docs/creation-references.md
-└── scripts/embedding-agents.ps1
+│       ├── examples/
+│       ├── quarto/
+│       ├── scripts/
+│       └── steps/
+└── templates/
+    └── quarto-book-project/
+        ├── SKILL.md
+        └── writing/
+            └── chapter-map.md
 ```
 
-`templates/` 不在 `skills/` 下，不会被注册。
+`templates/` 不在 `skills/` 下，不会被注册。技能的目录分层见 `docs/writing-quarto-layout.md`，版本与发布规则见 `docs/versioning.md`。
 
 ## 本地开发
 
@@ -127,7 +154,7 @@ dsh-quarto-book/
 dsh plugin --profile web add D:\Github\dsh-quarto-book
 ```
 
-`SKILL.md` 和 `references/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
+`SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
 
 ```bash
 npm run check        # node --check lib/index.js
