@@ -21,10 +21,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.4
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.5
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.3.4`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.4`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.3.5`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.5`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级时（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile），先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book` 再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
