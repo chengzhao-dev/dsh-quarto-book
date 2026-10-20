@@ -27,7 +27,7 @@
 
 装好后 profile 的 `package.json` 里出现 `@chengzhao-dev/dsh-quarto-book`。两处名字必须逐字一致：`package.json` 的 `name` 与 `cordis.patch.yml` 里 `- name:` 指向同一个包名；不一致时补丁插不进去，工具和技能都不会注册。
 
-从旧的无作用域包 `dsh-quarto-book` 升级时，先在同一个 profile 里删旧包再装新包。两个包同时留着时，会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。版本号与发布步骤见 `docs/versioning.md`。
+profile 里还留着旧的无作用域包 `dsh-quarto-book` 时（该包已随 0.3.4 从 npm 删除），先在同一个 profile 里删旧包再装新包。两个包同时留着时，会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。版本号与发布步骤见 `docs/versioning.md`。
 
 ## 2 技能名出现
 

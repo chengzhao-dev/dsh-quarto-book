@@ -26,7 +26,7 @@ dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.4
 
 Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.3.4` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.4`.
 
-Upgrading from the old unscoped package `dsh-quarto-book`: remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
+Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
 Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
 

@@ -12,7 +12,7 @@
 
 README 里的安装命令钉住一次发布：npm 写 `@0.3.4`，git 写 `#v0.3.4`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
 
-包名与模块名不是一回事：npm 与 profile 依赖里是 `@chengzhao-dev/dsh-quarto-book`，`cordis.patch.yml` 的 `name` 必须与它逐字相同；插件模块导出的 `name` 与技能 provider 的常量仍是短名 `dsh-quarto-book`，技能名与工具名不变。旧的无作用域包 `dsh-quarto-book` 是另一个 npm 坐标，已装过它的 profile 要先 `remove` 再装新包；两份同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
+包名与模块名不是一回事：npm 与 profile 依赖里是 `@chengzhao-dev/dsh-quarto-book`，`cordis.patch.yml` 的 `name` 必须与它逐字相同；插件模块导出的 `name` 与技能 provider 的常量仍是短名 `dsh-quarto-book`，技能名与工具名不变。旧的无作用域包 `dsh-quarto-book` 是另一个 npm 坐标，已随 0.3.4 从 npm 删除；之前装过它的 profile 仍要先 `remove` 再装新包，两份同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
 ## 三档
 
@@ -38,18 +38,18 @@ flowchart TD
 
 发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.3.4` 对应 `v0.3.4`）。不在 `SKILL.md` 里再维护一套包版本。
 
-发布走 npm trusted publisher，本机不执行 `npm publish`，也不执行 `npm trust github`。顺序固定：
+发布走 npm trusted publisher。`0.3.4` 是这个作用域包的首个版本，由本机手工 `npm publish` 引导，同时登记了关联（仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`）；旧包 `dsh-quarto-book` 也在这次发布后从 npm 删除。之后的版本不再本机发布，顺序固定：
 
 1. 提交并推送默认分支，先不打标签。
 2. 只读核对：`npm view @chengzhao-dev/dsh-quarto-book version` 应仍是上一个发布号；`npm whoami` 未登录就停；`npm trust list @chengzhao-dev/dsh-quarto-book --json` 要能匹配 GitHub Actions、仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`。
-3. 作用域包是新的 npm 坐标，旧包 `dsh-quarto-book` 的 trusted publisher 不会带过来。关联不存在或对不上就停住，把 `npm trust github @chengzhao-dev/dsh-quarto-book --repository chengzhao-dev/dsh-quarto-book --file publish.yml --allow-publish` 交给用户执行。用户回复「publisher 已配置」后重查，不自行执行，也不跳过。
-4. 关联匹配后打 annotated `v0.3.4` 并推送；`publish.yml` 在 `v*` 标签上运行。
-5. 以 Actions 全绿且 `npm view @chengzhao-dev/dsh-quarto-book@0.3.4 version` 返回 `0.3.4` 为发布完成。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
+3. 作用域包的关联已在 `0.3.4` 首发时登记，`npm trust list` 查不到或对不上就停住，把 `npm trust github @chengzhao-dev/dsh-quarto-book --repository chengzhao-dev/dsh-quarto-book --file publish.yml --allow-publish` 交给用户执行。用户回复「publisher 已配置」后重查，不跳过。
+4. 关联匹配后打 annotated `v<版本>` 并推送；`publish.yml` 在 `v*` 标签上运行。
+5. 以 Actions 全绿且 `npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 返回该版本为发布完成。`0.3.4` 是首发引导版本，由本机手工发布，当次 Actions 因关联尚未登记而失败，不作完成判据。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
 
 关联登记后两天内必须推标签；过期就重新登记，不沿用旧凭据。
 
 `.github/workflows/publish.yml` 只在 `v*` 标签上运行，权限是 `contents: read` 与 `id-token: write`，不设 GitHub Environment。步骤是 checkout、`actions/setup-node@v6`（Node 24、`registry-url: https://registry.npmjs.org`）、`npm ci`、`npm test`、`npm run build`、`npm publish --provenance`。`package.json` 的 `repository.url` 保持 `git+https://github.com/chengzhao-dev/dsh-quarto-book.git`，`publishConfig` 为 `access: public` 与 `provenance: true`。
 
-发布后两种安装各钉各的：git 用 `#v0.3.4`，npm 用 `@0.3.4`。
+发布后两种安装各钉各的：git 用 `#v<版本>`，npm 用 `@<版本>`。
 
 写书时不读这份文档：它是本仓库的维护规则，不进任何一步。
