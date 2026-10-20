@@ -41,3 +41,4 @@ metadata:
 - [ ] 九步走完，每一步的产出都落在正文里。
 - [ ] 内容与链接核对通过：项目技能存在时跑它列出的 `run.ps1 verify --changed`，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
 - [ ] 调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。不手跑 `quarto render`，也不截图 PNG。
+- [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `writing-quarto`，`mode` 填 `polish` 或 `rewrite`，文件与步骤的改动次数、未改项、检查结论照实填。卡片就是回执，回复里不再复述；没改也传 0，当前文件不是章节时传 `executed: false`。

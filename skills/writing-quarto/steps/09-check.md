@@ -43,6 +43,18 @@
 
 不手跑 `quarto render`，也不手跑 `checking-output.py`、`checking-callouts.py`、`checking-dom.py`。工具已经按当前书配置调用它们。
 
+### 执行回执
+
+检查结论确定后，调用一次 `quarto_pass_report`，把这次执行的结论压成一张卡片：
+
+- `skill` 填 `writing-quarto`，`mode` 填 `polish` 或 `rewrite`。
+- `files` 写这次动过的章节路径和改动次数（最多 8 个）；`steps` 只列有改动的步骤编号（1–9）与次数，两者合计必须一致。
+- `held` 写围栏、事实这类明确没有改动的地方；没改就传 0。
+- `checks` 抄内容与渲染的结论，名字只取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
+- 当前文件不是章节时传 `executed: false`、`mode: skipped`，并给一句 `skip_reason`。
+
+卡片就是回执，回复里不再复述；回执不保存到磁盘，也不贴改写后的句子，不根据回执改文章。
+
 ## 情况
 
 ### 情况：全仓重构
@@ -55,7 +67,7 @@
 
 ## 完成判据
 
-内容命令通过，`dry_run: false` 返回 `render_result.ok: true`，且 `html_report.usable: true`，才算完成。任一条件不满足，回到报告指向的步骤。
+内容命令通过，`dry_run: false` 返回 `render_result.ok: true`，且 `html_report.usable: true`，并调用一次 `quarto_pass_report` 出回执，才算完成。任一条件不满足，回到报告指向的步骤。
 
 ## 正反例
 

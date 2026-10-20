@@ -4,7 +4,11 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Two skills and one tool for [DeepSeek Harness](https://github.com/deepseek-ai) (DSH): authoring Quarto Book chapters, maintaining a reusable book theme, and checking rendered HTML before publishing. The skills are read-only — they never execute book code and never edit `.qmd` files. `quarto_render_check` runs `quarto render` once when called, so it executes the book's configured engine and writes `_book/`.
+Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside `type: book` repositories.
+
+- Write `.qmd`: `writing-quarto` covers the chapter skeleton, structure and prose.
+- Change the theme: `designing-theme` covers CSS, fonts and palettes.
+- Check rendered HTML: `quarto_render_check` judges publishability once, and `quarto_pass_report` prints the closing receipt.
 
 ## What it provides
 
@@ -13,6 +17,7 @@ Two skills and one tool for [DeepSeek Harness](https://github.com/deepseek-ai) (
 | `writing-quarto` | Creating or editing `content/**/*.qmd`, `index.qmd`, `_quarto.yml`; chapter skeletons, Chinese prose, code and figures, content checks | CSS, fonts and colours |
 | `designing-theme` | Theme CSS, SCSS, fonts, palettes, navigation and callout styling | Chapter prose |
 | `quarto_render_check` | Check that `output-dir` is safe, render once when asked, and inspect HTML in `_book/` for publishing | Editing `.qmd`, fixing config automatically, or re-running a failed render |
+| `quarto_pass_report` | Compress the run into a fixed-line receipt card: skill, mode, files and steps changed, items held, check verdicts | Saving to disk, quoting chapter prose, or changing the text based on the receipt |
 
 For when the skills appear and which rule each step maps to, see [`docs/plugin-flow.md`](docs/plugin-flow.md). It is a human-facing walkthrough, not the rule source used while a skill runs.
 
@@ -21,10 +26,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.3.5
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.4.0
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.3.5` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.5`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.4.0` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.4.0`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -118,6 +123,32 @@ Call `quarto_render_check(qmd_path: "content/chapter.qmd", dry_run: true)`. It r
 ```
 
 The raw render output never becomes a separate terminal card. The render timeout is 120 seconds; timeouts, a missing `quarto` executable and non-zero exits all go into `errors`.
+
+## Run receipt
+
+At the end of a run the skill calls `quarto_pass_report` once, compressing the run into a few fixed lines. The card is the receipt; the reply does not repeat it, and the tool saves nothing to disk, quotes no chapter prose, and changes no text based on the receipt.
+
+Every parameter is a closed set:
+
+| Field | Values |
+| --- | --- |
+| `skill` | `writing-quarto` or `designing-theme` |
+| `executed` | Boolean; when `false`, `mode` must be `skipped` and `skip_reason` (at most 40 characters) is required |
+| `mode` | `polish`, `rewrite` (writing), `theme` (theme), `skipped` (not executed) |
+| `files` | Up to 8 `{ path, edits }` entries |
+| `steps` | Only steps with edits: `1`–`9` for writing, or `定表面`, `定字体`, `定尺度`, `定颜色`, `定组件`, `通过检查` for the theme; their `edits` must sum to the `files` total |
+| `held` | `fences`, `facts`, `css`, `prose` |
+| `checks` | `content`, `html`, `layout`, with status `pass`, `fail` or `skip` |
+
+```text
+已执行 writing-quarto · 增量润色
+content/ch.qmd
+改了 5 处：定句子 3，定用词 1，定版式 1
+未改：围栏、事实
+检查：内容通过；HTML 可用
+```
+
+A zero-change run still prints a card (`改了 0 处`), so "the plugin never ran" stays distinguishable from "it ran and changed nothing"; when the current file is not a chapter the output is one line: `未执行 writing-quarto：…`.
 
 ## Theme
 

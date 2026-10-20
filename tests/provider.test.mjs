@@ -7,7 +7,7 @@ import { apply } from '../lib/index.js'
 
 function makeHarness() {
   let provider
-  let tool
+  const tools = new Map()
   apply({
     skills: {
       registerProvider(factory) {
@@ -16,13 +16,16 @@ function makeHarness() {
     },
     tools: {
       register(definition) {
-        tool = definition
+        tools.set(definition.name, definition)
       },
     },
   })
   assert.ok(provider, 'apply() must register a provider')
+  const tool = tools.get('quarto_render_check')
   assert.ok(tool, 'apply() must register the render-check tool')
-  return { provider, tool }
+  const passReport = tools.get('quarto_pass_report')
+  assert.ok(passReport, 'apply() must register the pass-report tool')
+  return { provider, tool, passReport }
 }
 
 async function makeRepo({

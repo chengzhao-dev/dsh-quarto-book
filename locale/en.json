@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Quarto Book Writing",
-    "description": "Author Chinese Quarto Book chapters and maintain a reusable book theme: structure checks, prose conventions, Mermaid and typography assets."
+    "description": "Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside type: book repositories."
   }
 }

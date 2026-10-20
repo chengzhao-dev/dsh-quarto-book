@@ -99,8 +99,8 @@ interface ToolDefinition {
   ) => Record<string, unknown>
 }
 
-export interface ToolRegistry {
-  register: (definition: ToolDefinition) => unknown
+export interface ToolRegistry<T = unknown> {
+  register: (definition: T) => unknown
 }
 
 export function stripQuotes(value: string): string {
@@ -699,7 +699,7 @@ function refusedResult(warning: string): RenderCheckResult {
   }
 }
 
-export function registerRenderCheckTool(tools: ToolRegistry): void {
+export function registerRenderCheckTool(tools: ToolRegistry<ToolDefinition>): void {
   tools.register({
     name: 'quarto_render_check',
     description:

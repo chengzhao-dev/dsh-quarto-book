@@ -10,16 +10,16 @@
 - 磁盘：profile 的 `package.json` 里 `dependencies`，以及 `node_modules/@chengzhao-dev/dsh-quarto-book/package.json` 的 `version`。
 - 运行时加载清单：`dsh --profile <profile> --dump-config`，确认 `# == @chengzhao-dev/dsh-quarto-book` 这一层在。官方「设置 → 插件」只显示模块名和启用状态，不显示版本。
 
-README 里的安装命令钉住一次发布：npm 写 `@0.3.5`，git 写 `#v0.3.5`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
+README 里的安装命令钉住一次发布：npm 写 `@0.4.0`，git 写 `#v0.4.0`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
 
-包名与模块名不是一回事：npm 与 profile 依赖里是 `@chengzhao-dev/dsh-quarto-book`，`cordis.patch.yml` 的 `name` 必须与它逐字相同；插件模块导出的 `name` 与技能 provider 的常量仍是短名 `dsh-quarto-book`，技能名与工具名不变。旧的无作用域包 `dsh-quarto-book` 是另一个 npm 坐标，已随 0.3.4 从 npm 删除；之前装过它的 profile 仍要先 `remove` 再装新包，两份同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
+包名与模块名不是一回事：npm 与 profile 依赖里是 `@chengzhao-dev/dsh-quarto-book`，`cordis.patch.yml` 的 `name` 必须与它逐字相同；插件模块导出的 `name` 与技能 provider 的常量仍是短名 `dsh-quarto-book`，技能名与工具名不变。旧的无作用域包 `dsh-quarto-book` 是另一个 npm 坐标，已在迁到作用域包时从 npm 删除；之前装过它的 profile 仍要先 `remove` 再装新包，两份同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
 ## 三档
 
 到达 `1.0.0` 之前停在 `0.x`。抬哪一档只看对外契约，不看改了多少字。
 
 - **修订号（`0.1.1`、`0.2.1`…）**：约定措辞、正反例、参考文、README、注释、不改变既有书通过与否的检查词表或提示。以后绝大多数提交走这一档。
-- **次版本 `0.2.0`、`0.3.0`**：新增技能名或工具名、新增会让旧书失败的检查、脚本命令行不兼容、主题路径或 `_quarto.yml` 接线契约变化、完成判据变成强制步骤。
+- **次版本 `0.2.0`、`0.3.0`、`0.4.0`**：新增技能名或工具名、新增会让旧书失败的检查、脚本命令行不兼容、主题路径或 `_quarto.yml` 接线契约变化、完成判据变成强制步骤（`0.4.0` 新增 `quarto_pass_report`，并把收尾回执写进完成判据）。
 - **`1.0.0`**：技能名、工具名、cwd 门禁、脚本入口和「项目只放 `quarto-book-project`」这些对外契约冻结，并承诺以后的修订号不再让旧书突然失败。
 - **`engines.dsh`**：只在要支持的 DSH 版本窗口变化时改，与上面三档无关。DSH 进入 `0.3` 时再把上界打开。
 
@@ -36,7 +36,7 @@ flowchart TD
 
 ## 发布
 
-发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.3.5` 对应 `v0.3.5`）。不在 `SKILL.md` 里再维护一套包版本。
+发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.4.0` 对应 `v0.4.0`）。不在 `SKILL.md` 里再维护一套包版本。
 
 发布走 npm trusted publisher。`0.3.4` 是这个作用域包的首个版本，由本机手工 `npm publish` 引导，同时登记了关联（仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`）；旧包 `dsh-quarto-book` 也在这次发布后从 npm 删除。之后的版本不再本机发布，顺序固定：
 
@@ -44,7 +44,7 @@ flowchart TD
 2. 只读核对：`npm view @chengzhao-dev/dsh-quarto-book version` 应仍是上一个发布号；`npm whoami` 未登录就停；`npm trust list @chengzhao-dev/dsh-quarto-book --json` 要能匹配 GitHub Actions、仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`。
 3. 作用域包的关联已在 `0.3.4` 首发时登记，`npm trust list` 查不到或对不上就停住，把 `npm trust github @chengzhao-dev/dsh-quarto-book --repository chengzhao-dev/dsh-quarto-book --file publish.yml --allow-publish` 交给用户执行。用户回复「publisher 已配置」后重查，不跳过。
 4. 关联匹配后打 annotated `v<版本>` 并推送；`publish.yml` 在 `v*` 标签上运行。
-5. 以 Actions 全绿且 `npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 返回该版本为发布完成。`0.3.4` 是首发引导版本，由本机手工发布，当次 Actions 因关联尚未登记而失败，不作完成判据。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
+5. 以 Actions 全绿且 `npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 返回该版本为发布完成。`0.3.4` 是首发引导版本，由本机手工发布，当次 Actions 因关联尚未登记而失败，不作完成判据；`0.3.5` 是关联登记后第一个由 Actions 全绿发布的版本。npm 上的版本不可撤回，失败就停在那里，不改回版本号。
 
 关联登记后两天内必须推标签；过期就重新登记，不沿用旧凭据。
 

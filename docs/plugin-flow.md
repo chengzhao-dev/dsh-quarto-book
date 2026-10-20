@@ -2,14 +2,15 @@
 
 本文写给排障的人和回看的维护者，回答「装好之后，哪一层在什么条件下生效」。它是人读的流程说明，不是技能执行时的规则来源：技能正文不读本文，作用于写作的约束都写在 `skills/writing-quarto/SKILL.md` 与 `skills/designing-theme/SKILL.md` 里。
 
-## 四层
+## 五层
 
 | 层 | 读者看到什么 | 生效条件 | 排障入口 |
 | --- | --- | --- | --- |
-| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@0.3.5` 成功，profile 的 `package.json` 有这条依赖 | `docs/versioning.md` |
+| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@0.4.0` 成功，profile 的 `package.json` 有这条依赖 | `docs/versioning.md` |
 | 2 技能名出现 | 选题里能看到 `writing-quarto`、`designing-theme` | 会话 `cwd` 向上找到 git 根，沿途 `_quarto.yml` 有一行独立的 `type: book`，且这本书至少有一个章节源文件 | `docs/plugin-boundaries.md` |
 | 3 开始写章节 | 九个写作步骤和三套案例文件 | 第 2 层通过；章节文件是 `.qmd` 或 `.md` | `skills/writing-quarto/SKILL.md` |
 | 4 渲染检查 | `quarto_render_check` 返回 `safe_to_render` 与 `html_report` | 与第 2 层同一道门禁 | `skills/writing-quarto/steps/09-check.md` |
+| 5 执行回执 | 一轮结束时出现 `quarto_pass_report` 卡片 | 技能完成判据要求收尾调用一次；写作与主题共用 | `skills/writing-quarto/steps/09-check.md` |
 
 ## 1 安装
 
@@ -31,7 +32,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时（该包已随 0
 
 ## 2 技能名出现
 
-`apply()` 注册技能 provider 和 `quarto_render_check` 工具，不写文件。provider 的 `list({ cwd })` 只在发现候选时做一次有界只读检查：
+`apply()` 注册技能 provider 与两个工具（`quarto_render_check`、`quarto_pass_report`），不写文件。provider 的 `list({ cwd })` 只在发现候选时做一次有界只读检查：
 
 - 从会话 `cwd` 向上找到 git 根，沿途的 `_quarto.yml` 里有一行独立的 `type: book`，并且这本书至少有一个 `.qmd` 或 `.md` 章节源文件，就返回两个技能；否则返回空列表。书根下的 `README.md`、`CHANGELOG.md`、`LICENSE.md` 等仓库说明文件不算章节源文件。
 - 没有 `cwd`、不在 git checkout 里、`_quarto.yml` 缺失、只在注释里写了 `# type: book`、或只有 book 配置没有任何章节源文件，都按「不是书」处理。
@@ -58,3 +59,13 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时（该包已随 0
 - `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重跑。`html_report.usable` 是最终结论。
 - 工具与技能共用同一道门禁：不在书里、`_quarto.yml` 不是 `type: book`、或书里没有章节源文件时直接拒绝，不启动渲染。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只用来定位卡片。
 - 不手跑 `quarto render`，也不截图 PNG；命令超时是 120 秒。实现与返回字段见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
+
+## 5 执行回执
+
+第 9 步的「完成判据」要求收尾调用一次 `quarto_pass_report`，写作与主题共用：
+
+- 入参是闭集：`skill`、`executed`、`mode`、`files`、`steps`、`held`、`checks`。`executed: false` 时 `mode` 必须是 `skipped` 并给 `skip_reason`，否则卡片会指出前后矛盾。
+- 卡片就是回执：技能与模式、改过的文件、改了哪些步骤、未改项、检查结论。回复里不再复述；工具不保存到磁盘，不贴章节原文。
+- `steps` 的 `edits` 合计必须等于 `files` 的合计；主题只认六个步骤名，不在名单里的名字（例如 `01-task`）直接拒绝。
+- 当前文件不是章节时输出一行 `未执行 writing-quarto：…`；没改也会出卡（`改了 0 处`），把「插件没跑」和「跑了但没改」分开。
+- 实现与参数见 `src/tools/pass-report.ts`，完成判据见 `steps/09-check.md`。
