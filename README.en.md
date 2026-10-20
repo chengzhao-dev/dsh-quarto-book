@@ -1,6 +1,8 @@
 # dsh-quarto-book
 
-**English** | [简体中文](README.md)
+[![publish](https://github.com/chengzhao-dev/dsh-quarto-book/actions/workflows/publish.yml/badge.svg)](https://github.com/chengzhao-dev/dsh-quarto-book/actions/workflows/publish.yml)
+
+**English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
 Two skills and one tool for [DeepSeek Harness](https://github.com/deepseek-ai) (DSH): authoring Quarto Book chapters, maintaining a reusable book theme, and checking rendered HTML before publishing. The skills are read-only — they never execute book code and never edit `.qmd` files. `quarto_render_check` runs `quarto render` once when called, so it executes the book's configured engine and writes `_book/`.
 
@@ -17,10 +19,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.2
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.3
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.2` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.2`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:dsh-quarto-book@0.3.3` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.3.3`.
 
 Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
 
@@ -36,7 +38,17 @@ Installation is scoped to a profile, not to a repository: it only affects the pr
 - The gate affects discovery and loading. `get()` re-runs the gate when a `cwd` is supplied; without one it serves this provider's already-loaded candidates only.
 - `quarto_render_check` shares the gate: no session `cwd`, a non-book workspace, a `_quarto.yml` without `type: book`, or a book without chapter sources is refused before `quarto render` starts. The render root is the nearest valid book root above `cwd`; `qmd_path` only locates the card relative to the session `cwd`.
 
-Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](docs/plugin-boundaries.md) for the full decision matrix, coexistence rules with `dsh-cpp-workflow`, and verification records.
+Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) for the full decision matrix, coexistence rules with `dsh-cpp-workflow`, and verification records.
+
+## Run state and completion
+
+The plugin has no resident process and does not execute a skill when a session starts.
+
+- **Whether it is active**: seeing `writing-quarto` or `designing-theme` in the skill catalog only means the session `cwd` passed the gate and the name is selectable. Absence is not an install failure; the current directory is not a book.
+- **Whether it is used**: a use happens only when the model or the user invokes `skill`, or calls `quarto_render_check`. Being listed reads and writes nothing.
+- **When it ends**: a skill has no background task; the turn that invokes it ends after the `SKILL.md` steps finish or stop. The render tool ends once `render_result` and `html_report` in the returned result are settled (both are `null` on a dry run); its card summary is one of `未渲染` (not rendered), `可渲染` (renderable), `渲染失败` (render failed) or `渲染完成` (render completed).
+- **Final verdict**: `html_report.usable` is the final render-check verdict. Without `html_report`, `safe_to_render` only means rendering is allowed, not that it happened.
+- **Using it again**: the next invocation rereads the skill text; the tool never retries automatically, so the user decides whether to call it again after a failure.
 
 ## Project-level conventions
 
@@ -166,7 +178,8 @@ dsh-quarto-book/
 ├── icon.svg                            # plugin icon
 ├── lib                             #/ compiled output
 │   ├── index.js                        # registration entry
-│   └── tools/render-check.js           # render check tool
+│   ├── tools/render-check.js           # render check tool
+│   └── workspace.js                    # workspace gate
 ├── locale                          #/ UI strings
 ├── package-lock.json                   # dependency lock
 ├── package.json                        # package manifest
@@ -178,9 +191,12 @@ dsh-quarto-book/
 │   └── writing-quarto              #/ writing skill
 ├── src                             #/ TypeScript sources
 │   ├── index.ts                        # plugin entry
-│   └── tools/render-check.ts           # render check implementation
+│   ├── tools/render-check.ts           # render check implementation
+│   └── workspace.ts                    # workspace gate
 ├── templates                       #/ project skill template
 ├── tests                           #/ tool unit tests
+│   ├── provider.test.mjs               # skill gate tests
+│   └── render-check.test.mjs           # render tool tests
 └── tsconfig.json                       # TypeScript config
 ```
 

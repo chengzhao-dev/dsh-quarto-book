@@ -208,6 +208,38 @@ test('tool dry run accepts a real book workspace', async () => {
   }
 })
 
+test('tool card reports the dry-run end state and the qmd location', async () => {
+  const root = await makeRepo()
+  try {
+    const { tool } = makeHarness()
+    const args = { qmd_path: 'chapter.qmd', dry_run: true }
+    const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
+    const content = tool.output.render(args, result)
+    const text = content.map((item) => item.text).join('\n')
+    assert.match(text, /可渲染/)
+    assert.match(text, /未执行/)
+    assert.deepEqual(tool.presentResult(args, { content }).content, content)
+    const call = tool.presentCall(args)
+    assert.equal(call.kind, 'execute')
+    assert.equal(call.locations[0].path, 'chapter.qmd')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('refused tool card reports that nothing was rendered', async () => {
+  const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
+  try {
+    const { tool } = makeHarness()
+    const args = { qmd_path: 'index.qmd', dry_run: false }
+    const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
+    const text = tool.output.render(args, result).map((item) => item.text).join('\n')
+    assert.match(text, /未渲染/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('an aborted signal returns no candidates', async () => {
   const root = await makeRepo()
   try {

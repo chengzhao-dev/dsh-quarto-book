@@ -1,6 +1,8 @@
 # dsh-quarto-book
 
-[English](README.en.md) | **简体中文**
+[![publish](https://github.com/chengzhao-dev/dsh-quarto-book/actions/workflows/publish.yml/badge.svg)](https://github.com/chengzhao-dev/dsh-quarto-book/actions/workflows/publish.yml)
+
+[English](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.en.md) | **简体中文**
 
 为 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）提供两个技能和一个工具：写 Quarto Book 章节、维护可复用的书主题、在渲染后检查 HTML 是否可发布。技能只读，不执行书里的代码，也不改写 `.qmd`；`quarto_render_check` 只在被调用时运行一次 `quarto render`，会执行书配置的引擎并写入 `_book/`。
 
@@ -17,10 +19,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:dsh-quarto-book@0.3.2
+dsh plugin --profile web add npm:dsh-quarto-book@0.3.3
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.2`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.2`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:dsh-quarto-book@0.3.3`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.3.3`。
 
 要求 DSH 0.2.x、Node.js 22 及以上。源码是 TypeScript，发布包已带编译后的 `lib/`；安装后不需要构建。
 
@@ -36,7 +38,17 @@ dsh plugin --profile web add npm:dsh-quarto-book@0.3.2
 - 门禁只影响技能发现与加载。`get()` 带 `cwd` 时重新过同一道门禁，不带 `cwd` 时只服务已经加载的本 provider candidate。
 - `quarto_render_check` 与技能共用同一道门禁：没有会话 `cwd`、不在书里、`_quarto.yml` 不是 `type: book`、或书里没有章节源文件时直接拒绝，不启动 `quarto render`。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只按会话 `cwd` 定位卡片。
 
-社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。完整判定矩阵、与 `dsh-cpp-workflow` 的共存规则和实际校验记录见 [docs/plugin-boundaries.md](docs/plugin-boundaries.md)。
+社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。完整判定矩阵、与 `dsh-cpp-workflow` 的共存规则和实际校验记录见 [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md)。
+
+## 运行状态与结束
+
+插件没有常驻进程，也不会在会话开始时自动执行技能。
+
+- **是否生效**：技能目录里出现 `writing-quarto` 或 `designing-theme`，只说明当前会话的 `cwd` 过了门禁，名字可选；没有出现不是安装失败，而是当前目录不是书。
+- **是否使用**：只有模型或用户调用 `skill`、或调用 `quarto_render_check`，才算一次使用；列出名字本身不读写任何文件。
+- **怎么结束**：技能没有后台任务，调用它的那一轮按 `SKILL.md` 的步骤完成或停下后就结束；渲染工具在返回结果里的 `render_result` 与 `html_report` 都确定后结束（dry_run 时两者都是 `null`），卡片摘要只取 `未渲染`、`可渲染`、`渲染失败`、`渲染完成` 之一。
+- **最终判断**：`html_report.usable` 是渲染检查的最终结论；没有 `html_report` 时，`safe_to_render` 只表示可以渲染，不表示已经渲染。
+- **再次使用**：同一会话再次调用会重新读技能正文；工具不会自动重试，失败后由用户决定是否再调一次。
 
 ## 项目级约定
 
@@ -166,7 +178,8 @@ dsh-quarto-book/
 ├── icon.svg                            # 插件图标
 ├── lib                             #/ 编译产物
 │   ├── index.js                        # 注册入口
-│   └── tools/render-check.js           # 渲染检查工具
+│   ├── tools/render-check.js           # 渲染检查工具
+│   └── workspace.js                    # 工作区门禁
 ├── locale                          #/ 界面文案
 ├── package-lock.json                   # 依赖锁
 ├── package.json                        # 包清单
@@ -178,9 +191,12 @@ dsh-quarto-book/
 │   └── writing-quarto              #/ 写作技能
 ├── src                             #/ TypeScript 源码
 │   ├── index.ts                        # 插件入口
-│   └── tools/render-check.ts           # 渲染检查实现
+│   ├── tools/render-check.ts           # 渲染检查实现
+│   └── workspace.ts                    # 工作区门禁
 ├── templates                       #/ 项目技能模板
 ├── tests                           #/ 工具单元测试
+│   ├── provider.test.mjs               # 技能门禁测试
+│   └── render-check.test.mjs           # 渲染工具测试
 └── tsconfig.json                       # TypeScript 配置
 ```
 
