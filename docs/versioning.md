@@ -16,11 +16,11 @@ README 里的安装命令钉住一次发布：npm 写 `@0.4.0`，git 写 `#v0.4.
 
 ## 三档
 
-到达 `1.0.0` 之前停在 `0.x`。抬哪一档只看对外契约，不看改了多少字。
+版本停在 `0.x`。抬哪一档只看对外契约，不看改了多少字。
 
-- **修订号（`0.1.1`、`0.2.1`…）**：约定措辞、正反例、参考文、README、注释、不改变既有书通过与否的检查词表或提示。以后绝大多数提交走这一档。
-- **次版本 `0.2.0`、`0.3.0`、`0.4.0`**：新增技能名或工具名、新增会让旧书失败的检查、脚本命令行不兼容、主题路径或 `_quarto.yml` 接线契约变化、完成判据变成强制步骤（`0.4.0` 新增 `quarto_pass_report`，并把收尾回执写进完成判据）。
-- **`1.0.0`**：技能名、工具名、cwd 门禁、脚本入口和「项目只放 `quarto-book-project`」这些对外契约冻结，并承诺以后的修订号不再让旧书突然失败。
+- **修订号（`0.4.1`、`0.4.2`…）**：约定措辞、正反例、参考文、README、注释、不改变既有书通过与否的检查词表或提示。以后绝大多数提交走这一档。
+- **次版本 `0.5.0`、`0.6.0`，过了 `0.9.0` 是 `0.10.0`、`0.11.0`**：新增技能名或工具名、新增会让旧书失败的检查、脚本命令行不兼容、主题路径或 `_quarto.yml` 接线契约变化、完成判据变成强制步骤。次版本数字一直加，不进位成 `1.0.0`。
+- **`1.0.0`**：不做计划内升级。只有维护者明确认定一次特别大的不兼容改动才升；没有这种改动就不升。
 - **`engines.dsh`**：只在要支持的 DSH 版本窗口变化时改，与上面三档无关。DSH 进入 `0.3` 时再把上界打开。
 
 同一次改动里若又有措辞又有破坏性检查，取较高的那一档。
@@ -30,7 +30,7 @@ flowchart TD
   change[一次改动] --> host{要改能安装的 DSH 版本窗口}
   host -->|是| engines[只改 engines.dsh]
   host -->|否| contract{技能名 工具名 脚本入口 或会让旧书失败的检查}
-  contract -->|是| minor[次版本 0.3.0]
+  contract -->|是| minor[次版本 0.5.0]
   contract -->|否| patch[0.x 修订号]
 ```
 
@@ -51,5 +51,16 @@ flowchart TD
 `.github/workflows/publish.yml` 只在 `v*` 标签上运行，权限是 `contents: read` 与 `id-token: write`，不设 GitHub Environment。步骤是 checkout、`actions/setup-node@v6`（Node 24、`registry-url: https://registry.npmjs.org`）、`npm ci`、`npm test`、`npm run build`、`npm publish --provenance`。`package.json` 的 `repository.url` 保持 `git+https://github.com/chengzhao-dev/dsh-quarto-book.git`，`publishConfig` 为 `access: public` 与 `provenance: true`。
 
 发布后两种安装各钉各的：git 用 `#v<版本>`，npm 用 `@<版本>`。
+
+## 商店
+
+dsh-market 与官方 Discover 用的是同一份人工目录，收录源是 awesome-dsh-plugin 里的一条 YAML，不是 npm。发 npm 不会自动进入商店；可见、安装、更新、卸载都挂在同一条目录记录和同一个包名 `@chengzhao-dev/dsh-quarto-book` 上。
+
+- **可见**：收录合并且目录刷新后，按包名或仓库名能搜到卡片，分类在 Docs。
+- **安装**：目录用包里的 `repository` 把记录连到 npm，一键安装走 `npm:@chengzhao-dev/dsh-quarto-book`，装的是已发布 tarball。
+- **更新**：市场用已装版本对比 npm `latest`，更高版本才出现更新按钮；换包名或只推 git 不会出现更新。
+- **卸载**：按包名从 profile 依赖里删除；旧的无作用域包 `dsh-quarto-book` 是另一个坐标，要单独卸。
+
+以后每次发布保持这个包名，并按上面的 0.x 升高。本文档的修改本身不发布，也不改 `package.json` 的 `0.4.0`。
 
 写书时不读这份文档：它是本仓库的维护规则，不进任何一步。

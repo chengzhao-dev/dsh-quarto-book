@@ -47,7 +47,7 @@ Installation is scoped to a profile, not to a repository: it only affects the pr
 - The gate affects discovery and loading. `get()` re-runs the gate when a `cwd` is supplied; without one it serves this provider's already-loaded candidates only.
 - `quarto_render_check` shares the gate: no session `cwd`, a non-book workspace, a `_quarto.yml` without `type: book`, or a book without chapter sources is refused before `quarto render` starts. The render root is the nearest valid book root above `cwd`; `qmd_path` only locates the card relative to the session `cwd`.
 
-Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) for the full decision matrix, coexistence rules with `dsh-cpp-workflow`, and verification records.
+Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) for the full book gate and its six cases.
 
 ## Run state and completion
 

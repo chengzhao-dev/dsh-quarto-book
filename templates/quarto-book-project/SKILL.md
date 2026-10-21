@@ -38,7 +38,7 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 - HTML 可用性：只调 `quarto_render_check`，`qmd_path` 传当前章节；`dry_run: true` 最多 2 次，`dry_run: false` 最多 1 次。
 - 不手跑 `quarto render`，也不手跑 `checking-output.py` 或 `checking-callouts.py`；这些检查由工具按书配置调用。
 - 项目专属词表：同目录 `checks.json`（`forbidden_terms`、`fragment_prefixes`、`chapter_titles`）；不写就只跑通用规则。
-- 项目自己的封装命令（如 `run.ps1 verify --changed`）与它覆盖的 profile：
+- 项目自己的检查命令（如有）与它覆盖的 profile：
 - 命令在哪个环境执行（本机 / WSL / 容器）：
 
 ## 主题与过滤器路径

@@ -33,4 +33,4 @@ skills/writing-quarto/
 
 ## 自检
 
-`npm run check` 跑 `scripts/checking-skill-links.mjs`，核对：九步、案例、渲染文件、两份技能的脚本都在；每一步的 H1 编号与 SKILL.md 的九步清单对齐；旧目录 `references/`、`conventions/`、`knowledge/` 不再出现，装机脚本也不引用它们；`kb_id` 不再出现；反引号里的路径能解析；`` `steps/…md`「节」 `` 这种引用里的节名真在目标文件的标题里；已收口的冲突句不再出现；目录树的标记规则只在 `steps/03-blocks.md`，列表项格式只在 `steps/07-layout.md`；README、docs 与案例「改写」围栏里的树，目录行带 `#/`、文件行 `#` 比它右移 4 列、同一棵树的两档注释不混用。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，别处提到时指过去。
+`npm run check` 跑 `scripts/checking-skill-links.mjs`：九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，旧目录与 `kb_id` 不再出现，README 与 docs 里的树满足标记列规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。

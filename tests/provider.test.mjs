@@ -254,3 +254,88 @@ test('an aborted signal returns no candidates', async () => {
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('the six documented gate categories match provider.list', async (t) => {
+  const created = []
+  const repo = async (options) => {
+    const root = await makeRepo(options)
+    created.push(root)
+    return root
+  }
+  const names = async (cwd) => (await makeHarness().provider.list({ cwd })).map((candidate) => candidate.name)
+
+  try {
+    await t.test('no cwd and no git checkout', async () => {
+      const { provider } = makeHarness()
+      assert.deepEqual(await provider.list({}), [])
+      const loose = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-loose-'))
+      created.push(loose)
+      await writeFile(path.join(loose, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+      await writeFile(path.join(loose, 'chapter.qmd'), '# 章\n', 'utf8')
+      assert.deepEqual(await provider.list({ cwd: loose }), [])
+    })
+
+    await t.test('no _quarto.yml or no standalone type: book line', async () => {
+      assert.deepEqual(await names(await repo({ yaml: null })), [])
+      assert.deepEqual(await names(await repo({ yaml: 'project:\n  type: website\n' })), [])
+      assert.deepEqual(await names(await repo({ yaml: 'project:\n  # type: book\n' })), [])
+    })
+
+    await t.test('book config without chapter sources', async () => {
+      assert.deepEqual(await names(await repo({ sources: { 'README.md': '# 书\n' } })), [])
+      assert.deepEqual(await names(await repo({ sources: { 'README.en.md': '# Book\n' } })), [])
+      assert.deepEqual(await names(await repo({ sources: { 'AGENTS.md': '# 约定\n' } })), [])
+      assert.deepEqual(await names(await repo({ sources: { 'CHANGELOG.md': '# 记录\n' } })), [])
+      assert.deepEqual(
+        await names(await repo({ sources: { '_book/chapter.md': '# 生成\n', 'vendor/chapter.md': '# 依赖\n' } })),
+        [],
+      )
+    })
+
+    await t.test('book above the git root or below the session directory', async () => {
+      const parent = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-parent-'))
+      created.push(parent)
+      await writeFile(path.join(parent, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+      const child = path.join(parent, 'repo')
+      await mkdir(path.join(child, '.git'), { recursive: true })
+      await writeFile(path.join(child, 'chapter.qmd'), '# 章\n', 'utf8')
+      assert.deepEqual(await names(child), [])
+
+      const nested = await repo({
+        yaml: null,
+        sources: {
+          'book/_quarto.yml': 'project:\n  type: book\n',
+          'book/chapter.qmd': '# 章\n',
+        },
+      })
+      assert.deepEqual(await names(nested), [])
+      assert.deepEqual(await names(path.join(nested, 'book')), ['designing-theme', 'writing-quarto'])
+
+      const withWebsite = await repo({
+        sources: {
+          'chapter.qmd': '# 章\n',
+          'site/_quarto.yml': 'project:\n  type: website\n',
+          'site/page.md': '# 页\n',
+        },
+      })
+      assert.deepEqual(await names(withWebsite), ['designing-theme', 'writing-quarto'])
+      assert.deepEqual(await names(path.join(withWebsite, 'site')), [])
+    })
+
+    await t.test('a book that also contains a C++ subproject is still a book', async () => {
+      const root = await repo({ sources: { 'chapter.qmd': '# 章\n', 'CMakeLists.txt': '', 'main.cpp': '' } })
+      assert.deepEqual(await names(root), ['designing-theme', 'writing-quarto'])
+    })
+
+    await t.test('C++ only, without a book, stays out', async () => {
+      assert.deepEqual(await names(await repo({ yaml: null, sources: { 'CMakeLists.txt': '' } })), [])
+      assert.deepEqual(await names(await repo({ yaml: null, sources: { 'main.cpp': '#include <iostream>\n' } })), [])
+      assert.deepEqual(
+        await names(await repo({ yaml: null, sources: { '.agents/skills/cpp-workflow-project/SKILL.md': '# 技能\n' } })),
+        [],
+      )
+    })
+  } finally {
+    for (const root of created) await rm(root, { recursive: true, force: true })
+  }
+})

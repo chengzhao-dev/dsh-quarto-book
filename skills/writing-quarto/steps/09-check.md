@@ -6,7 +6,7 @@
 
 ### 内容与链接
 
-项目技能存在时，只跑它列出的内容命令，通常是 `run.ps1 verify --changed`。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py` 与 `checking-links.py`。
+项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py` 与 `checking-links.py`。
 
 `verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字和本地链接。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
 

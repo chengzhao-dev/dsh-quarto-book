@@ -47,7 +47,7 @@ dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.4.0
 - 门禁只影响技能发现与加载。`get()` 带 `cwd` 时重新过同一道门禁，不带 `cwd` 时只服务已经加载的本 provider candidate。
 - `quarto_render_check` 与技能共用同一道门禁：没有会话 `cwd`、不在书里、`_quarto.yml` 不是 `type: book`、或书里没有章节源文件时直接拒绝，不启动 `quarto render`。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只按会话 `cwd` 定位卡片。
 
-社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。完整判定矩阵、与 `dsh-cpp-workflow` 的共存规则和实际校验记录见 [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md)。
+社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围。想更窄，就只把它装进写书用的那个 profile。书门禁的判定顺序与六类情形见 [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md)。
 
 ## 运行状态与结束
 
