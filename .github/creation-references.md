@@ -7,8 +7,9 @@
 - 发布与 bundle 形状：<https://deepseek-harness.github.io/deepseek-harness/en/develop/basic/publish>
   - 采用：`type: module` + `main` 入口、`dsh.bundle.patch`、`engines.dsh`、`files` 白名单、peer/dev 双声明。
   - 采用：入口只导出 `name`、`inject` 与 `apply()`，不 import 宿主实现；补丁只 `insert` 一行。
-- 包展示元数据（中文）：<https://deepseek-harness.github.io/deepseek-harness/zh/develop/basic/adding-a-package>
+- 包展示元数据（中文）：<https://deepseek-harness.github.io/deepseek-harness/reference/cookbook/adding-a-package>
   - 采用：`locale/en.json` 与 `locale/zh.json` 的 `meta.title`、`meta.description`；`icon.svg` 自包含且不超过 256 KiB。
+  - 不采用：前排 UI 插件用 `dsh.client` 把界面模块带进设置页；这个仓库只导出服务端技能与工具，不声明 `dsh.client`，也不抄那套构建。
 - 技能子系统：<https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills>
   - 采用：提供者接口 `{ name, list, get }`、候选字段 `rank` / `locator` / `resourceBase`、目录型资源基址。
   - 采用：包内 rank 550，数字大于项目 `.dsh/skills`（100）与 `.agents/skills`（200），优先级更低，同名项目技能可以覆盖。

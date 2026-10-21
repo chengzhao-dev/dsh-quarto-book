@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Quarto 图书写作",
-    "description": "为 Quarto Book 写章节、校验结构并维护可复用主题；不改业务代码，只在 type: book 的仓库里出现。"
+    "description": "为 Quarto Book 写章节、检查结构并维护主题。"
   }
 }

@@ -10,7 +10,7 @@
 - 磁盘：profile 的 `package.json` 里 `dependencies`，以及 `node_modules/@chengzhao-dev/dsh-quarto-book/package.json` 的 `version`。
 - 运行时加载清单：`dsh --profile <profile> --dump-config`，确认 `# == @chengzhao-dev/dsh-quarto-book` 这一层在。官方「设置 → 插件」只显示模块名和启用状态，不显示版本。
 
-README 里的安装命令钉住一次发布：npm 写 `@0.4.0`，git 写 `#v0.4.0`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
+README 里的安装命令钉住一次发布：npm 写 `@0.4.1`，git 写 `#v0.4.1`。不带版本号的 `github:` 地址跟踪默认分支的某次提交，`package.json` 的版本号不会自动变成发布号。
 
 包名与模块名不是一回事：npm 与 profile 依赖里是 `@chengzhao-dev/dsh-quarto-book`，`cordis.patch.yml` 的 `name` 必须与它逐字相同；插件模块导出的 `name` 与技能 provider 的常量仍是短名 `dsh-quarto-book`，技能名与工具名不变。旧的无作用域包 `dsh-quarto-book` 是另一个 npm 坐标，已在迁到作用域包时从 npm 删除；之前装过它的 profile 仍要先 `remove` 再装新包，两份同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -36,7 +36,7 @@ flowchart TD
 
 ## 发布
 
-发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（`0.4.0` 对应 `v0.4.0`）。不在 `SKILL.md` 里再维护一套包版本。
+发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部的版本、同号的 annotated git tag（如 `0.4.1` 对应 `v0.4.1`）。不在 `SKILL.md` 里再维护一套包版本。
 
 发布走 npm trusted publisher。`0.3.4` 是这个作用域包的首个版本，由本机手工 `npm publish` 引导，同时登记了关联（仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`）；旧包 `dsh-quarto-book` 也在这次发布后从 npm 删除。之后的版本不再本机发布，顺序固定：
 
@@ -56,11 +56,11 @@ flowchart TD
 
 dsh-market 与官方 Discover 用的是同一份人工目录，收录源是 awesome-dsh-plugin 里的一条 YAML，不是 npm。发 npm 不会自动进入商店；可见、安装、更新、卸载都挂在同一条目录记录和同一个包名 `@chengzhao-dev/dsh-quarto-book` 上。
 
-- **可见**：收录合并且目录刷新后，按包名或仓库名能搜到卡片，分类在 Docs。
+- **可见**：收录合并且目录刷新后，按包名或仓库名能搜到卡片，分类在 Skills。
 - **安装**：目录用包里的 `repository` 把记录连到 npm，一键安装走 `npm:@chengzhao-dev/dsh-quarto-book`，装的是已发布 tarball。
 - **更新**：市场用已装版本对比 npm `latest`，更高版本才出现更新按钮；换包名或只推 git 不会出现更新。
 - **卸载**：按包名从 profile 依赖里删除；旧的无作用域包 `dsh-quarto-book` 是另一个坐标，要单独卸。
 
-以后每次发布保持这个包名，并按上面的 0.x 升高。本文档的修改本身不发布，也不改 `package.json` 的 `0.4.0`。
+以后每次发布保持这个包名，并按上面的 0.x 升高；单独的文档修改不单独发布，随下一次修订一起走。
 
 写书时不读这份文档：它是本仓库的维护规则，不进任何一步。

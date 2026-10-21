@@ -4,7 +4,7 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside `type: book` repositories.
+Write Quarto Book chapters, check their structure, and maintain the theme; only inside `type: book` repositories.
 
 - Write `.qmd`: `writing-quarto` covers the chapter skeleton, structure and prose.
 - Change the theme: `designing-theme` covers CSS, fonts and palettes.
@@ -19,171 +19,33 @@ Author and check Quarto Book chapters and maintain a reusable theme; no business
 | `quarto_render_check` | Check that `output-dir` is safe, render once when asked, and inspect HTML in `_book/` for publishing | Editing `.qmd`, fixing config automatically, or re-running a failed render |
 | `quarto_pass_report` | Compress the run into a fixed-line receipt card: skill, mode, files and steps changed, items held, check verdicts | Saving to disk, quoting chapter prose, or changing the text based on the receipt |
 
-For when the skills appear and which rule each step maps to, see [`docs/plugin-flow.md`](docs/plugin-flow.md). It is a human-facing walkthrough, not the rule source used while a skill runs.
+For when the skills appear and which rule each step maps to, see [docs/plugin-flow.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-flow.md). It is a human-facing walkthrough, not the rule source used while a skill runs.
 
 Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill resolve against that skill's directory: `writing-quarto` uses `steps/`, `examples/`, `quarto/`, `scripts/`; `designing-theme` uses `references/`, `knowledge/`, `assets/`, `scripts/`.
 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.4.0
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.4.1
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.4.0` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.4.0`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.4.1` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.4.1`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
-Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step.
+Requires DSH 0.2.x and Node.js 22 or newer. The source is TypeScript; the published package already contains compiled `lib/`, so installation needs no build step. The content, link and naming checks need Python 3; `quarto_render_check` needs the Quarto CLI for an actual render, and the post-render HTML checks also need Python 3. See [docs/plugin-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-layout.md) for the split.
 
-Installation is scoped to a profile, not to a repository: it only affects the profile that ran `add`. The workspace gate below still decides whether the two skill names appear in a session.
+Installation is scoped to a profile, not to a repository: it only affects the profile that ran `add`. The workspace gate still decides whether the two skill names appear: it checks the session `cwd` for a book, and only then are both names selectable. See [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) for the six cases.
 
-## Workspace gate
+## Usage
 
-`apply()` registers the skill provider and the `quarto_render_check` tool; it writes nothing. The provider's `list({ cwd })` performs one bounded read-only check:
+Load `writing-quarto` or `designing-theme` inside a `type: book` repository and follow the steps in `SKILL.md`. The plugin has no resident process and does not execute a skill when a session starts; seeing a name in the skill catalog only means the session `cwd` passed the gate, and a use happens only when `skill`, `quarto_render_check` or `quarto_pass_report` is invoked. The next invocation rereads the skill text; the tool never retries automatically, so the user decides whether to call it again after a failure.
 
-- Walk up from the session `cwd` to the enclosing git root. A `_quarto.yml` with a standalone `type: book` line plus at least one `.qmd` or `.md` chapter source returns both skills; otherwise the list is empty. Repository metadata such as `README.md`, `CHANGELOG.md` or `LICENSE.md` at the book root does not count as a chapter.
-- No `cwd`, no enclosing git checkout, a missing `_quarto.yml`, only a commented `# type: book`, or a book config with no chapter sources all count as "not a book".
-- The scan skips `_book`, `node_modules`, `vendor`, `third_party` and similar generated/dependency trees, and stops after 4000 directory entries. A normal C++ repository and this plugin's own checkout therefore never see these names; a subdirectory of a book repository behaves like the book root.
-- The gate affects discovery and loading. `get()` re-runs the gate when a `cwd` is supplied; without one it serves this provider's already-loaded candidates only.
-- `quarto_render_check` shares the gate: no session `cwd`, a non-book workspace, a `_quarto.yml` without `type: book`, or a book without chapter sources is refused before `quarto render` starts. The render root is the nearest valid book root above `cwd`; `qmd_path` only locates the card relative to the session `cwd`.
+A project supplies exactly one skill of its own: `<book>/.agents/skills/quarto-book-project/`, starting from `templates/quarto-book-project/`. When it exists, both general skills read `SKILL.md` and then the `writing/` files it points to; when it does not, they skip it and do not guess project conventions. **Do not embed same-name skills into a book repository**: DSH picks one skill per name per layer by rank, lowest wins, and `.agents/skills` (rank 200) outranks the packaged provider (rank 550); a copy of `writing-quarto` or `designing-theme` in the book disables the plugin's text.
 
-Community plugins have no "enable for one GitHub repository" switch; profile installation plus the cwd gate is the smallest scope available. For a narrower scope, install the plugin only into the profile used for writing. See [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) for the full book gate and its six cases.
+Theme assets live in `skills/designing-theme/assets/theme/`. The package copy is authoritative; the book's `theme/` is the render copy. When a copy exists, `designing-theme` edits only that copy, and only when the user explicitly asks to install the plugin theme into the book and the target directory does not exist yet does the skill copy from the package and write the `filters/answering-disclosure.lua` filter. `_quarto.yml` references only the book's copy, never an npm package or the plugin checkout.
 
-## Run state and completion
-
-The plugin has no resident process and does not execute a skill when a session starts.
-
-- **Whether it is active**: seeing `writing-quarto` or `designing-theme` in the skill catalog only means the session `cwd` passed the gate and the name is selectable. Absence is not an install failure; the current directory is not a book.
-- **Whether it is used**: a use happens only when the model or the user invokes `skill`, or calls `quarto_render_check`. Being listed reads and writes nothing.
-- **When it ends**: a skill has no background task; the turn that invokes it ends after the `SKILL.md` steps finish or stop. The render tool ends once `render_result` and `html_report` in the returned result are settled (both are `null` on a dry run); its card summary is one of `未渲染` (not rendered), `可渲染` (renderable), `渲染失败` (render failed) or `渲染完成` (render completed).
-- **Final verdict**: `html_report.usable` is the final render-check verdict. Without `html_report`, `safe_to_render` only means rendering is allowed, not that it happened.
-- **Using it again**: the next invocation rereads the skill text; the tool never retries automatically, so the user decides whether to call it again after a failure.
-
-## Project-level conventions
-
-The general skills cannot know a particular book's title, chapter table, stack or terminology. A project supplies exactly one skill of its own:
-
-```text
-<book>/.agents/skills/quarto-book-project/
-├── SKILL.md                        # project conventions
-└── writing/                    #/ project files
-    └── chapter-map.md              # chapter table
-```
-
-Start from `templates/quarto-book-project/`. When the file exists, both general skills read `SKILL.md` and then the `writing/` files it points to; when it does not, they skip it and do not guess project conventions. General writing, structure and theme rules stay in the plugin and are not copied into the project skill.
-
-**Do not embed same-name skills into a book repository.** DSH picks one skill per name per layer by rank, lowest wins: `.agents/skills` (rank 200) outranks the packaged provider (rank 550). A copy of `writing-quarto` or `designing-theme` in the book disables the plugin's text and brings a second set of general rules into the project.
-
-## Render check tool
-
-`quarto_render_check` takes two parameters:
-
-- `qmd_path`: the `.qmd` being edited, used to locate the card.
-- `dry_run`: `true` only judges the output directory; `false` runs `quarto render` once.
-
-Calls are bounded. `dry_run: true` is allowed at most twice: if the first call returns `safe_to_render: false`, change `output-dir` once; if the second call is still unsafe, stop and report `warnings`. `dry_run: false` is allowed once: on failure, stop and report `errors`; do not retry automatically. On success the same response carries `html_report`, so the same file is not rendered again.
-
-Returned fields:
-
-| Field | Meaning |
-| --- | --- |
-| `warnings` | Unsafe output directory, missing entry file, and similar notes |
-| `errors` | One-line reason for a failed render, timeout or missing `quarto`; empty on success |
-| `safe_to_render` | Whether rendering may run |
-| `suggested_output_dir` | Always `_book` |
-| `render_result` | `ok`, `exit_code`, `duration_ms` and captured tail; `null` when `dry_run: true` |
-| `html_report` | `usable`, `checks`, `output_files`, `output_files_total`; `null` when `dry_run: true` |
-
-Each `html_report.checks` item is `{ id, status, detail }`, with `status` limited to `pass`, `fail` and `skip`. Fixed checks are `index_html`, `utf8`, `charset` and `no_file_uri`; conditional checks are `sitemap`, `search_index`, `callouts` and `dom`. `usable` is true when no check fails. `output_files` lists at most 30 HTML files; `output_files_total` gives the full count.
-
-The interception, correction and success path looks like this. Start with a wrong output directory:
-
-```yaml
-project:
-  type: book
-  output-dir: ./
-```
-
-Call `quarto_render_check(qmd_path: "content/chapter.qmd", dry_run: true)`. It returns `safe_to_render: false`; `warnings` says `./` would overwrite the book root and suggests `output-dir: _book`. Change that line to `output-dir: _book` and call again: `safe_to_render: true`, `render_result: null`. Call with `dry_run: false` and the same response contains:
-
-```json
-{
-  "errors": [],
-  "render_result": { "ok": true, "exit_code": 0 },
-  "html_report": {
-    "usable": true,
-    "checks": [
-      { "id": "index_html", "status": "pass" },
-      { "id": "charset", "status": "pass" },
-      { "id": "sitemap", "status": "pass" },
-      { "id": "search_index", "status": "pass" }
-    ]
-  }
-}
-```
-
-The raw render output never becomes a separate terminal card. The render timeout is 120 seconds; timeouts, a missing `quarto` executable and non-zero exits all go into `errors`.
-
-## Run receipt
-
-At the end of a run the skill calls `quarto_pass_report` once, compressing the run into a few fixed lines. The card is the receipt; the reply does not repeat it, and the tool saves nothing to disk, quotes no chapter prose, and changes no text based on the receipt.
-
-Every parameter is a closed set:
-
-| Field | Values |
-| --- | --- |
-| `skill` | `writing-quarto` or `designing-theme` |
-| `executed` | Boolean; when `false`, `mode` must be `skipped` and `skip_reason` (at most 40 characters) is required |
-| `mode` | `polish`, `rewrite` (writing), `theme` (theme), `skipped` (not executed) |
-| `files` | Up to 8 `{ path, edits }` entries |
-| `steps` | Only steps with edits: `1`–`9` for writing, or `定表面`, `定字体`, `定尺度`, `定颜色`, `定组件`, `通过检查` for the theme; their `edits` must sum to the `files` total |
-| `held` | `fences`, `facts`, `css`, `prose` |
-| `checks` | `content`, `html`, `layout`, with status `pass`, `fail` or `skip` |
-
-```text
-已执行 writing-quarto · 增量润色
-content/ch.qmd
-改了 5 处：定句子 3，定用词 1，定版式 1
-未改：围栏、事实
-检查：内容通过；HTML 可用
-```
-
-A zero-change run still prints a card (`改了 0 处`), so "the plugin never ran" stays distinguishable from "it ran and changed nothing"; when the current file is not a chapter the output is one line: `未执行 writing-quarto：…`.
-
-## Theme
-
-Theme assets live in `skills/designing-theme/assets/theme/`:
-
-```text
-assets/theme/
-├── assets/           #/ brand mark, favicon, fonts and OFL licence
-├── css/              #/ base, content, nav, sidebar, callouts, code, mermaid…
-├── includes/         #/ font and footer snippets
-└── palettes/github/  #/ light/dark SCSS, highlight themes, tokens.css
-```
-
-Quarto reads relative paths inside the book; it reads neither npm packages nor DSH profiles. A book that renders uses its own `theme/` copy, and `_quarto.yml` references only that copy:
-
-```yaml
-format:
-  html:
-    theme:
-      light: theme/palettes/github/theme-light.scss
-      dark: theme/palettes/github/theme-dark.scss
-    css:
-      - theme/css/tokens.css
-      - theme/css/base.css
-    include-in-header:
-      - theme/includes/fonts.html
-    include-after-body:
-      - theme/includes/footer.html
-```
-
-The package's `assets/theme/` is the authoritative source; the book's `theme/` is the render copy. When a copy exists, `designing-theme` edits only that copy. Only when the user explicitly asks to install the plugin theme into the book and the target directory does not exist yet does the skill copy from the package, also writing the `filters/answering-disclosure.lua` filter; an existing `_quarto.yml` only gains missing paths and is never replaced wholesale.
-
-## Check scripts
-
-`writing-quarto` ships content and link checks under its `scripts/` directory. Run them from that skill directory (installed at `skills/writing-quarto/`):
+Run the content and link checks from the `writing-quarto` skill directory:
 
 ```bash
 python scripts/verifying-content.py --root <book>
@@ -191,51 +53,21 @@ python scripts/checking-links.py --root <book>
 python scripts/checking-names.py --root <book>
 ```
 
-`verifying-content.py` checks heading depth and length, body size budgets, forbidden wording, code fences, fragment sources and chapter-table consistency. Project-specific checks run only when `.agents/skills/quarto-book-project/` exists; otherwise they are skipped so another book's chapter names never become rules.
+Add `checking-names.py` only for a whole-repository refactor; ordinary chapter checks run the first two.
 
-Callouts, HTML output and DOM contracts are checked by `quarto_render_check`, which invokes the packaged scripts. Do not run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme` ships `scripts/checking-layout.py`, which inspects rendered HTML for overflow, contrast and page structure, and `scripts/measuring-pages.mjs` for measuring the content column.
+Callouts, HTML output and DOM contracts after a render are checked by `quarto_render_check`, which invokes the packaged scripts; do not run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme`'s `scripts/checking-layout.py` inspects rendered HTML for overflow, contrast and page structure. `apply()` runs none of these and never runs `quarto render`.
 
-`apply()` runs none of these and never runs `quarto render`. Verification is triggered by the completion criteria in the skill text, after the user asks for a chapter or a theme change.
+At the end of a run, call `quarto_pass_report` once to print the receipt card; the card is the receipt, so do not repeat it in the reply.
 
-## Package layout
+## Documentation
 
-```text
-dsh-quarto-book/
-├── .github/workflows/publish.yml       # tag release
-├── .gitattributes                      # line endings
-├── .gitignore                          # ignored output
-├── .npmignore                          # excluded files
-├── LICENSE                             # MIT licence
-├── README.en.md                        # English guide
-├── README.md                           # Chinese guide
-├── cordis.patch.yml                    # host patch
-├── docs                            #/ design notes
-├── icon.svg                            # plugin icon
-├── lib                             #/ compiled output
-│   ├── index.js                        # registration entry
-│   ├── tools/render-check.js           # render check tool
-│   └── workspace.js                    # workspace gate
-├── locale                          #/ UI strings
-├── package-lock.json                   # dependency lock
-├── package.json                        # package manifest
-├── scripts                         #/ repository scripts
-│   ├── checking-skill-links.mjs        # skill self-check
-│   └── embedding-agents.ps1            # legacy embed script
-├── skills                          #/ both skills
-│   ├── designing-theme             #/ theme skill
-│   └── writing-quarto              #/ writing skill
-├── src                             #/ TypeScript sources
-│   ├── index.ts                        # plugin entry
-│   ├── tools/render-check.ts           # render check implementation
-│   └── workspace.ts                    # workspace gate
-├── templates                       #/ project skill template
-├── tests                           #/ tool unit tests
-│   ├── provider.test.mjs               # skill gate tests
-│   └── render-check.test.mjs           # render tool tests
-└── tsconfig.json                       # TypeScript config
-```
-
-`templates/` is outside `skills/` and is never registered. The skill layout is described in `docs/writing-quarto-layout.md`; versioning and release rules in `docs/versioning.md`.
+| Document | Contents |
+| --- | --- |
+| [docs/plugin-flow.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-flow.md) | The five layers from install to receipt, file routing and render order |
+| [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) | The six workspace-gate cases and their decision order |
+| [docs/plugin-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-layout.md) | Repository tree, published files and the Python/Quarto split |
+| [docs/writing-quarto-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/writing-quarto-layout.md) | The writing skill's directory layers |
+| [docs/versioning.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/versioning.md) | Version numbers and release order |
 
 ## Local development
 
@@ -245,10 +77,10 @@ The source is TypeScript and the compiled `lib/` is committed. Published package
 npm ci
 npm test
 npm run check
-npm run pack:check
+npm run pack
 ```
 
-`npm test` builds before running the tool tests; `npm run check` runs type checking and the skill path self-check. Development install:
+`npm test` builds before running the tool tests; `npm run check` runs type checking and the skill path self-check; `npm run pack` writes the tarball only into `temp/`, which `.gitignore` already covers. Development install:
 
 ```bash
 dsh plugin --profile web add D:\Github\dsh-quarto-book
@@ -258,17 +90,7 @@ dsh plugin --profile web add D:\Github\dsh-quarto-book
 
 The plugin ships as a bundle: `package.json` points `dsh.bundle.patch` at `cordis.patch.yml`, and the patch inserts only `id: quarto-book` / `name: '@chengzhao-dev/dsh-quarto-book'`. The entry imports nothing from the host, so it loads under pnpm's strict dependency layout.
 
-## Embedding into another book (not recommended)
-
-`scripts/embedding-agents.ps1` is a maintainer tool from the older layout. It copies both skill trees verbatim into the target repository's `.agents/`. Those copies use the same names as the packaged skills and outrank them (rank 200 vs 550), so plugin updates stop taking effect.
-
-Do not use it for new books: keep only `.agents/skills/quarto-book-project/` in the book and let the installed plugin supply the rest. Run it only to archive a standalone skill tree offline:
-
-```powershell
-pwsh -File scripts/embedding-agents.ps1 -Target D:\Github\my-book
-```
-
-The script refuses to copy `package.json`, `cordis.patch.yml`, `lib/`, `locale/` or `icon.svg`, so bundle manifests never leak into a book repository.
+The legacy `scripts/embedding-agents.ps1` copies both skill trees verbatim into the target repository's `.agents/`, where they outrank the plugin (rank 200 vs 550). Do not use it for new books; run it only to archive a standalone skill tree offline, with the command from the script header.
 
 ## Licence
 

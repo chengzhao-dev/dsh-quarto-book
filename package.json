@@ -1,7 +1,7 @@
 {
   "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.4.0",
-  "description": "为 Quarto Book 写章节、校验结构并维护可复用主题；不改业务代码，只在 type: book 的仓库里出现。 · Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside `type: book` repositories.",
+  "version": "0.4.1",
+  "description": "为 Quarto Book 写章节、检查结构并维护主题。 · Write Quarto Book chapters, check their structure, and maintain the theme.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -19,9 +19,7 @@
     "README.md",
     "README.en.md",
     "LICENSE",
-    "templates",
-    "docs",
-    "scripts"
+    "templates"
   ],
   "engines": {
     "node": ">=22",
@@ -32,10 +30,10 @@
       "patch": "./cordis.patch.yml"
     },
     "catalog": {
-      "category": "workflow",
+      "category": "skill",
       "summary": {
-        "zh": "为 Quarto Book 写章节、校验结构并维护可复用主题；不改业务代码，只在 type: book 的仓库里出现。",
-        "en": "Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside `type: book` repositories."
+        "zh": "为 Quarto Book 写章节、检查结构并维护主题。",
+        "en": "Write Quarto Book chapters, check their structure, and maintain the theme."
       },
       "capabilities": ["skills", "tools"]
     }
@@ -45,6 +43,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test tests/*.test.mjs",
     "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs",
+    "pack": "node -e \"require('fs').mkdirSync('temp',{recursive:true})\" && npm pack --pack-destination temp",
     "pack:check": "npm pack --dry-run"
   },
   "keywords": [

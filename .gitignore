@@ -5,6 +5,9 @@ coverage/
 *.log
 .DS_Store
 
+# Local pack output
+temp/
+
 # Python caches
 __pycache__/
 *.pyc

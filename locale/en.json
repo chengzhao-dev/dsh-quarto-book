@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Quarto Book Writing",
-    "description": "Author and check Quarto Book chapters and maintain a reusable theme; no business code, only inside type: book repositories."
+    "description": "Write Quarto Book chapters, check their structure, and maintain the theme."
   }
 }

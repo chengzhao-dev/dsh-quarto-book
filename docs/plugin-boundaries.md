@@ -1,6 +1,6 @@
 # 书门禁：什么时候出现
 
-本插件（模块短名 `dsh-quarto-book`，npm 包 `@chengzhao-dev/dsh-quarto-book`）只在会话位于一本书里时出现。安装只把包放进 profile，不等于启用技能；每次 `list({ cwd })` 重新判定。
+本插件（模块短名 `dsh-quarto-book`，npm 包 `@chengzhao-dev/dsh-quarto-book`）只在会话位于一本书里时出现。安装只把包放进 profile，不等于启用技能；插件没有常驻进程，每次 `list({ cwd })` 重新判定。
 
 ## 六类情形
 
@@ -27,11 +27,12 @@
 ## 工具
 
 - `quarto_render_check` 与技能共用同一道门禁：非书会话直接返回 `safe_to_render: false`，不启动 `quarto render`。工具在 `apply()` 时注册，所以会出现在工具目录里；DSH 的工具注册没有 `cwd` 参数，无法在注册阶段按目录隐藏。
+- 技能 provider 的 `get()` 带 `cwd` 时重新过同一道门禁；不带 `cwd` 时只服务已经加载的 candidate。
 - `quarto_pass_report` 只做执行回执，不参与门禁判定。
 
 ## 同一 profile 里的其他插件
 
-本包不探测别的插件，也不因它们改变书门禁。项目 `.agents/skills` 下的同名技能仍按 rank 覆盖插件技能（项目 200 高于插件 550）；不要把 `writing-quarto`、`designing-theme` 复制进项目。
+本包不探测别的插件，也不因它们改变书门禁。社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围；想更窄，就只把它装进写书用的那个 profile。项目 `.agents/skills` 下的同名技能仍按 rank 覆盖插件技能（项目 200 高于插件 550）；不要把 `writing-quarto`、`designing-theme` 复制进项目。
 
 ## 已知边界
 
