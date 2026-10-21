@@ -59,7 +59,7 @@
 - 正文与代码行高 1.75（CJK 阅读舒适带）；章节分隔靠 H2 的 `margin-top`，无通栏底线。
 - `grid.body-width` 是正文列上限（现 300+872+272+2×16=1476 封顶）；Quarto 会从 body-width 中减去两侧各 1rem 的栅格内边距，正文内容列 = body-width − 32px（现 840px）。取 872px 是让 16px Bright Code 下 100 列代码块（834px 内容宽）不换行的最小配置。取值只在 `_quarto.yml`，`--content-width` 只限正文容器；禁止 `75ch` 二次限宽。
 - 代码块不折行：`white-space: pre` + 块内横向滚动（`_quarto.yml` 的 `code-overflow: scroll`）；窄视口整页不出横向滚动条，打印时恢复折行（`code.css` 的打印规则）。
-- ≤991.98px 左栏浮层必须不透明实底（见 `cpp-quarto-sidebar-overlay-v1`）。
+- ≤991.98px 左栏浮层必须不透明实底（规则在 `assets/theme/css/sidebar.css` 的 991.98px 媒体查询）。
 
 ## 组件约定（定组件）
 
