@@ -6,7 +6,7 @@
 
 | 层 | 读者看到什么 | 生效条件 | 排障入口 |
 | --- | --- | --- | --- |
-| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@0.4.1` 成功，profile 的 `package.json` 有这条依赖 | `docs/versioning.md` |
+| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@0.4.2` 成功，profile 的 `package.json` 有这条依赖 | `docs/versioning.md` |
 | 2 书门禁 | 选题里能看到 `writing-quarto`、`designing-theme` | 会话 `cwd` 向上到 git 根，沿途 `_quarto.yml` 有一行独立的 `type: book`，且这本书至少有一个章节源文件 | `docs/plugin-boundaries.md` |
 | 3 按文件分流 | 章节走九步，书根 README 只走第 5–8 步，主题转另一个技能 | 第 2 层通过 | `skills/writing-quarto/SKILL.md` |
 | 4 检查与渲染 | 内容与链接脚本通过，`quarto_render_check` 返回 `html_report` | 与第 2 层同一道门禁 | `skills/writing-quarto/steps/09-check.md` |

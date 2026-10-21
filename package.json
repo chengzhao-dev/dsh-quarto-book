@@ -1,6 +1,6 @@
 {
   "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "为 Quarto Book 写章节、检查结构并维护主题。 · Write Quarto Book chapters, check their structure, and maintain the theme.",
   "type": "module",
   "main": "./lib/index.js",
