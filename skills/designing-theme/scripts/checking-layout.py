@@ -440,7 +440,7 @@ def browser_layout(book_dir, verbose):
     for _family, url in font_face_entries(FONTS_CSS.read_text(encoding="utf-8")):
         target = (FONTS_CSS.parent / url).resolve()
         font_assets_by_name[target.name] = target.stat().st_size if target.is_file() else 0
-    width_floor = {1280: 640, 768: 500, 390: 320}
+    width_floor = {1280: 640, 768: 500, 390: 320, 360: 300}
     for width_text, pages in metrics["viewports"].items():
         width = int(width_text)
         for key, data in pages.items():
@@ -697,6 +697,83 @@ def check_font_coverage(book_dir):
     return coverage, missing
 
 
+def _parse_hex_color(value):
+    match = re.fullmatch(r"#([0-9a-fA-F]{6})", value.strip())
+    if not match:
+        return None
+    digits = match.group(1)
+    return tuple(int(digits[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def _relative_luminance(rgb):
+    channels = []
+    for value in rgb:
+        v = value / 255
+        channels.append(v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+
+
+def _contrast_ratio(fg, bg):
+    hi, lo = sorted((_relative_luminance(fg), _relative_luminance(bg)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def check_palette_contrast():
+    """色板正文/次要/链接/代码前景对各自底色都需 >= 4.5:1。
+
+    只读 tokens.css 的顶层定义块，跳过 prefers-contrast 的增强段：
+    那里本来就该更高。Solarized 的语法彩色 token 由官方配色决定，
+    不在本断言范围内（见 theme-system.md 的对比度说明）。
+    """
+
+    palette_dir = THEME_DIR / "assets" / "theme" / "palettes"
+    pairs = (
+        ("body", "--body-color", "--page-bg"),
+        ("secondary", "--text-secondary", "--page-bg"),
+        ("link", "--link-color", "--page-bg"),
+        ("code", "--code-fg", "--code-bg"),
+        ("line numbers", "--line-num-color", "--code-bg"),
+        ("code title", "--code-title-fg", "--code-title-bg"),
+    )
+    failures = []
+    for palette in ("flexoki", "solarized", "hill-light"):
+        tokens_path = palette_dir / palette / "tokens.css"
+        if not tokens_path.is_file():
+            continue
+        css = tokens_path.read_text(encoding="utf-8")
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        for match in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
+            selector = " ".join(match.group(1).split())
+            if "@media" in selector or "prefers-contrast" in selector:
+                continue
+            body = match.group(2)
+            if "--page-bg" not in body:
+                continue
+            mode_match = re.search(r'data-mode="(\w+)"', selector)
+            if palette == "hill-light":
+                if " body" not in selector:
+                    continue
+                mode = mode_match.group(1) if mode_match else "dawn"
+            else:
+                if " body" not in selector:
+                    continue
+                mode = "dark" if "quarto-dark" in selector else "light"
+            values = dict(re.findall(r"(--[a-z0-9-]+)\s*:\s*([^;]+);", body))
+            for name, fg_token, bg_token in pairs:
+                fg = _parse_hex_color(values.get(fg_token, ""))
+                bg = _parse_hex_color(values.get(bg_token, ""))
+                if not fg or not bg:
+                    continue
+                ratio = _contrast_ratio(fg, bg)
+                if ratio < 4.5:
+                    failures.append(
+                        f"{palette}/{mode}: {name} {ratio:.2f}:1 "
+                        f"({values.get(fg_token).strip()} on {values.get(bg_token).strip()})"
+                    )
+    return failures
+
+
+
 def main():
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -827,6 +904,21 @@ def main():
         if found:
             fail += 1
 
+    contrast_failures = check_palette_contrast()
+    print(f"  {'MISS' if contrast_failures else 'OK  '} palette text contrast >= 4.5:1")
+    if contrast_failures:
+        for line in contrast_failures:
+            print(f"       {line}")
+        fail += 1
+
+    css_defined = set(re.findall(r"(--[a-z0-9-]+)\s*:", theme_text))
+    css_used = set(re.findall(r"var\(\s*(--[a-z0-9-]+)", theme_text))
+    undefined_tokens = sorted(css_used - css_defined)
+    print(f"  {'MISS' if undefined_tokens else 'OK  '} css tokens all defined")
+    if undefined_tokens:
+        print("       " + ", ".join(undefined_tokens))
+        fail += 1
+
     legacy_font_files = sorted(
         p.name
         for pattern in ("inter-*", "noto-sans-sc-*", "jetbrains-mono-*")
@@ -881,7 +973,7 @@ def main():
     else:
         print(
             f"  {'OK  ' if not browser_problems else 'MISS'} browser-layout"
-            f"  (viewports=1280,768,390; schemes=light,dark; "
+            f"  (viewports=1280,768,390,360; schemes=light,dark; "
             f"mode={browser_info.get('mode', 'n/a')}; "
             f"pages={browser_info.get('pages', 0)})"
         )
@@ -898,7 +990,7 @@ def main():
             print(
                 "PASS theme-static；browser-layout "
                 f"{browser_info.get('mode', 'full')} "
-                f"{browser_info.get('pages', 0)} pages × 1280/768/390 × light/dark"
+                f"{browser_info.get('pages', 0)} pages × 1280/768/390/360 × light/dark"
             )
         return 0
     print(f"{fail} theme check(s) failed; inspect the diagnostics above.")

@@ -20,7 +20,7 @@ const bookDir = resolve(flag("--book-dir", "_book"));
 const outFile = flag("--out", "");
 const shotsDir = flag("--shots-dir", "");
 const allPages = argv.includes("--all-pages");
-const viewports = [1280, 768, 390];
+const viewports = [1280, 768, 390, 360];
 const colorSchemes = ["light", "dark"];
 
 async function collectHtml(directory) {
