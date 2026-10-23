@@ -47,13 +47,13 @@
 
 ### 定任务：先让新人完成任务
 
-- 开篇场景的写法见`steps/02-structure.md`「六段块序列」。
-- 每页一条成功路径与后置内容的判定见`steps/06-wording.md`；主线闭合见`steps/02-structure.md`。
-- 标准术语的首次解释与术语卡落点见`steps/02-structure.md`（写法见 `quarto/authoring.md`）；缩写先写全称。
+- 开篇场景的写法见 `steps/02-structure.md`「六段块序列」。
+- 每页一条成功路径与后置内容的判定见 `steps/06-wording.md`；主线闭合见 `steps/02-structure.md`。
+- 标准术语的首次解释与术语卡落点见 `steps/02-structure.md`（写法见 `quarto/authoring.md`）；缩写先写全称。
 - 不假设读者知道工具名、命令参数、目录布局或错误输出代表的含义。
-- 目录式堆砌禁令与清单下沉判据见`steps/02-structure.md`。
-- 标题与引言的单事承诺、承诺用词与 title 变更同步见`steps/02-structure.md`。
-- 语言课禁令、否定式预告、不写「下一节」都在这一步判：它们决定本章能不能出现某句，不是措辞问题（细则见`steps/05-sentences.md`「句子规则」、本文件「叙事范围」）。
+- 目录式堆砌禁令与清单下沉判据见 `steps/02-structure.md`。
+- 标题与引言的单事承诺、承诺用词与 title 变更同步见 `steps/02-structure.md`。
+- 语言课禁令、否定式预告、不写「下一节」都在这一步判：它们决定本章能不能出现某句，不是措辞问题（细则见 `steps/05-sentences.md`「句子规则」、本文件「叙事范围」）。
 
 ## 情况
 

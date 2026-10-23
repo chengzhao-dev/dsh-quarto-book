@@ -4,7 +4,7 @@
 
 > 速查：外观选项集中在根目录配置的格式块下 · 目录收至三级标题放右侧 · 本书不用行号、代码块不折叠。自测答案使用 `.answer` 并渲染为原生 details
 
-选项语义、作用域层级与生效边界的唯一出处是本文件与`steps/02-structure.md`（宽度与节奏）；本文件只留本书的取值和写作口径：
+选项语义、作用域层级与生效边界的唯一出处是本文件与 `steps/02-structure.md`（宽度与节奏）；本文件只留本书的取值和写作口径：
 
 ### 本书的现行取值
 
@@ -28,12 +28,12 @@
 1. 改 `format: html:` 任何取值都属于主题级改动，会触发整本渲染，先确认代价再走 `quarto render`。
 2. 新增或删减主题样式表（`.agents/skills/designing-theme/assets/theme/css/**` 或书内 `theme/css/**`）时，同步修改配置里的样式表清单，否则新样式不参与渲染。
 3. 页面视觉问题（提示符配色、文件名条、术语色）改 `.agents/skills/designing-theme/assets/theme/**` 或书内 `theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../designing-theme/references/theme-system.md`。
-4. 流程图使用 `{mermaid}` 属性围栏，配色由主题样式控制。配置里不指定图表主题名；围栏与 init 指令细则见`quarto/mermaid.md`。
+4. 流程图使用 `{mermaid}` 属性围栏，配色由主题样式控制。配置里不指定图表主题名；围栏与 init 指令细则见 `quarto/mermaid.md`。
 5. 拿不准选项名、默认值或嵌套层级时查官方参考页，不凭记忆写 YAML（入口见本文件 #8）。
 
 ### 验证
 
-渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py` 与 `checking-callouts.py`自动核对；页面宽度与视觉依据见`steps/02-structure.md`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
+渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py` 与 `checking-callouts.py` 自动核对；页面宽度与视觉依据见 `steps/02-structure.md`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
 
 ## 渲染与发布排查索引
 
@@ -67,6 +67,7 @@
 - **症状**：中文变成乱码特征串，或文件带 BOM、行尾变 CRLF。
 - **处置**：改 `.qmd` 或规范文档后先跑 `verifying-content.py`。失败时从 Git 可读版本恢复再重做修改，**不要**对已乱码文本反向转码。用 `verifying-content.py` 复查结构，并在编辑器里确认 UTF-8 无 BOM。
 - **注意**：PowerShell 5.1 的 `Out-File`/`Set-Content -Encoding utf8` 会附带 BOM，需显式无 BOM 或改用 Python 写入。
+- 编码与行尾的完整规则见 `quarto/encoding.md`；本文件只处理渲染后的症状。
 
 ### 6. 渲染失败排查顺序
 
@@ -113,17 +114,17 @@
 ### 13. `{{< include >}}` 引用代码文件未加属性围栏 → 乱码式排版、目录被污染
 
 - **症状**：渲染出的脚本失去高亮与等宽底色，`#` 注释行变成大号标题，含 `*`、`_` 的行变成斜体或粗体，右侧目录多出假标题。
-- **处置**：`{{< include >}}` 整体放进 `{.cpp filename="main.cpp"}` 形式的属性围栏，按扩展名选语言并把 `filename` 写成真实文件名短名，**没有一个例外**。规则见 `quarto/authoring.md`「代码与媒体」；include 的使用边界见`quarto/render.md`。
+- **处置**：`{{< include >}}` 整体放进 `{.cpp filename="main.cpp"}` 形式的属性围栏，按扩展名选语言并把 `filename` 写成真实文件名短名，**没有一个例外**。规则见 `quarto/authoring.md`「代码与媒体」；include 的使用边界见 `quarto/render.md`。
 
 本文件记录本书 `content/**/*.qmd` 的渲染层约定，供 Agent 编写和评审章节时使用；写作层骨架与元素规则见 `steps/` 下的步骤文件。
 
 ## include 短代码必须包在围栏代码块内
 
-展示源码默认**内联摘录片段**（片段规则见`steps/03-blocks.md`，生效）；include 是可选手段，仅用于确实需要完整展示且很短的文件。仍在使用 include 时，必须包在围栏代码块内。
+展示源码默认**内联摘录片段**（片段规则见 `steps/03-blocks.md`，生效）；include 是可选手段，仅用于确实需要完整展示且很短的文件。仍在使用 include 时，必须包在围栏代码块内。
 
 `{{< include <文件> >}}` 裸用（不包代码块）时，Quarto 把文件内容当作 Markdown 正文渲染——换行丢失、`#===` 横幅被解析为 Markdown 标记，最终在 HTML 中变成一串 `<p>` 段落，代码结构完全破坏。
 
-正确写法是包在带语言标注的围栏代码块内（[官方文档](https://quarto.org/docs/authoring/includes.html)给出了同样模式）：
+正确写法是包在带语言标注的围栏代码块内（[官方文档](https://quarto.org/docs/authoring/includes.html) 给出了同样模式）：
 
 ````markdown
 ```python
@@ -140,26 +141,26 @@
 
 qmd 指向仓库内路径的链接仍**一律使用 GitHub 绝对链接**，不使用相对路径链接；锚文本与外链按下列规则执行。
 
-- 章节互引：用章节 title 作链接文字，`.qmd` 相对路径（规则见`steps/06-wording.md`）；
+- 章节互引：用章节 title 作链接文字，`.qmd` 相对路径（规则见 `steps/06-wording.md`）；
 - 仓库内目录：`https://github.com/your-org/your-book/tree/main/<路径>`，锚文本用简短中文描述（如「最小工程目录」）；
 - 仓库内文件：`https://github.com/your-org/your-book/blob/main/<路径>`，锚文本用中文描述或专名文件名（如「构建规则 CMakeLists.txt」「main.cpp」）；
-- 锚文本不写路径结构：`src/` 这类层级不进锚文本；完整路径只出现在 GitHub URL、目录树和确需精确指路的行文里，不进代码块 filename（filename 一律短名，见`steps/03-blocks.md`）；
+- 锚文本不写路径结构：`src/` 这类层级不进锚文本；完整路径只出现在 GitHub URL、目录树和确需精确指路的行文里，不进代码块 filename（filename 一律短名，见 `steps/03-blocks.md`）；
 - 行文叙述少用行内代码路径指代目录：正文指向仓库内目录或文件时，首次出现处用中文锚文本的 GitHub 链接，此后用中文短指称；行内代码路径只保留在目录树与目录映射表格，正文里的实现目录用 GitHub 链接（模板见 `quarto/authoring.md`）；
 - 外部官方文档非必要不链接：命令与概念默认用行内代码加正文一句话讲清；引用第三方内容注明出处与章末参考资料清单是外链的合法位置；
 - 全路径在行文首次出现后改用中文短指称（工程目录、一键脚本、构建规则），不重复全路径；
 - 跨仓锚文本禁止「写法依据见 / 依据见 / 机制见 / 选型见 / 承诺见 / 用法见 / 陷阱见」式；默认不挂链，可选尾置用「若要系统阅读…」；细则见 `writing-quarto` 技能 `steps/01-task.md`「叙事范围（硬边界）」；
 - 新增链接后渲染检查 HTML：锚文本与 URL 对应、无相对路径仓库链接混入（章节互引除外）；
-- 正文与代码块 filename 标注不引用 `.agents/` 内部路径：读者所需的解释就地写清，仓库内路径一律链 GitHub；内部知识路径的读者/作者分离依据见`steps/03-blocks.md`「内容块前后的闭环」；
+- 正文与代码块 filename 标注不引用 `.agents/` 内部路径：读者所需的解释就地写清，仓库内路径一律链 GitHub；内部知识路径的读者/作者分离依据见 `steps/03-blocks.md`「内容块前后的闭环」；
 - 页面级 GitHub 入口只有「查看源码」：`_quarto.yml` 的 `book.repo-actions` 钉为 `[source]`，不开放编辑与议题按钮（取舍见 `quarto/render.md`）。
 
 ## 章节结构约定的归属
 
 章节骨架（无标题引言、任务序列、常见错误、自测问题、本章回顾）、标题字数与教学元素写法统一由 `steps/` 下的步骤文件维护，按下表查阅：
 
-- 见`steps/02-structure.md`：六段骨架、引言职责边界、H2/H3 门槛、术语策略；
-- 见`steps/02-structure.md`：title 与二三级标题的标题字数（动词短语、无冒号）与纵向承诺链；
-- 见`steps/03-blocks.md`：代码块 filename 标注、盒子密度、Callout、目录树、多命令块；
-- 见`examples/06-wording-cases.md`：措辞替换与术语节奏；句段对照见 `examples/05-sentence-frame.md`；
-- 见`steps/02-structure.md`：小节主线收束与信息分层。
+- 见 `steps/02-structure.md`：六段骨架、引言职责边界、H2/H3 门槛、术语策略；
+- 见 `steps/02-structure.md`：title 与二三级标题的标题字数（动词短语、无冒号）与纵向承诺链；
+- 见 `steps/03-blocks.md`：代码块 filename 标注、盒子密度、Callout、目录树、多命令块；
+- 见 `examples/06-wording-cases.md`：措辞替换与术语节奏；句段对照见 `examples/05-sentence-frame.md`；
+- 见 `steps/02-structure.md`：小节主线收束与信息分层。
 
 本文件只维护 include 包裹与链接使用两条渲染层约定。

@@ -15,6 +15,7 @@ metadata:
 - 新增 palette 或页面组件样式。
 - **不适用**：`.qmd` 正文写法（转 `writing-quarto`）；书里项目的业务领域内容（由项目自己的技能负责）。
 - 项目带有 `.agents/skills/quarto-book-project/SKILL.md` 时，先读它的「主题与过滤器路径」，只改 `_quarto.yml` 实际引用的书内副本；没有就跳过。书内副本默认在 `theme/`，过滤器在 `filters/`。
+- 编码与行尾跟 `writing-quarto` 的 `quarto/encoding.md`：UTF-8 无 BOM、样式文件用 LF；`.bat`/`.cmd` 才用 CRLF。
 
 ## 任务路由
 

@@ -13,7 +13,9 @@ const QUARTO_TIMEOUT_MS = 120_000
 const PYTHON_TIMEOUT_MS = 60_000
 const MAX_OUTPUT_FILES = 30
 const MAX_CAPTURED_OUTPUT = 12_000
-const MOJIBAKE_MARKERS = ['锟', '鍂', '鐜', '绔', '鎴', '璇', '浣', '鍙', '熨', '闃']
+// 只收多字乱码序列。单字（如「璇」「浣」「熨」）在正常中文里也会出现，
+// 拿它们当特征会把合法页面判成乱码。
+const MOJIBAKE_MARKERS = ['锟斤拷', '烫烫烫', '屯屯屯', 'â€', 'Ã¤', 'Ã©', 'ï¼', '锘匡']
 
 export type CheckStatus = 'pass' | 'fail' | 'skip'
 
@@ -468,8 +470,9 @@ export async function inspectHtml(input: {
       input.python,
       spawnFn,
     )
+    // C9 只在产物里出现 details.answer-disclosure 时判 fail，没有答案时记 N/A。
     const selected = parseDomLines(dom.output).filter((item) =>
-      ['C1', 'C2', 'C3', 'C5', 'C6', 'C7', 'C8'].includes(item.id),
+      ['C1', 'C2', 'C3', 'C5', 'C6', 'C7', 'C8', 'C9'].includes(item.id),
     )
     const failed = selected.filter((item) => item.status === 'fail')
     checks.push({

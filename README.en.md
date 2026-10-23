@@ -26,10 +26,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.5.0
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.0
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.5.0` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.5.0`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.6.0` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.6.0`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -43,7 +43,7 @@ Load `writing-quarto` or `designing-theme` inside a `type: book` repository and 
 
 A project supplies exactly one skill of its own: `<book>/.agents/skills/quarto-book-project/`, starting from `templates/quarto-book-project/`. When it exists, both general skills read `SKILL.md` and then the `writing/` files it points to; when it does not, they skip it and do not guess project conventions. **Do not embed same-name skills into a book repository**: DSH picks one skill per name per layer by rank, lowest wins, and `.agents/skills` (rank 200) outranks the packaged provider (rank 550); a copy of `writing-quarto` or `designing-theme` in the book disables the plugin's text.
 
-Theme assets live in `skills/designing-theme/assets/theme/`. The package copy is authoritative; the book's `theme/` is the render copy. When a copy exists, `designing-theme` edits only that copy, and only when the user explicitly asks to install the plugin theme into the book and the target directory does not exist yet does the skill copy from the package and write the `filters/answering-disclosure.lua` filter. `_quarto.yml` references only the book's copy, never an npm package or the plugin checkout.
+Theme assets live in `skills/designing-theme/assets/theme/`. The package copy is authoritative; the book's `theme/` is the render copy. When a copy exists, `designing-theme` edits only that copy, and only when the user explicitly asks to install the plugin theme into the book and the target directory does not exist yet does the skill copy from the package and place `skills/writing-quarto/scripts/answering-disclosure.lua` at the book's `filters/answering-disclosure.lua`. `_quarto.yml` references only the book's copy, never an npm package or the plugin checkout.
 
 Run the content and link checks from the `writing-quarto` skill directory:
 

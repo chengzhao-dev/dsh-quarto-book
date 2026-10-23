@@ -8,8 +8,8 @@
 
 ````text
 不佳（一块后把私有性、三个成员、const、[[nodiscard]] 串成一段）：
-成员 cells_ 保持私有，调用者能读写的只有 Game::GetCellState、Game::Place、
-Game::GetResult 这三个成员。Game::GetCellState 与 Game::GetResult 声明为 const，
+成员 cells_ 保持私有，调用者能读写的只有 Game::ReadCellState、Game::ApplyMove、
+Game::GetResult 这三个成员。Game::ReadCellState 与 Game::GetResult 声明为 const，
 读取动作不改变状态面板。三个接口都标注 [[nodiscard]]：查询结果与操作结果都不该被调用方无视。
 
 改写（块前场景已点名与划界；代码展示声明；块后删除复述，语言属性不进旁白）：
@@ -67,7 +67,7 @@ Game::GetResult 这三个成员。Game::GetCellState 与 Game::GetResult 声明�
 先看项目动态库目录 `example/`。数据项的定义在 `include/state.h`，实现放在 `src/state.cpp`。
 ```
 
-判定信号：把问题和答案首句各缩成一个对象名词，两者不一致即错位；补细节不等于换对象；问答中的文件、路径与标识符指称挂了链接也命中（统一行内代码，`verifying-content.py` 对自测节链接记 WARN，规则见`steps/02-structure.md`）。
+判定信号：把问题和答案首句各缩成一个对象名词，两者不一致即错位；补细节不等于换对象；问答中的文件、路径与标识符指称挂了链接也命中（统一行内代码，`verifying-content.py` 对自测节链接记 WARN，规则见 `steps/02-structure.md`）。
 
 ## 冒号后堆叠分号解释
 

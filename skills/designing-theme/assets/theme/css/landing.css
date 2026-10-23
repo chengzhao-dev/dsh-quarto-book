@@ -94,15 +94,33 @@
   color: var(--text-secondary);
   opacity: 1;
 }
+/* 悬停只改顶线，不做位移或阴影：目录保持纸书版式，避免点击时整块跳动。 */
 .landing-card:hover {
   border-top-color: var(--accent);
   background-color: transparent;
   box-shadow: none;
 }
-.landing-card:focus-within {
+/* 键盘焦点进入卡片时，顶线转成 accent 作整行提示。
+   焦点框只画在真正获得焦点的链接上，不再用 :focus-within 套住整张卡片；
+   鼠标点击不会命中 :focus-visible，因此不会弹出大框。 */
+.landing-card:has(a:focus-visible) {
   border-top-color: var(--accent);
+}
+#quarto-document-content .landing-card h3 a:focus-visible,
+#quarto-document-content .landing-card a.cta:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+  border-radius: 2px;
+}
+#quarto-document-content .landing-card h3 a:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-card {
+    transition: none;
+  }
 }
 #quarto-document-content .landing-card h3 {
   grid-area: title;
@@ -118,7 +136,12 @@
 }
 .landing-card h3 a:hover {
   color: var(--link-hover-color);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: var(--link-hover-color);
+  text-underline-offset: 0.2em;
+}
+.landing-card a:active {
+  opacity: 0.75;
 }
 #quarto-document-content .landing-card p {
   grid-area: desc;

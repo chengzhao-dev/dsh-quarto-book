@@ -22,7 +22,7 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 - 章节顺序的唯一来源：根 `_quarto.yml` 的 `book.chapters`。
 - 每章的类章或能力章、关键对象、`title` 与二级标题：`writing/chapter-map.md`。
-- 目录布局：`content/<part>/<NN-chapter>.qmd`。
+- 目录布局：正文按部分放在 `content/<part>/`，章节写成 `content/<part>/<NN-chapter>.qmd`；附录放在 `content/appendix/`，由根 `_quarto.yml` 的 `appendices` 引用。
 - 改文件名时同轮同步 `_quarto.yml`、章节对照、`title` 和已有链接。
 
 ## 术语表

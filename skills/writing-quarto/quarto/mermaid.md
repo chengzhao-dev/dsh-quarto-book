@@ -2,7 +2,7 @@
 
 本文件记录 `content/**/*.qmd` 中 Mermaid 图表的渲染层约定；是否使用图表的门槛见 `writing-quarto` 技能的 P0 硬约束，主题侧取色与排版守卫见 `designing-theme` 技能的 `../designing-theme/assets/theme/css/mermaid.css`。
 
-Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见`quarto/coords.md`，禁止用 Mermaid 硬画网格。
+Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见 `quarto/coords.md`，禁止用 Mermaid 硬画网格。
 
 ## 只使用 {mermaid} 围栏
 

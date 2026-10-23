@@ -2,7 +2,7 @@
 
 本文件是 Quarto Book 项目结构、YAML front matter、章节标题约定的**规范唯一出处**。其他文件提到这些约定时一律引用本文件，不重复陈述。`format: html` 的选项语义与失效边界归 `quarto/render.md`，本文件不复制。
 
-> 速查：`.qmd` = YAML front matter + Markdown 正文 · `title:` 与 `# H1` 二选一 · `index.qmd` 必须存在 · Book 输出 `_book/` · `part:` 分组章节
+> 速查：`.qmd` = YAML front matter + Markdown 正文 · `title:` 与 `# H1` 二选一 · `index.qmd` 必须存在 · Book 输出 `_book/` · `part:` 分组章节 · `appendices:` 收附录
 
 Quarto 接受 `.qmd`、`.md`、`.ipynb`、`.Rmd` 四种章节源文件；Book 的章节以 `.qmd` 为主，本技能只按 `.qmd` 与 `.md` 讲正文写法，其他类型按 Quarto 官方文档处理。
 
@@ -45,6 +45,23 @@ quarto render                     # 渲染当前项目全部内容
 
 ## Quarto Book 项目
 
+书根只放配置、入口和主题资产，正文按部分收进 `content/`。常见布局如下：
+
+```text
+book/
+├── _quarto.yml                           # 书配置：chapters、appendices 与输出
+├── index.qmd                             # 根首页：只导航到各 part 落地页
+├── content                               #/ 正文与附录
+│   ├── <part>                            #/ 一个部分
+│   │   ├── index.qmd                     # part 落地页：本部分章节卡片
+│   │   ├── 01-intro.qmd
+│   │   └── 02-topic.qmd
+│   └── appendix                          #/ 附录
+│       └── references.qmd
+├── theme                                 #/ 书内主题副本
+└── filters                               #/ 书内过滤器
+```
+
 Quarto Book 的核心配置在书根 `_quarto.yml`：
 
 ```yaml
@@ -61,11 +78,16 @@ book:
       chapters:
         - content/<part>/01-intro.qmd
         - content/<part>/02-topic.qmd
+    - content/<part>/99-bibliography.qmd   # 书目页：#refs 留在 chapters
+  appendices:
+    - content/appendix/references.qmd
 ```
 
-- **`index.qmd` 必须存在**，作为 Book 首页/入口。
+- **`index.qmd` 必须存在**，作为 Book 首页/入口；根首页只承担这一层导航。
 - **`part:` 指向该部分的落地页**（如 `content/<part>/index.qmd`），产生分组标题；新增部分时先建落地页，再加 part。
 - 章节可放子目录，在 `chapters` 写相对路径；`_quarto.yml` 的章节顺序与落地页的阅读顺序保持一致。
+- **`appendices:` 只放附录页**，排在 `chapters` 之后；附录标题默认由 Quarto 加前缀，想改中文名在 `crossref.appendix-title` 设「附录」。
+- 用 `#refs` 生成的书目页留在 `chapters`，不要放进 `appendices`，否则书目会被当成附录。
 - 渲染：`quarto render`，Book 默认输出到 `_book/`。
 
 ### 根首页与 part 落地页的链接边界

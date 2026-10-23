@@ -27,4 +27,6 @@ dsh-quarto-book/
 
 内容、链接与命名检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
+`skills/writing-quarto/quarto/` 下的 `comments.md`、`encoding.md` 与 `prose.md` 分别管注释写法、编码与行尾、中英混排与润色；`skills/building-cpp/references/encoding.md` 管 C++ 工程的同一组机器规则。几处都只写各自文件类型，不互相复述。
+
 技能的目录分层见 `writing-quarto-layout.md`，版本与发布规则见 `versioning.md`。

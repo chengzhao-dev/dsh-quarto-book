@@ -187,6 +187,43 @@ test('首页含 charset 与 sitemap/search 时全部通过', async () => {
   }
 })
 
+test('正常中文里的「璇」不算乱码', async () => {
+  const root = await bookFixture({
+    indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body>璇玑</body></html>',
+  })
+  try {
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn: fakeSpawn({ code: 0 }),
+    })
+    const utf8 = result.html_report.checks.find((check) => check.id === 'utf8')
+    assert.equal(utf8.status, 'pass')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('锟斤拷乱码序列让 utf8 检查失败', async () => {
+  const root = await bookFixture({
+    indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body>锟斤拷</body></html>',
+  })
+  try {
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn: fakeSpawn({ code: 0 }),
+    })
+    const utf8 = result.html_report.checks.find((check) => check.id === 'utf8')
+    assert.equal(utf8.status, 'fail')
+    assert.match(utf8.detail, /锟斤拷/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('search.json 为顶层数组时也算索引可用', async () => {
   const root = await bookFixture({
     indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body>正文</body></html>',

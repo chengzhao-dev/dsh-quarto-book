@@ -28,7 +28,8 @@
   C7 代码块视觉契约：普通文本代码块与语言代码块必须共用代码背景、边框、
       字体和布局令牌，避免两套代码块样式分叉。
   C8 代码来源标题：QMD 代码块必须由 .code-with-filename 包裹，且主题必须提供
-      标题背景、文字和间距令牌。标题条不能退化为普通代码块。
+      标题背景、文字和间距令牌。标题条不能退化为普通代码块。自定义组件里的
+      <pre>（没有 <code> 子节点）不算代码来源块。
   C9 可折叠答案：产物中的 details.answer-disclosure 存在时，必须默认收起，
       摘要必须等于“查看答案”，且答案区不得混入标题层级；没有答案块时为 N/A。
 
@@ -442,6 +443,10 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
             if any(is_descendant(node, wrapper) for wrapper in wrappers):
                 continue
             if node.classes & {"mermaid", "mermaid-js"}:
+                continue
+            # Pandoc 生成的源码块一定带 <code> 子节点；交互组件里的终端输出
+            # 直接把文本放进 <pre>，不是代码来源块，不该按 C8 判定。
+            if not any(child.tag == "code" for child in walk(node)):
                 continue
             untitled.append(str(path.relative_to(book_dir)))
     title_tokens = all(token in source_css_text for token in (

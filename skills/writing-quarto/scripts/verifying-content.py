@@ -91,11 +91,15 @@ def parse_frontmatter_title(front: str) -> str:
 def parse_chapters(quarto_yml: Path) -> list[str]:
     """Return chapter hrefs in declaration order.
 
-    Supports the two forms Quarto Book uses:
+    Supports the forms Quarto Book uses:
       chapters:
         - index.qmd
         - href: content/part/01-intro.qmd
-    It deliberately does not parse part titles as chapters.
+        - part: content/part/index.qmd
+          chapters:
+            - content/part/01-intro.qmd
+    `part:` 带标题时只是分组标题，不带 .qmd 后缀，因此不会被当成章节；带文件时，
+    该文件是分组落地页，也要接受内容检查。嵌套的 `chapters:` 键本身不是章节。
     """
     if not quarto_yml.is_file():
         return []
@@ -114,7 +118,12 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
         if not stripped.startswith("-"):
             continue
         item = stripped[1:].strip()
-        href = re.sub(r"^href:\s*", "", item).strip().strip("'\"")
+        key, sep, value = item.partition(":")
+        if sep and re.fullmatch(r"[a-z_]+", key.strip()):
+            # 只接受会落到页面的键：href 与 part 的文件形式。
+            href = value.strip().strip("'\"") if key.strip() in {"href", "part"} else ""
+        else:
+            href = item.strip("'\"")
         if href.endswith(".qmd"):
             chapters.append(href)
     return chapters

@@ -433,7 +433,7 @@ Pandoc/Quarto 产出：
 | 段首缩进 | **不做**，改用段间距 1.4rem | clreq 允许"不缩排+段间留白"这一式；但 clreq 同时指出中文书刊惯例是 2em 缩进且段间不加空行（[§6.2.1.1](https://www.w3.org/TR/clreq/#h_justification)）——网页取前者，因为代码块/列表频繁打断，缩进会与块元素左缘错位 |
 | 两端对齐 | **`text-align: start`（不做）** | clreq 的印刷规范是两端对齐、靠字间调距（§6.2.2）；但网页混排大量行内代码/英文标识符，浏览器 justify 会把空格拉成"河道"且不处理标点悬挂。若要开，只对纯中文段落用 `.prose--justify{text-align:justify;text-justify:inter-character}`，浏览器一致性**未证实** |
 | 标点挤压 | `text-spacing-trim: space-first`（`@supports` 守卫） | CSS Text 4 的 CJK 标点压缩；Chrome/Safari 支持度需实测，**未证实**，作为 P2 增强 |
-| 中西混排空格 | `text-autospace: normal`（`@supports` 守卫），或作者手动加空格 | 规范见 [CSS Text 4 §text-autospace](https://drafts.csswg.org/css-text-4/#text-autospace-property)；人工规则见[中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines)（"中英文之间加空格"）。**浏览器默认不自动加**，不加空格时汉字与拉丁会粘连 |
+| 中西混排空格 | `text-autospace: normal`（`@supports` 守卫），或作者手动加空格 | 规范见 [CSS Text 4 §text-autospace](https://drafts.csswg.org/css-text-4/#text-autospace-property)；人工规则见 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines)（"中英文之间加空格"）。**浏览器默认不自动加**，不加空格时汉字与拉丁会粘连 |
 | 行尾标点悬挂 | **不用** `hanging-punctuation` | 仅 Safari 支持 `allow-end`，跨浏览器不一致；宁可不做 |
 | 破折号/省略号 | 用「——」「……」 | clreq §5.1 规定破折号占 2em、省略号 6 点；不要用 `--` 或 `...` |
 | 引号 | 简体横排用 “ ” 与 ‘ ’ | clreq §5.2；书名号《》 |

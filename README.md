@@ -26,10 +26,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.5.0
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.0
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.5.0`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.5.0`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.6.0`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.6.0`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级时（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile），先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book` 再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -43,7 +43,7 @@ dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.5.0
 
 项目只放一份自己的约定技能：`<book>/.agents/skills/quarto-book-project/`，模板见 `templates/quarto-book-project/`。存在时两个通用技能先读它的 `SKILL.md`，再按它指向的 `writing/` 文件读章节表；不存在就跳过，不猜项目约定。**不要把同名技能嵌进书仓库**：DSH 在同一技能层按 rank 取一个，`.agents/skills`（rank 200）优先于插件（rank 550），书里再放 `writing-quarto` 或 `designing-theme` 会让插件正文失效。
 
-主题资产在 `skills/designing-theme/assets/theme/`，包内是权威来源，书内 `theme/` 是渲染副本；已有副本时 `designing-theme` 只改副本，只有用户明确要求「把插件主题装进这本书」且目标目录不存在时才从包复制，并写入过滤器 `filters/answering-disclosure.lua`。`_quarto.yml` 只引用书内副本，不指向 npm 包或插件检出目录。
+主题资产在 `skills/designing-theme/assets/theme/`，包内是权威来源，书内 `theme/` 是渲染副本；已有副本时 `designing-theme` 只改副本，只有用户明确要求「把插件主题装进这本书」且目标目录不存在时才从包复制，并把 `skills/writing-quarto/scripts/answering-disclosure.lua` 放到书内 `filters/answering-disclosure.lua`。`_quarto.yml` 只引用书内副本，不指向 npm 包或插件检出目录。
 
 内容与链接检查在 `writing-quarto` 技能目录下运行：
 
