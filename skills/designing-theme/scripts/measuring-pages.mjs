@@ -152,6 +152,9 @@ async function collect(page, pageId, scheme) {
       for (const element of scope.querySelectorAll("*")) {
         if (
           element.closest(".screen-reader-only, .sr-only, [aria-hidden='true']")
+          // 内联 SVG（棋盘快照等）没有 CSS 盒模型，<text> 的 clientWidth 恒为 0、
+          // scrollWidth 按字形量出，天然「溢出」，不能当版式问题。
+          || element.closest("svg")
           || style(element).display === "none"
           || style(element).visibility === "hidden"
         ) {
@@ -160,13 +163,22 @@ async function collect(page, pageId, scheme) {
         if (!element.clientWidth || element.scrollWidth <= element.clientWidth + 1) {
           continue;
         }
-        const overflowX = style(element).overflowX;
+        // 宽于容器的元素只有整页横向滚动条才算问题：代码行本身宽于 <pre> 是常态，
+        // <pre> 自己 overflow-x: auto 就不该上报。所以沿祖先链找真正的滚动容器。
+        let scrolls = false;
+        for (let node = element; node && node !== document.body; node = node.parentElement) {
+          const overflowX = style(node).overflowX;
+          if (overflowX === "auto" || overflowX === "scroll") {
+            scrolls = true;
+            break;
+          }
+        }
         overflow.push({
           tag: element.tagName.toLowerCase(),
           classes: typeof element.className === "string" ? element.className.slice(0, 80) : "",
           scrollWidth: element.scrollWidth,
           clientWidth: element.clientWidth,
-          scrolls: overflowX === "auto" || overflowX === "scroll",
+          scrolls,
           inPre: Boolean(element.closest("pre")),
         });
       }
@@ -183,6 +195,29 @@ async function collect(page, pageId, scheme) {
           borderRightWidth: px(style(sidebar).borderRightWidth),
         }
       : null;
+    // 栏间分隔只该有顶栏下那一条：读 #quarto-header 的底边，和有没有 h2 短伪元素线。
+    // 三个数据都来自计算样式，不依赖主题里写了什么，改回旧规则会直接失败。
+    const header = document.querySelector("#quarto-header");
+    const headerRule = header
+      ? {
+          borderBottomWidth: px(style(header).borderBottomWidth),
+          borderBottomColor: style(header).borderBottomColor,
+          secondaryBorderBottomWidth: px(
+            style(document.querySelector("nav.quarto-secondary-nav") || header).borderBottomWidth
+          ),
+        }
+      : null;
+    const h2Rules = [...document.querySelectorAll("#quarto-document-content h2")]
+      .map((heading) => {
+        const after = window.getComputedStyle(heading, "::after");
+        return {
+          text: heading.textContent.trim().slice(0, 30),
+          afterContent: after.content,
+          afterWidth: px(after.width),
+          afterHeight: px(after.height),
+        };
+      })
+      .filter((item) => item.afterContent && item.afterContent !== "none" && item.afterHeight > 0);
     // 折叠状态来自构建期写入的 expanded：顶层 part 以 depth=1 渲染，
     // collapse-level 决定哪一层默认展开。断言只看 show 类，不看动画中间态。
     const sidebarSections = sidebar
@@ -224,6 +259,8 @@ async function collect(page, pageId, scheme) {
       copyButtonOpacities,
       sidebarOverlay,
       sidebarSections,
+      headerRule,
+      h2Rules,
       contentWidth: px(rootStyle.width),
       color: rootStyle.color,
       backgroundColor: style(document.body).backgroundColor,

@@ -1,6 +1,6 @@
-<div class="footer">
-  © 2026 Quarto Book · 用 <a href="https://quarto.org">Quarto</a> 构建
-</div>
+<footer class="book-footer">
+  <p>© 2026 Quarto Book · 用 <a href="https://quarto.org">Quarto</a> 构建</p>
+</footer>
 <button id="back-to-top" type="button" title="返回顶部" aria-label="返回顶部">↑</button>
 <script>
 (function () {
@@ -21,16 +21,25 @@
 (function () {
   var meta = document.getElementById('meta-theme-color');
   if (!meta) return;
-  // 地址栏主题色直接读 tokens.css 的 --page-bg 计算值（body.quarto-dark 切换后自动取暗色），
-  // 避免与令牌双写漂移；取不到时按当前明暗兜底
+  // 地址栏主题色直接读 tokens.css 的 --page-bg 计算值（明暗与色板切换后自动重取），
+  // 避免与令牌双写漂移；取不到时按当前色板的纸色兜底。
+  // favicon 也在这里再同步一次：file:// 下 Quarto 不写 localStorage，只能靠 body class 变化触发。
   var sync = function () {
+    var solarized = document.documentElement.getAttribute('data-palette') === 'solarized';
     var v = window.getComputedStyle(document.body).getPropertyValue('--page-bg').trim();
-    if (!v) v = document.body.classList.contains('quarto-dark') ? '#22272E' : '#FFFFFF';
+    if (!v) {
+      var dark = document.body.classList.contains('quarto-dark');
+      if (solarized) v = dark ? '#002B36' : '#FDF6E3';
+      else v = dark ? '#100F0F' : '#FFFCF0';
+    }
     meta.setAttribute('content', v);
+    if (window.__bookSyncFavicon) window.__bookSyncFavicon();
   };
   sync();
   if (window.MutationObserver) {
-    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    var observer = new MutationObserver(sync);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
   }
 })();
 </script>

@@ -12,8 +12,8 @@
 
 | 选项 | 取值 | 备注 |
 |---|---|---|
-| `theme` | `light: [cosmo, palettes/github/theme-light.scss]` + `dark: [darkly, …]` | 内置主题与项目样式叠加，顺序决定覆盖关系 |
-| `highlight-style` | `light:`/`dark:` 指向 `palettes/github/highlight-light.theme` / `highlight-dark.theme` 两份主题文件路径 | 明暗分别指定，与 `palettes/github/meta.md` 同步，语义颜色交给主题文件，CSS 不覆盖 token |
+| `theme` | `light: [cosmo, theme/palettes/flexoki/theme-light.scss]` + `dark: [darkly, theme/palettes/flexoki/theme-dark.scss]` | 内置主题与项目样式叠加，顺序决定覆盖关系；Flexoki 是编译默认 |
+| `highlight-style` | `light:`/`dark:` 指向 `theme/palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` | 明暗分别指定，与 `palettes/flexoki/meta.md` 同步；Solarized 的语法色由 `theme/palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，不改这里 |
 | `filters` | `scripts/answering-disclosure.lua`（顶层 `filters:`） | 将正文 `.answer` 转为默认收起的原生 `details` |
 | `toc` / `toc-depth` / `toc-location` | `true` / `3` / `right` | 右侧目录最多到 H3，窄屏会折叠，不作唯一定位手段 |
 | `number-sections` | `false` | 因此标题不手填序号，见 `quarto/basics.md` |

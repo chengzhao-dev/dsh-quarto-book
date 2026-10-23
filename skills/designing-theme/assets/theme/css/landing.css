@@ -1,61 +1,114 @@
-/* dsh-quarto-book Quarto 主题 · 首页落地页（Hero / 卡片网格；自 common.css 拆分） */
+/* dsh-quarto-book Quarto 主题 · 首页落地页（Hero / 目录网格；书籍式编辑排版） */
 
-/* ---------- 首页落地页：Hero + 功能卡片 ---------- */
+/* ---------- 首页落地页：Hero + 目录 ---------- */
 /* Hero 复用 #title-block-header（h1 + description 副标题）
    —— 间距控制点（关键）：
       · 标题→描述：本规则 margin-top
         注意：Bootstrap 自带 #title-block-header.quarto-title-block.default .description { margin-top:0 }
         （特异性 1,3,0）会压过低特异性 #title-block-header .description（1,1,0），
-        故此处必须用【同等特异性】选择器才能生效；否则改 margin-top 一律无效（之前 20rem 不生效即此因）。
-       · 描述→hero 卡片：本规则 margin-bottom（与 .feature-grid margin-top 折叠取大值，须同步改才生效） */
+        故此处必须用【同等特异性】选择器才能生效。
+      · 描述→目录网格：本规则 margin-bottom（与 .feature-grid margin-top 折叠取大值，须同步改才生效） */
 #title-block-header.quarto-title-block.default .description {
   font-size: 1.125rem;
   text-align: left;        /* 与左对齐标题一致（覆盖默认 theme 居中） */
-  margin-top: 1.5rem;      /* 标题→描述：空一行（gitcn hero mt-3 放宽） */
-  margin-bottom: 0.6rem;   /* 描述→卡片：收紧（须与 .feature-grid 顶边距同步改） */
+  margin-top: 1.5rem;      /* 标题→描述：留一行 */
+  margin-bottom: 0.6rem;   /* 描述→目录：收紧 */
 }
 .feature-grid {
   display: grid;
-  /* 桌面端固定两列；单卡也保留半行宽度，与双卡保持一致。
-     半行宽度沿用 calc((100% - 1.25rem) / 2) 的既有布局契约。 */
-  grid-template-columns: repeat(2, minmax(0, calc((100% - 1.25rem) / 2)));
-  gap: 1.25rem;            /* 卡片间距对齐 gitcn（~20px） */
-  margin: 0.6rem 0 1rem;   /* 顶部 0.9rem → 0.6rem，与描述下边距折叠后整体 0.6rem */
+  /* 两栏目录；栏距比卡片内边距宽一档，让两栏的文本列互不干扰 */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2.5rem;
+  margin: 0.9rem 0 1.5rem;
+  counter-reset: landing-card;
 }
-/* 首页各分组（## 准备 / ## 语言核心）下方引导段：灰字小一号，对齐 gitcn 分组描述；
+/* 只有一张卡（当前游戏）时占满整行，右侧不再留半行空白；
+   多卡（后续棋类）仍按两栏目录排。 */
+.feature-grid:has(> .landing-card:only-child) {
+  grid-template-columns: 1fr;
+}
+/* 单张「当前游戏」是首页的主目录条目：把序号放大成版式锚点，
+   标题、提要列在中间，动作留在右下，避免整行只有左侧一小段文字。 */
+.feature-grid:has(> .landing-card:only-child) .landing-card {
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  grid-template-areas:
+    "index title cta"
+    "index desc  cta";
+  column-gap: 1.25rem;
+  row-gap: 0.45rem;
+  padding: 1.35rem 0 1.5rem;
+}
+.feature-grid:has(> .landing-card:only-child) .landing-card::before {
+  font-size: 1.75rem;
+  letter-spacing: 0;
+  line-height: 1;
+  padding-top: 0.15rem;
+  opacity: 1;
+}
+.feature-grid:has(> .landing-card:only-child) .landing-card h3 {
+  font-size: 1.375rem;
+}
+.feature-grid:has(> .landing-card:only-child) .landing-card p {
+  font-size: 1rem;
+  max-width: 46ch;
+}
+/* 首页各分组（## 准备 / ## 语言核心）下方引导段：灰字小一号；
    作用域限定首页（:has(.hero-eyebrow)），内容页引言保持正文色不受影响 */
 #quarto-document-content:has(.hero-eyebrow) section.level2 > p:first-of-type {
   color: var(--text-secondary);
   font-size: 0.9375rem;
-  line-height: 1.5;
-  margin: 0 0 1.25rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
 }
-/* 首页专用卡片（与正文内容完全隔离的组件，高特异性确保标题加粗+描述灰必生效） */
+/* 首页目录条目：书页目录的一行。
+   左侧是序号、标题、提要，右侧是动作；顶线分隔，不画卡片底色。 */
 .landing-card {
-  display: block;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 1.35rem 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "index index"
+    "title cta"
+    "desc  cta";
+  column-gap: 2rem;
+  row-gap: 0.35rem;
+  align-items: start;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--card-border);
+  border-radius: 0;
+  padding: 1.1rem 0 1.35rem;
   transition: var(--transition);
-  min-height: 100%; /* 两卡并排时等高，避免短卡显得挤 */
+  min-height: 0;
   box-sizing: border-box;
 }
+/* 目录序号：小号等宽数字，像纸书目录前的 01/02 */
+.landing-card::before {
+  counter-increment: landing-card;
+  content: counter(landing-card, decimal-leading-zero);
+  grid-area: index;
+  font-family: var(--mono-font);
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  line-height: 1.1;
+  padding-top: 0.1rem;
+  color: var(--text-secondary);
+  opacity: 1;
+}
 .landing-card:hover {
-  border-color: var(--card-hover-border);
-  background-color: var(--surface-raised);
-  box-shadow: var(--card-shadow);
+  border-top-color: var(--accent);
+  background-color: transparent;
+  box-shadow: none;
 }
 .landing-card:focus-within {
-  border-color: var(--accent);
+  border-top-color: var(--accent);
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 #quarto-document-content .landing-card h3 {
+  grid-area: title;
   margin-top: 0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   font-size: 1.0625rem;
-  /* 单字面字体 + font-synthesis: none 下 600 不会变粗；卡片标题靠字号与边框区分 */
   color: var(--body-color);
 }
 #quarto-document-content .landing-card h3 a {
@@ -64,19 +117,36 @@
   text-decoration: none;
 }
 .landing-card h3 a:hover {
-  color: var(--accent);
+  color: var(--link-hover-color);
   text-decoration: none;
 }
 #quarto-document-content .landing-card p {
+  grid-area: desc;
+  max-width: 54ch;
   margin-bottom: 0;
-  color: var(--text-secondary);   /* 描述灰字（对齐 gitcn） */
+  color: var(--text-secondary);
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.7;
 }
-/* 未撰写章节：弱化 + "规划中" 角标 */
+/* Pandoc 会把 `[进入井字棋 →]{.cta}` 包进 <p>；网格项因此是段落而不是链接。
+   把带 .cta 的段落放到 cta 区，链接本体再恢复字号。 */
+#quarto-document-content .landing-card p:has(> a.cta) {
+  grid-area: cta;
+  align-self: end;
+  justify-self: end;
+  max-width: none;
+  margin: 0;
+  font-size: 0;
+  line-height: 1;
+}
+#quarto-document-content .landing-card p:has(> a.cta) > a.cta {
+  font-size: 0.8125rem;
+}
+/* 未撰写章节：弱化 + "规划中" 文字标记 */
 .landing-card.coming-soon {
-  background-color: var(--surface-raised);
-  border-color: var(--card-border);
+  background-color: transparent;
+  border-top-color: var(--card-border);
+  opacity: 0.7;
 }
 .landing-card.coming-soon h3,
 .landing-card.coming-soon h3 a,
@@ -86,34 +156,38 @@
 }
 .landing-card.coming-soon::after {
   content: "规划中";
-  display: inline-block;
-  margin-top: 0.7rem;
-  font-size: 0.72rem;
+  grid-area: cta;
+  align-self: end;
+  justify-self: end;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  padding: 0.05rem 0.55rem;
 }
 
-/* 主题卡 CTA：对齐 gitcn 的「开始学习 →」蓝链；块级 + 上留白，确保与描述分行 */
+/* 目录 CTA：条目右下的动作，墨色下划线，hover 才转 accent */
 #quarto-document-content .landing-card a.cta {
-  display: block;
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  grid-area: cta;
+  align-self: end;
+  justify-self: end;
+  display: inline-block;
+  margin-top: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
   color: var(--link-color);
-  text-decoration: none;
-}
-.landing-card a.cta:hover {
   text-decoration: underline;
   text-decoration-color: var(--link-underline);
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.18em;
+}
+.landing-card a.cta:hover {
+  color: var(--link-hover-color);
+  text-decoration-color: var(--action-color);
 }
 /* 落地页分组标题与卡片的间距节奏
    Quarto 把 h2 包进 section.level2，不能用「主容器直属 h2」选择器 */
 #quarto-document-content > h2 + .feature-grid,
 #quarto-document-content section.level2 > h2 + .feature-grid {
-  margin-top: 0.4rem;
+  margin-top: 0.9rem;
 }
 /* 分组引导段（h2 下首段）与卡片网格：略收紧，避免两卡一行时上下空档过大 */
 #quarto-document-content section.level2 > p:first-of-type + .feature-grid {
@@ -173,10 +247,34 @@ body.homepage .landing-card,
     gap: 1rem;
   }
   .landing-card {
-    padding: 1.1rem 1.15rem;
+    padding: 1rem 0 1.25rem;
+  }
+  /* 窄屏单卡：动作挪到提要下方，提要不再被右侧 CTA 挤成一条窄栏 */
+  .feature-grid:has(> .landing-card:only-child) .landing-card {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    grid-template-areas:
+      "index title"
+      "index desc"
+      "index cta";
+    column-gap: 1rem;
+    row-gap: 0.4rem;
+  }
+  .feature-grid:has(> .landing-card:only-child) .landing-card::before {
+    font-size: 1.5rem;
+    padding-top: 0.1rem;
+  }
+  .feature-grid:has(> .landing-card:only-child) .landing-card h3 {
+    font-size: 1.25rem;
+  }
+  .feature-grid:has(> .landing-card:only-child) .landing-card p {
+    font-size: 0.9375rem;
+    max-width: none;
+  }
+  .feature-grid:has(> .landing-card:only-child) .landing-card p:has(> a.cta) {
+    justify-self: end;
   }
 }
 body.homepage .landing-card h3 a,
 #quarto-document-content:has(> #title-block-header:first-child + .feature-grid) .landing-card h3 a {
-  color: var(--body-color);   /* 卡片标题非蓝链，与 hero 配色统一 */
+  color: var(--body-color);   /* 目录标题不是动作色，与 hero 配色统一 */
 }

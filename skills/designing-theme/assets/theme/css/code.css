@@ -50,11 +50,11 @@ pre:not(.sourceCode) code {
 }
 pre.sourceCode code > span { line-height: var(--code-line-height); }
 
-/* GitHub 风格高亮只区分颜色，不用额外字重强调命令名或输出 token。 */
+/* 高亮只区分颜色，不用额外字重强调命令名或输出 token。 */
 pre.sourceCode code span { font-weight: 400; }
 
 /*
- * 颜色只由 GitHub 风格的语义 token 提供。不要按字符、位置或命令名
+ * 颜色只由语义 token 提供。不要按字符、位置或命令名
  * 覆盖 span，否则同一行的括号、版本号和普通文本会出现突兀的颜色切换。
  */
 /* 语言代码块和普通文本代码块共享布局；只有语言代码块保留语义 token。 */
@@ -205,6 +205,88 @@ pre.sourceCode code > span:hover { background-color: var(--line-hover-bg); }
   border-color: var(--code-border);
 }
 .code-copy-button-checked { opacity: 1; color: var(--link-color); }
+
+/* ---------- 代码工具（code-tools） ----------
+   浮在代码块右上角的「代码」按钮与下拉菜单来自 Bootstrap，默认 16px 灰蓝字、
+   无本轮语义；接到令牌：次要色 → 悬停主色，菜单与分隔线用卡片层令牌。 */
+.code-tools-button {
+  color: var(--text-secondary) !important;
+  font-family: var(--ui-font);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+.code-tools-button:hover,
+.code-tools-button:focus-visible {
+  color: var(--text-primary) !important;
+  background: var(--surface-raised);
+}
+.code-tools-menu {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  font-family: var(--ui-font);
+  font-size: 0.875rem;
+  padding: 0.25rem;
+}
+.code-tools-menu .dropdown-item {
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.55rem;
+}
+.code-tools-menu .dropdown-item:hover {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+.code-tools-menu .dropdown-divider {
+  border-top-color: var(--card-border);
+}
+
+/* ---------- 代码标注（code-annotation） ----------
+   Quarto 自带的标注样式是 Bootstrap 默认：gutter 一块浅灰底、行号是主色圆点，
+   暗色下浅灰块会发亮、圆点色与本书强调色不同源。这里只接令牌：gutter 透明、
+   行内编号与注释列表编号共用动作色描边，注释正文走 14px 次要色。 */
+.code-annotation-gutter,
+.code-annotation-gutter-bg {
+  background-color: transparent;
+}
+#quarto-document-content code.sourceCode .code-annotation-anchor,
+#quarto-document-content .code-annotation-container-grid dt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--ui-font);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+}
+#quarto-document-content code.sourceCode .code-annotation-anchor {
+  margin-right: 0.4rem;
+}
+.code-annotation-container-grid {
+  margin: 0.6rem 0 1.5rem;
+}
+.code-annotation-container-grid dt {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+  font-family: var(--ui-font);
+}
+.code-annotation-container-grid dd {
+  margin: 0 0 0.45rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
 
 /* 打印时横向滚动不存在，屏幕上的 white-space: pre 会把 100 列截掉；
    打印恢复折行，屏幕规则不动。 */

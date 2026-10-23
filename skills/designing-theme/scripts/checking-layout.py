@@ -63,14 +63,14 @@ def active_palette_name(quarto_text=""):
 SHARED_CHECKS = [
     ("body line-height 1.75", "line-height: 1.75"),
     ("content width", "--content-width: 840px"),
-    ("code font 16px", "--code-font-size: 1rem"),
-    ("code line-height 1.75", "--code-line-height: 1.75"),
+    ("code font 15px", "--code-font-size: 0.9375rem"),
+    ("code line-height 1.7", "--code-line-height: 1.7"),
     ("code title padding token", "--code-title-padding"),
     ("ui font stack", '--ui-font: "LXGW Bright Medium"'),
     ("cjk font fallback", '"LXGW Bright Medium"'),
     ("code font stack", '--mono-font: "LXGW Bright Code"'),
     ("bright code family", '"LXGW Bright Code"'),
-    ("code followup gap", "--code-followup-gap: 1rem"),
+    ("code followup gap", "--code-followup-gap: 0.9rem"),
     ("list code followup spacing", "margin-top: var(--code-followup-gap)"),
     ("list code with filename selector", "li > :is(.code-copy-outer-scaffold, .code-with-filename"),
     ("readable body font", "font-size: 1rem"),
@@ -79,7 +79,8 @@ SHARED_CHECKS = [
     ("answer disclosure container", "details.answer-disclosure"),
     ("list marker token color", "li::marker"),
     ("answer disclosure summary", "details.answer-disclosure > summary"),
-    ("feature-grid max two columns", "calc((100% - 1.25rem) / 2)"),
+    ("feature-grid max two columns", "repeat(2, minmax(0, 1fr))"),
+    ("feature-grid single card full row", ":has(> .landing-card:only-child)"),
 ]
 
 # 语义令牌名必须存在（色值由活跃 palette 提供）
@@ -93,42 +94,117 @@ TOKEN_NAME_CHECKS = [
     ("callout important (deep-dive semantics)", "--callout-important-border"),
 ]
 
-# palettes/github 色值期望。换 pack 时改对应表。实验包色值不写进 github 表。
+# palettes/flexoki 色值期望（编译默认）。换 pack 时改对应表。
 PALETTE_VALUE_CHECKS = {
-    "github": [
-        ("light body token #1F2328", "--body-color: #1F2328"),
-        ("light GitHub link #0969DA", "#0969DA"),
-        ("light navbar page-bg token", "--navbar-bg: #FFFFFF"),
-        ("dark navbar page-bg token", "--navbar-bg: #22272E"),
-        ("light code background", "--code-bg: #F6F8FA"),
-        ("dark code background", "--code-bg: #2D333B"),
-        ("dark page #22272E", "#22272E"),
-        ("dark body #CDD9E5", "#CDD9E5"),
-        ("dark secondary #B1BAC4", "#B1BAC4"),
-        ("dark link #539BF5", "#539BF5"),
-        ("callout note border light", "--callout-note-border: #0969DA"),
-        ("light highlight comment #57606a", "#57606a"),
-        ("light highlight keyword #cf222e", "#cf222e"),
-        ("dark highlight comment #9aa1ab", "#9aa1ab"),
-        ("dark highlight keyword #ff7b72", "#ff7b72"),
+    "flexoki": [
+        ("light body token #100F0F", "--body-color: #100F0F"),
+        ("light emphasis #100F0F", "--emphasis-color: #100F0F"),
+        ("light line numbers #575653", "--line-num-color: #575653"),
+        ("light Flexoki link ink #100F0F", "--link-color: #100F0F"),
+        ("light navbar page-bg token", "--navbar-bg: #FFFCF0"),
+        ("dark navbar page-bg token", "--navbar-bg: #100F0F"),
+        ("light code background", "--code-bg: #F2F0E5"),
+        ("dark code background", "--code-bg: #1C1B1A"),
+        ("dark page #100F0F", "#100F0F"),
+        ("dark body #CECDC3", "#CECDC3"),
+        ("dark secondary #9F9D96", "#9F9D96"),
+        ("dark link ink #CECDC3", "--link-color: #CECDC3"),
+        ("callout note border light", "--callout-note-border: #6F6E69"),
+        ("callout warning border light", "--callout-warning-border: #BC5215"),
+        ("light highlight comment #575653", "#575653"),
+        ("light highlight keyword #66800b", "#66800b"),
+        ("dark highlight comment #878580", "#878580"),
+        ("dark highlight keyword #879a39", "#879a39"),
     ],
 }
 
+# Solarized 是运行时覆盖层：令牌必须挂在 html[data-palette="solarized"] 下。
+SOLARIZED_TOKEN_CHECKS = [
+    ("solarized token selector", 'html[data-palette="solarized"] body'),
+    ("solarized light page #FDF6E3", "--page-bg: #FDF6E3"),
+    ("solarized light body #526C74", "--body-color: #526C74"),
+    ("solarized light link rebase #586E75", "--link-color: #586E75"),
+    ("solarized light code text #526C74", "--code-fg: #526C74"),
+    ("solarized light code #EEE8D5", "--code-bg: #EEE8D5"),
+    ("solarized dark page #002B36", "--page-bg: #002B36"),
+    ("solarized dark body #839496", "--body-color: #839496"),
+    ("solarized dark link rebase #93A1A1", "--link-color: #93A1A1"),
+    ("solarized link hover action", "--link-hover-color: var(--action-color)"),
+    ("solarized dark code #073642", "--code-bg: #073642"),
+]
+
+SOLARIZED_SYNTAX_CHECKS = [
+    ("solarized syntax selector", 'html[data-palette="solarized"] code span.kw'),
+    ("solarized keyword #859900", "#859900"),
+    ("solarized light comment #556C73", "#556C73"),
+    ("solarized light syntax blue #1B6EA3", "#1B6EA3"),
+    ("solarized dark comment #93A1A1", "#93A1A1"),
+    ("solarized dark syntax blue #51A0D5", "#51A0D5"),
+]
+
+# 山光是运行时覆盖层，四时辰都挂在 html[data-palette="hill-light"][data-mode] 下。
+HILL_LIGHT_TOKEN_CHECKS = [
+    ("hill-light dawn selector", 'html[data-palette="hill-light"][data-mode="dawn"] body'),
+    ("hill-light noon selector", 'html[data-palette="hill-light"][data-mode="noon"] body'),
+    ("hill-light dusk selector", 'html[data-palette="hill-light"][data-mode="dusk"] body'),
+    ("hill-light night selector", 'html[data-palette="hill-light"][data-mode="night"] body'),
+    ("hill-light night native dark controls", "color-scheme: dark;"),
+    ("hill-light night print fallback", "@media print"),
+]
+
+HILL_LIGHT_SYNTAX_CHECKS = [
+    ("hill-light syntax base rule", '[data-mode="dawn"] code span:not([class])'),
+    ("hill-light dawn keyword", 'html[data-palette="hill-light"][data-mode="dawn"] code span.kw'),
+    ("hill-light noon keyword", 'html[data-palette="hill-light"][data-mode="noon"] code span.kw'),
+    ("hill-light dusk keyword", 'html[data-palette="hill-light"][data-mode="dusk"] code span.kw'),
+    ("hill-light night keyword", 'html[data-palette="hill-light"][data-mode="night"] code span.kw'),
+    ("hill-light night comment", 'html[data-palette="hill-light"][data-mode="night"] code span.co'),
+]
+
+
+def lu(hex_color: str) -> float:
+    """WCAG 相对亮度。"""
+    h = hex_color.lstrip("#")
+    r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def check_hill_light_modes(tokens_text: str) -> int:
+    """山光四时辰：前三个时辰浅纸、夜月暗纸；打印时夜月回落浅纸。"""
+    fails = 0
+    values = re.findall(r"--page-bg: (#[0-9A-Fa-f]{6})", tokens_text)
+    if len(values) < 5:
+        print(f"  MISS hill-light page-bg count (found {len(values)}, want >= 5)")
+        return 1
+    names = ("dawn", "noon", "dusk")
+    for name, v in zip(names, values[:3]):
+        ok = lu(v) > 0.55
+        print(f"  {'OK  ' if ok else 'MISS'} hill-light {name} paper is light  ({v} L={lu(v):.2f})")
+        fails += 0 if ok else 1
+    night_ok = lu(values[3]) < 0.15
+    print(f"  {'OK  ' if night_ok else 'MISS'} hill-light night is dark  ({values[3]} L={lu(values[3]):.2f})")
+    fails += 0 if night_ok else 1
+    print_ok = abs(lu(values[4]) - lu(values[0])) < 0.02
+    print(f"  {'OK  ' if print_ok else 'MISS'} hill-light night print falls back to dawn paper  ({values[4]})")
+    fails += 0 if print_ok else 1
+    return fails
+
+
 # 兼容旧名：测试与外部引用仍可能导入 CHECKS。
-CHECKS = SHARED_CHECKS + TOKEN_NAME_CHECKS + PALETTE_VALUE_CHECKS["github"]
+CHECKS = SHARED_CHECKS + TOKEN_NAME_CHECKS + PALETTE_VALUE_CHECKS["flexoki"]
 
 CALLOUT_CHECKS = [
     ("callout body font 16px", "font-size: 1rem;"),
-    ("callout title font 15px", "font-size: 0.9375rem;"),
-    ("callout padding 16px", "padding: 1rem;"),
-    ("callout header gap 8px", "margin: 0 0 0.5rem;"),
+    ("callout title font 13px", "font-size: 0.8125rem;"),
+    ("callout padding", "padding: 0.1rem 0 0.1rem 1.1rem;"),
+    ("callout header gap", "margin: 0 0 0.35rem;"),
 ]
 
 FORBIDDEN_FONT_REFERENCES = [
     ("Fixel reference", "Fixel"),
     ("LXGW WenKai Screen reference", "LXGW WenKai Screen"),
     ("Inter reference", "Inter"),
-    ("Noto Sans SC reference", "Noto Sans SC"),
     ("Noto Sans Mono CJK SC reference", "Noto Sans Mono CJK SC"),
     ("JetBrains Mono reference", "JetBrains Mono"),
     ("local font fallback", "local("),
@@ -317,6 +393,9 @@ def browser_layout(book_dir, verbose):
             f" (node={node or '无'}, NODE_PATH={playwright_root or '无'})"
         ), {}
 
+    # 测量目标是渲染产物：书目录里还可能有主题模板（theme/includes/*.html），
+    # 它们没有 #quarto-document-content，混进采样会误报。优先用 _book。
+    render_dir = book_dir / "_book" if (book_dir / "_book").is_dir() else book_dir
     shots_dir = ROOT / "temp" / "theme-regression"
     out_file = shots_dir / "measure.json"
     shots_dir.mkdir(parents=True, exist_ok=True)
@@ -325,7 +404,7 @@ def browser_layout(book_dir, verbose):
         node,
         str(MEASURE_SCRIPT),
         "--book-dir",
-        str(book_dir),
+        str(render_dir),
         "--out",
         str(out_file),
         "--shots-dir",
@@ -371,6 +450,9 @@ def browser_layout(book_dir, verbose):
                 problems.append(f"{label}: {data['error']}")
                 continue
             requested_fonts = data.get("requestedFonts", [])
+            # MathJax 自带 CHTML 字体（mjx-*）：数学公式必须用它才有 TeX 字形，
+            # 不算「主题外字体漂移」，也不计入本站字体预算。
+            requested_fonts = [name for name in requested_fonts if not name.startswith("mjx-")]
             unknown_fonts = sorted(set(requested_fonts) - set(font_assets_by_name))
             if unknown_fonts:
                 problems.append(f"{label}: unknown font requests {unknown_fonts}")
@@ -411,6 +493,33 @@ def browser_layout(book_dir, verbose):
                     problems.append(
                         f"{label}: 窄屏左栏浮层底色 alpha={alpha}，正文会透上来，需不透明"
                     )
+            # 栏间分隔只留顶栏下那一条通栏横线：桌面左栏不得有右边框，
+            # 顶栏底边恰好 1px 且次级导航不再自己画一条，正文 h2 不带伪元素短线。
+            # 依据见 references/theme-system.md「定尺度」与「组件约定·章节线」。
+            if overlay and width > 991.98 and overlay.get("borderRightWidth", 0) != 0:
+                problems.append(
+                    f"{label}: 桌面左栏 border-right="
+                    f"{overlay['borderRightWidth']}px，应为 0（栏间不画竖线）"
+                )
+            header_rule = data.get("headerRule") or {}
+            if header_rule:
+                if abs(header_rule.get("borderBottomWidth", 0) - 1) > 0.01:
+                    problems.append(
+                        f"{label}: 顶栏底边 "
+                        f"{header_rule.get('borderBottomWidth')}px，应为 1px 通栏发丝线"
+                    )
+                if header_rule.get("secondaryBorderBottomWidth", 0):
+                    problems.append(
+                        f"{label}: 次级导航底边 "
+                        f"{header_rule['secondaryBorderBottomWidth']}px，会和顶栏底边叠成双线"
+                    )
+            h2_after = data.get("h2Rules") or []
+            if h2_after:
+                first = h2_after[0]
+                problems.append(
+                    f"{label}: h2「{first['text']}」仍有装饰短线 "
+                    f"{first['afterWidth']}×{first['afterHeight']}，章节不画线"
+                )
             # 侧栏折叠层级：桌面视口下只有当前页所在的分组默认展开。
             # 其余分组折叠。依据见本仓 designing-theme 技能的主题说明。
             sections = data.get("sidebarSections")
@@ -427,24 +536,25 @@ def browser_layout(book_dir, verbose):
                         f"{label}: 侧栏展开的不是当前页所在分组 "
                         f"（展开={expanded[0]['text']}）"
                     )
-            paragraph_font_size = data.get("paragraphFontSize", 0)
+            # Callout 按 theme-system.md「组件约定」是薄条：2px 左色条、无填充、无圆角，
+            # 标题 13px、正文 16px，上下内边距各 0.1rem（根字号 16px 时 1.6px）。
+            # 不跟正文 17px 比——Callout 是附注层，比正文低一档是有意为之。
             for index, callout in enumerate(data.get("callouts", []), 1):
-                if abs(callout["bodyFontSize"] - paragraph_font_size) > 0.01:
+                if abs(callout["bodyFontSize"] - 16) > 0.01:
                     problems.append(
-                        f"{label}: Callout#{index} 正文 {callout['bodyFontSize']}px "
-                        f"!= 正文 {paragraph_font_size}px"
+                        f"{label}: Callout#{index} 正文 {callout['bodyFontSize']}px != 16px"
                     )
-                if abs(callout["titleFontSize"] - 15) > 0.01:
+                if abs(callout["titleFontSize"] - 13) > 0.01:
                     problems.append(
-                        f"{label}: Callout#{index} 标题 {callout['titleFontSize']}px != 15px"
+                        f"{label}: Callout#{index} 标题 {callout['titleFontSize']}px != 13px"
                     )
                 if (
-                    abs(callout["paddingTop"] - 16) > 0.01
-                    or abs(callout["paddingBottom"] - 16) > 0.01
+                    abs(callout["paddingTop"] - 1.6) > 0.05
+                    or abs(callout["paddingBottom"] - 1.6) > 0.05
                 ):
                     problems.append(
                         f"{label}: Callout#{index} 内边距 "
-                        f"{callout['paddingTop']}/{callout['paddingBottom']}px != 16/16px"
+                        f"{callout['paddingTop']}/{callout['paddingBottom']}px != 1.6/1.6px"
                     )
                 if callout["width"] + 1 < data["paragraphWidth"]:
                     problems.append(
@@ -493,14 +603,31 @@ def browser_layout(book_dir, verbose):
     return problems, None, info
 
 
-def needs_cjk_coverage(codepoint):
-    """Only assert self-hosted coverage for CJK text and CJK punctuation."""
-    return (
-        0x2E80 <= codepoint <= 0x9FFF
-        or 0xF900 <= codepoint <= 0xFAFF
-        or 0x3000 <= codepoint <= 0x303F
-        or 0xFF00 <= codepoint <= 0xFFEF
-    )
+# 自托管字面必须覆盖的码位：汉字与中文标点之外，还包括西文标点、数学/箭头的
+# 「书中符号」。漏了它们不会被发现，却会静默回落到系统字体——同一个「+」会按
+# 系统 CJK 字体的中线画在 0.5em 高度，紧挨 0.23em 的拉丁基线，肉眼就是「++ 偏上」。
+# 表情符号（≥U+1F000 与 U+2600–U+27BF 的装饰符）按设计就该由系统 emoji 字体绘制，不在断言内。
+GLYPH_RANGES = (
+    (0x00A0, 0x024F),  # Latin-1 补充 + Latin Extended-A
+    (0x2000, 0x206F),  # 通用标点（引号、破折号、省略号、间隔号）
+    (0x20A0, 0x20BF),  # 货币符号
+    (0x2100, 0x214F),  # 字母式符号（℃ ™ №）
+    (0x2190, 0x21FF),  # 箭头
+    (0x2200, 0x22FF),  # 数学运算符
+    (0x2500, 0x257F),  # 制表符（终端输出里的 ├ ─ └ │）
+    (0x25A0, 0x25FF),  # 几何图形（■ □ ▲）
+    (0x2E80, 0x2EFF),  # CJK 部首补充
+    (0x3000, 0x303F),  # CJK 标点
+    (0x4E00, 0x9FFF),  # 汉字
+    (0xF900, 0xFAFF),  # CJK 兼容汉字
+    (0xFE30, 0xFE4F),  # CJK 兼容形式
+    (0xFF00, 0xFFEF),  # 全角形式（＋ － ＝ （））
+)
+
+
+def needs_glyph_coverage(codepoint):
+    """Assert self-hosted coverage for CJK text, CJK punctuation and book symbols."""
+    return any(start <= codepoint <= end for start, end in GLYPH_RANGES)
 
 
 def read_font_cmap(path):
@@ -563,7 +690,7 @@ def check_font_coverage(book_dir):
                 for char in chunk:
                     codepoint = ord(char)
                     if (
-                        needs_cjk_coverage(codepoint)
+                        needs_glyph_coverage(codepoint)
                         and codepoint not in coverage[family]
                     ):
                         missing[family].add(char)
@@ -637,6 +764,45 @@ def main():
         print(f"  {mark} {name}  ({pattern})")
         if not found:
             fail += 1
+
+    # Solarized 不参与编译，但两份覆盖层必须始终可用；按文件分别核 selector 与色值。
+    solarized_tokens = PALETTE_ROOT / "solarized" / "tokens.css"
+    solarized_syntax = PALETTE_ROOT / "solarized" / "syntax.css"
+    solarized_texts = {}
+    for path in (solarized_tokens, solarized_syntax):
+        if path.is_file():
+            solarized_texts[path.name] = path.read_text(
+                encoding="utf-8", errors="ignore"
+            )
+        else:
+            print(f"  MISS solarized layer file  ({path.as_posix()})")
+            fail += 1
+    hill_tokens = PALETTE_ROOT / "hill-light" / "tokens.css"
+    hill_syntax = PALETTE_ROOT / "hill-light" / "syntax.css"
+    hill_texts = {}
+    for path in (hill_tokens, hill_syntax):
+        if path.is_file():
+            hill_texts[path.name] = path.read_text(encoding="utf-8", errors="ignore")
+        else:
+            print(f"  MISS hill-light layer file  ({path.as_posix()})")
+            fail += 1
+    for texts, path, layer_checks in (
+        (solarized_texts, solarized_tokens, SOLARIZED_TOKEN_CHECKS),
+        (solarized_texts, solarized_syntax, SOLARIZED_SYNTAX_CHECKS),
+        (hill_texts, hill_tokens, HILL_LIGHT_TOKEN_CHECKS),
+        (hill_texts, hill_syntax, HILL_LIGHT_SYNTAX_CHECKS),
+    ):
+        text = texts.get(path.name)
+        if text is None:
+            continue
+        for name, pattern in layer_checks:
+            found = pattern in text
+            mark = "OK  " if found else "MISS"
+            print(f"  {mark} {name}  ({pattern})")
+            if not found:
+                fail += 1
+
+    fail += check_hill_light_modes(hill_texts.get("tokens.css", ""))
 
     callouts_css = (
         THEME_DIR / "assets" / "theme" / "css" / "callouts.css"

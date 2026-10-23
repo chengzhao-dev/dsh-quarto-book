@@ -1,4 +1,4 @@
-/* dsh-quarto-book Quarto 主题 · 侧栏 / TOC / 翻页卡片（自 common.css 拆分） */
+/* dsh-quarto-book Quarto 主题 · 侧栏 / TOC / 翻页（自 common.css 拆分） */
 
 /* ---------- 侧栏 / TOC ---------- */
 /* 分组标题（sidebar 含分组时生成，向前兼容）：冷灰 docs 风——13px、不大写、正文色；
@@ -23,6 +23,16 @@
   #quarto-sidebar.sidebar {
     background-color: var(--page-bg);
     border-right: 1px solid var(--card-border);
+  }
+}
+/* 桌面压掉 Quarto 的栏间竖线：`sidebar.border` 默认 true，Quarto 编出
+   `.sidebar.sidebar-navigation:not(.rollup) { border-right: 1px solid … !important }`，
+   会在左栏与正文之间立一道竖墙。桌面三栏是同一张纸上的三个区域，
+   分隔统一归顶栏下那条通栏横线；这里的 !important 只为压过 Quarto 的同名 !important。
+   限定 ≥992px：窄屏的浮层右缘还要那条线当抽屉边。 */
+@media (min-width: 992px) {
+  #quarto-sidebar.sidebar.sidebar-navigation {
+    border-right: 0 !important;
   }
 }
 #quarto-margin-sidebar {
@@ -54,9 +64,8 @@ body::-webkit-scrollbar-thumb {
   border-radius: 5px;
 }
 /* 章节链接：通栏条目（margin 0 + 1.5rem 内边距），默认灰字 14px/400/1.4；
-   当前项 = 左侧 2px 竖条 + 弱背景（冷灰 docs 风，无圆角）。
-   单字面字体 + font-synthesis: none 下 600 不会变粗，当前项靠色条和浅底区分，
-   不写无效字重 */
+   当前项只用左侧 2px 色条与正文色，不加底色、不加圆角，像书页边缘的索引。
+   单字面字体 + font-synthesis: none 下 600 不会变粗，不写无效字重 */
 #quarto-sidebar .sidebar-item-text.sidebar-link {
   display: block;
   padding: 0.3rem 1.5rem;
@@ -80,9 +89,9 @@ body::-webkit-scrollbar-thumb {
 }
 #quarto-sidebar .sidebar-item-text.sidebar-link.active {
   color: var(--body-color);
-  background-color: var(--sidebar-active-bg);
+  background-color: transparent;
   border-left: 2px solid var(--accent);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
 }
 /* 嵌套子项（章节分组 / 小节）：缩进由条目 padding-left 提供，色条与 part 标题左缘对齐 */
 #quarto-sidebar .sidebar-section .sidebar-item {
@@ -96,24 +105,25 @@ body::-webkit-scrollbar-thumb {
   line-height: 1.4;
   color: var(--sidebar-fg);
 }
-/* 嵌套激活项：与上一级激活规则同观感，靠色条和浅底区分 */
+/* 嵌套激活项：与上一级激活规则同观感，只靠色条与正文色区分 */
 #quarto-sidebar .sidebar-section .sidebar-item-text.sidebar-link.active {
   color: var(--body-color);
-  background-color: var(--sidebar-active-bg);
+  background-color: transparent;
   border-left: 2px solid var(--accent);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
 }
 
-/* 右 TOC：分组标题 + 滚动高亮（冷灰 docs "On this page" 观感：14px 常规、不大写） */
+/* 右 TOC：分组标题 + 滚动高亮（安静的书页边注：14px 常规、不大写） */
 .sidebar.margin-sidebar nav[role="doc-toc"] h2#toc-title {
   font-size: 0.875rem;
   font-weight: 400;
   color: var(--body-color);
   margin-bottom: 0.75rem;
 }
-/* 基础项（含嵌套）：13px 灰字、无底色圆角（docs TOC 风）。
-   每项保留 1px 左竖线（Quarto 原生），竖线↔文字 0.75rem（覆盖 Quarto 的 .6rem 并修复贴字），
-   边框色令牌化（替换硬编码 #e9ecef，暗色下可见度走 --card-border） */
+/* 基础项（含嵌套）：13px 次要色、无底色圆角（书页边注风）。
+   每项保留 1px 左轨（Quarto 原生），竖线↔文字 0.75rem（覆盖 Quarto 的 .6rem 并修复贴字），
+   边框色令牌化（替换硬编码 #e9ecef，暗色下可见度走 --card-border）。
+   这条轨标的是「读到哪一节」，不是栏与栏的墙；栏间分隔已收成顶栏下那一条通栏横线。 */
 .sidebar.margin-sidebar nav[role="doc-toc"] a.nav-link {
   color: var(--sidebar-fg);
   border-left: 1px solid var(--card-border);
@@ -129,13 +139,13 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
 }
-/* hover：正文色（!important 压过 Quarto 产物中的 color:#0969da !important） */
+/* hover：正文色（!important 压过 Quarto 产物中写死的亮蓝 !important） */
 .sidebar.margin-sidebar nav[role="doc-toc"] a.nav-link:hover {
   color: var(--body-color) !important;
   background-color: transparent;
 }
 /* 右 TOC 激活项：与侧栏当前项同策略——正文色 + 2px 色条（!important 压过 Quarto
-   写死的 color:#0969da 激活规则，暗色下必须继续压住，不能漏出亮色蓝），无背景 */
+   写死的亮蓝激活规则，暗色下必须继续压住，不能漏出亮色蓝），无背景 */
 .sidebar.margin-sidebar nav[role="doc-toc"] a.nav-link.active {
   color: var(--toc-active) !important;
   background-color: transparent;
@@ -170,11 +180,14 @@ body::-webkit-scrollbar-thumb {
   font-weight: 400;
   color: var(--sidebar-fg);
 }
-/* prev/next 章节导航（卡片式）：文字用 --body-color，箭头改用 < 与 > 符号 */
+/* prev/next 章节导航（书页脚注式）：一条顶线分开正文与翻页，不用边框卡片；
+   字用正文色，hover 才转 accent，箭头仍用 < 与 > 符号 */
 nav.page-navigation {
   display: flex;
-  gap: 1rem;
-  margin-top: 2.5rem;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--card-border);
 }
 .nav-page.nav-page-previous,
 .nav-page.nav-page-next {
@@ -182,14 +195,15 @@ nav.page-navigation {
 }
 .nav-page .pagination-link {
   display: flex;
-  align-items: center;
-  height: 100%;
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
+  align-items: baseline;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--body-color);
-  font-size: 0.85rem;
-  padding: 0.9rem 1.1rem;
-  min-height: 3.5rem;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+  min-height: 0;
 }
 .nav-page .pagination-link .bi {
   display: none; /* 隐藏 Bootstrap 图标，改用 < > */
@@ -202,12 +216,15 @@ nav.page-navigation {
   content: ">";
   margin-left: 0.5rem;
 }
+.nav-page-next .pagination-link {
+  justify-content: flex-end;
+  text-align: right;
+}
 .nav-page .pagination-link:hover {
   color: var(--accent);
-  border-color: var(--card-hover-border);
 }
 .nav-page .nav-page-text {
-  color: var(--body-color);
+  color: inherit;
 }
 .nav-page .pagination-link:hover .nav-page-text {
   color: var(--accent);
@@ -221,13 +238,14 @@ nav.page-navigation {
 @media (max-width: 767.98px) {
   nav.page-navigation {
     flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 2rem;
+    gap: 0.6rem;
+    margin-top: 2.25rem;
+    padding-top: 1rem;
   }
 
   .nav-page .pagination-link {
-    min-height: 3rem;
-    padding: 0.75rem 0.9rem;
+    min-height: 0;
+    padding: 0.3rem 0;
   }
 }
 

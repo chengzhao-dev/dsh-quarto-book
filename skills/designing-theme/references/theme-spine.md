@@ -9,9 +9,9 @@
 | 步骤 | 动作与产出 | 登记的文件与一节 |
 | --- | --- | --- |
 | 1 定表面 | 这次动的是正文、代码、Callout 还是导航；只判定，还不动 CSS | 本文件的步骤表 |
-| 2 定字体 | 中文保持霞鹜楷体路线；西文和代码按已有决定，产出字体栈改动 | `references/theme-system.md`「字体栈与字形来源（定字体）」+ `assets/theme/css/fonts.css` |
+| 2 定字体 | 正文中文保持霞鹜楷体路线；标题/导航书名用 `--heading-font` 系统黑体栈（正文内的 `strong` 仍合成加粗）；西文和代码按已有决定，产出字体栈改动 | `references/theme-system.md`「字体栈与字形来源（定字体）」+ `assets/theme/css/fonts.css` |
 | 3 定尺度 | 字号台阶、行长与栏宽；视口不够时不改字号，只让代码块横向滚动 | `references/theme-system.md`「字号、行长与页面尺度（定尺度）」+ `assets/theme/css/tokens.css` |
-| 4 定颜色 | 正文、强调、链接、次要文字、代码标题在 `body` 与 `body.quarto-dark` 各写一套；代码语法色改 `palettes/<pack>/highlight-light.theme` / `highlight-dark.theme` 两份主题文件，CSS 不覆盖 `span` 色；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色 | `references/theme-system.md`「令牌与色板（定颜色）」+ `assets/theme/palettes/github/tokens.css` + `assets/theme/palettes/github/highlight-*.theme` |
+| 4 定颜色 | 正文、强调、链接、次要文字、代码标题在 `body` 与 `body.quarto-dark` 各写一套；Solarized 覆盖层写 `html[data-palette="solarized"]`，山光覆盖层写 `html[data-palette="hill-light"][data-mode="…"] body`；代码语法色默认改 `palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` 两份主题文件，Solarized 与山光的语法色写各自 `palettes/<name>/syntax.css`；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色 | `references/theme-system.md`「令牌与色板（定颜色）」+ `assets/theme/palettes/flexoki/tokens.css` + `assets/theme/palettes/flexoki/highlight-*.theme` + `assets/theme/palettes/solarized/syntax.css` |
 | 5 定组件 | 只打开要改的那一个 `assets/theme/css/*.css`；导航字重、答案折叠、行内代码、复制按钮、打印换行属于这一步，不在定颜色里顺手改 | `references/theme-system.md`「组件约定（定组件）」对应条目 |
 | 6 通过检查 | `scripts/checking-layout.py`，然后整本 `render`；只检查，不在这一步发明新的字号或颜色 | `scripts/checking-layout.py`；检查项回到本步骤表与 `theme-system.md`「组件约定」 |
 

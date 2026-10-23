@@ -18,8 +18,8 @@
      否则移动端永远无法复制代码。
   C3 打印不隐藏代码：@media print 内不得对 .code-copy-outer-scaffold 设 display:none。
      （该层现在包裹代码本身，隐藏它 = 打印/PDF 时代码整块消失。）
-  C4 站点图标：每个 HTML 的 <head> 必须含 rel="icon" 且指向 favicon.svg，
-     且该图标文件确实被发布到产物目录。
+  C4 站点图标：每个 HTML 的 <head> 必须含 rel="icon" 且指向 favicon-light.svg
+      或 favicon-dark.svg（编译期默认是 light），且两个色板的明暗图标都已发布。
   C5 Mermaid 图表（按产物条件）：产物没有 mermaid-js 占位符，说明正文本就不用图表，
      契约 N/A。一旦出现占位符，就必须同时包含 Quarto Mermaid 运行时，且不得退化为
      普通 sourceCode 代码块。浏览器加载脚本后，占位符会被转换成 SVG。
@@ -300,11 +300,17 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
     missing = []
     for path, _tree, link_rels in htmls:
         rels = [(r, h) for r, h in link_rels if "icon" in r]
-        if any("favicon.svg" in h for r, h in rels):
+        if any("favicon-light.svg" in h or "favicon-dark.svg" in h for r, h in rels):
             icon_pages += 1
         else:
             missing.append(str(path.relative_to(book_dir)))
-    icon_file = any(p.name == "favicon.svg" for p in book_dir.rglob("favicon.svg"))
+    icon_files = [p for p in book_dir.rglob("favicon-*.svg")]
+    icon_names = {p.name for p in icon_files}
+    icon_palettes = {p.parent.name for p in icon_files}
+    icon_file = (
+        {"favicon-light.svg", "favicon-dark.svg"} <= icon_names
+        and {"flexoki", "solarized"} <= icon_palettes
+    )
     if not require_favicon:
         results.append((
             "C4", "站点图标已注入并发布", True,
@@ -313,15 +319,16 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         ))
     else:
         c4 = icon_pages == len(htmls) and icon_file and bool(htmls)
-        summary = "%d/%d 页含 icon 链接，图标已发布=%s" % (icon_pages, len(htmls), icon_file)
+        summary = "%d/%d 页含 icon 链接，四份色板图标已发布=%s" % (icon_pages, len(htmls), icon_file)
         if missing:
             summary += "；缺链接: " + ", ".join(missing[:3])
             if len(missing) > 3:
                 summary += " …"
         results.append((
             "C4", "站点图标已注入并发布", c4, summary,
-            ["每页 <head> 需 <link rel=\"icon\" … favicon.svg>；源文件见 theme/assets/favicon.svg，"
-             "由 .agents/skills/agent-workspace/maintaining-python/scripts/maintenance/generating-favicon.py 生成"],
+            ["每页 <head> 需 <link rel=\"icon\" … favicon-light.svg 或 favicon-dark.svg>；"
+             "四份源文件见 theme/palettes/{flexoki,solarized}/favicon-{light,dark}.svg，"
+             "book.favicon 指 Flexoki light，另外三份随 resources 发布"],
         ))
 
     # ---------- C5 Mermaid ----------
