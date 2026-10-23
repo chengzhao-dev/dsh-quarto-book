@@ -88,8 +88,10 @@
 - **图片灯箱**：`format.html.lightbox` 打开后 GLightbox 默认 0.7 黑遮罩，页面图注会从图后透出；主题把遮罩加深到 0.86、关闭/翻页按钮做成 32% 黑的圆钮白描边。透明底 SVG 必须垫白卡（`img[src$=".svg"]`），否则深色遮罩上会整幅消失；位图不加白边。
 - **顶栏品牌标**：`palettes/<name>/brand-mark.svg` 作 `mask`、以 `--navbar-fg` 上色；外形是同一枚「打开的书」，16px 仍可辨。标签页用同目录 `favicon-light.svg` / `favicon-dark.svg`，`book.favicon` 指 Flexoki light，其余五份随 `resources` 发布，`palette.html` 按色板与明暗换 href。图标高 1.25rem、与标题间距 0.5rem，`margin-bottom: 0.2rem` 对齐汉字基线；窄屏先压搜索再省标题。
 - **顶栏搜索**：Quarto 的 Algolia detached button 自带 `svg.aa-SubmitIcon`，主题不再给 `#quarto-search` 画伪元素放大镜；按钮 32×32、图标 18px、用 `--navbar-muted` 上色，hover 用 `--navbar-hover-bg`。浮层容器、表单和输入框都用纸面/正文令牌，输入框需用与 Quarto 同等长的选择器（`.aa-DetachedContainer .aa-DetachedFormContainer .aa-Form .aa-InputWrapper .aa-Input`）压过编译期暗色值；占位文字用 `--text-secondary`，取消按钮 `white-space: nowrap`，结果选中项用 `--surface-raised`。`≤575.98px` 时浮层收成贴顶通栏，左右无圆角，避免 Quarto 的桌面 `top:100px` 把搜索条压在正文中部。
-- **色板切换**：`.palette-picker` 里的圆角矩形分段控件（`role="radiogroup"` + 两个 `role="radio"` 按钮），轨道 2rem 高、`1px --navbar-border` 边、`--navbar-input-bg` 底、`border-radius: 999px`；选中段用 `--navbar-hover-bg` 填成内嵌圆角矩形、字 `--navbar-fg`，未选中字 `--navbar-muted`；方向键与 Home/End 在段间移动并即时选中，roving tabindex 只让选中段进 Tab 序列，焦点环 `--link-color`。不用原生 `<select>`（暗色下会保持系统浅色下拉）。选择仍写 `book-palette`，首屏恢复逻辑不变，样式在 `css/nav.css`。
-  山光选中时，同一胶囊右侧再出第二组四时辰分段（`.mode-picker`，晓雾 / 午荫 / 暮烟 / 夜月，默认按 `byHour()` 就近选）；切到其他色板即隐藏，Quarto 的明暗圆钮在山光下让位。`≤575.98px` 色板名称仍整词、四时退成四个圆点（选中段仍是填色胶囊）；`≤419.98px` 先收掉仓库源图标，把宽度留给色板与四时，搜索不下行。
+- **色板切换**：`.palette-picker` 是 select-only combobox——按钮 `role="combobox"` + `aria-haspopup="listbox"`，面板 `.palette-menu-list` 为 `role="listbox"`，选项 `role="option"`；焦点留在按钮上，用 `aria-activedescendant` 指当前项。闭合态是 2rem 高胶囊：色点 + 英文名（Flexoki / Solarized / Hill Light）+ 方向箭头；展开后三行「色点 + 名称」，当前项右侧打勾。键位照 APG：↑/↓/Home/End 移动、首字母跳转、Enter 或 Space 提交、Esc 无提交关闭、Tab 关闭并走开。名称用英文，与 `book-palette` 的取值和色板目录同名，不另起中文译名。选择仍写 `book-palette`，首屏恢复逻辑不变，样式在 `css/nav.css`。不用原生 `<select>`（暗色下会保持系统浅色下拉）。
+- **明暗圆钮**：Quarto 自带的是 16px「开关」位图（`bi-toggle-off/on` 的 data-URI `background-image`，填充色写死在 SVG 里），紧挨色板胶囊时两枚圆角疙瘩容易看混。主题把 `::before` 改成只做 `mask`、颜色吃 `currentColor` 的对比圆盘（描边 1.2、半径 6.2，实心半圆让到描边内缘），`.alternate`（夜间）旋转 180°，实心半圆换边；可点区域 44px、图标 16px。
+- **四时辰**：山光选中时，胶囊右侧再出 `role="radiogroup"` 分段（`.mode-picker`）：12px 线性图标 + 中文名（晓雾 / 午荫 / 暮烟 / 夜月，默认按 `byHour()` 就近选），roving tabindex、方向键移动并即时应用；切到其他色板即隐藏，Quarto 的明暗圆钮在山光下让位。`≤575.98px` 四时保持图标+短名，`≤419.98px` 先收掉仓库源图标，把宽度留给色板与四时，搜索不下行。
+- **侧栏折叠箭头**：Quarto 的 `.sidebar-item-container` 是 `space-between`，part 标题那条规则又给链接 `flex: 1 1 0%`，箭头因此被推到侧栏最右缘、离标题一大片空白。主题把容器改 `justify-content: flex-start`，并用 `:has(> .sidebar-item-toggle)` 只收窄带箭头的行，箭头紧跟标题；不带箭头的 part 标题仍保持通栏底色。
 - **color-scheme**：浅色声明 `light`，深色由 `body.quarto-dark` 覆盖，避免系统偏好渗入控件与内嵌 SVG。
 - **纯文本代码块**：与语言块共用 `--code-*`；`text` 不启用语言 token。
 - **公式**：MathJax 会把 `font-size: 94%` 写进 `mjx-container` 行内 style，主题用 `#quarto-document-content mjx-container { font-size: 1em !important }` 拉回与正文同档（17px），display 公式上下各留 1.3rem；行内公式与中文同基线，无需额外对齐。
@@ -98,6 +100,9 @@
 - **`.code-caption`**：次要说明色，紧贴对象；写作见 writing-quarto `authoring.md`。
 - **可折叠答案**：`details.answer-disclosure` 默认收起，用上下发丝线、无圆角、无底色，像书页里的自测折页。
 - **图**：Mermaid 与坐标图用令牌着色、字体随 `--ui-font`；围栏 `%%{init}%%` 用同栈短版；暗色不为白底图加滤镜。
+- **令牌纪律**：样式里每个 `var(--…)` 都必须是色板 `tokens.css` 定义过的令牌。检查器新增断言 `css tokens all defined`，扫主题全部 `.css`/`.scss` 的 `var(--x)` 并减去所有 `--x:` 定义，不允许发明不存在的令牌（曾出现 `--text-primary`、`--surface`、`--text-tertiary` 这类「看着像有、实际透明」的引用，控件失去颜色还不报错）。
+- **面板宽度与触摸目标**：交互面板宽度 `width: min(100%, 27rem)`，棋盘三列改成 `repeat(3, minmax(0, 1fr))` + 格子 `aspect-ratio: 1`，格子随卡片等比缩放（1280/768 → 121px，430 → 112，390 → 99，360 → 89，320 → 75），不再用 `vw` 猜屏宽；色板菜单项在 ≤575.98px 抬到 36px 一行、四时图标按钮 `min-width/min-height` 至少 24×28，菜单与胶囊都不出视口；源码模态 ≥576px 封顶 `min(1000px, 100vw - 2rem)` 并留 1rem 边距；行内代码在窄屏允许 `pre-wrap`，避免 `std::array<…>` 这类无空格类型名把正文列顶宽。
+- **书页内交互面板**（cpp-board-games「运行效果」）：面板本体是 `--surface-raised` 底 + `--card-border` 边的圆角卡；反馈行做成留言条——细边框 + 2px 左色条 + 状态点，`data-kind` 分 hint/warn/success 换色，不用裸灰字；「输入坐标」是模式开关，关闭时无框次要色、展开时 `--action-color` 描边并以 `aria-expanded` 同步；坐标输入行给 `行列` 等宽标签 + 两个数字位 + 「落子」按钮，帮助句常驻、报错时用 `:has()` 让帮助句让位、错误行带描边圆圈感叹号；程序输出是独立的终端窗（三点 + 标题 + 文件名 + 展开箭头，命令行走等宽字体），与面板之间留一道间隔，不再用原生 `details` 三角。
 - **打印**：`pre` 恢复折行；屏幕横向滚动规则不动。
 - **高对比偏好**：`prefers-contrast: more` 段与常规模式保持同一套强调与边框色。
 
@@ -159,7 +164,9 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/highlight-style：读
 
 ### 校验与高亮契约
 
-- `checking-layout.py` 校验令牌与布局；发布用 `1280/768/390` 明暗与触屏、窄屏浮层。
+- `checking-layout.py` 校验令牌与布局；发布用 `1280/768/390/360` 明暗与触屏、窄屏浮层。
 - 高亮由 `_quarto.yml` 提供且与 palette `meta.md` 一致（默认 `palettes/flexoki/highlight-light.theme` / `highlight-dark.theme`，取色自 Flexoki 官方 VS Code 主题）；Solarized 的语法色由 `palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，山光的由 `palettes/hill-light/syntax.css` 在 `html[data-palette="hill-light"][data-mode]` 下覆盖，都不改编译配置。注释色必须在本书代码底（亮 `#F2F0E5`、暗 `#1C1B1A`）上达到 4.5:1：亮色注释用 `#575653`（6.42:1），暗色用 `#878580`（4.67:1）。
 - `text` 与语言块共用字体尺度；标题块用 `.code-with-filename`。
+- 对比度断言：`checking-layout.py` 的 `palette text contrast >= 4.5:1` 逐色板逐模式检查六对——正文/次要/链接/代码前景对各自底色，外加行号对代码底、代码标题字对标题条；`prefers-contrast: more` 段跳过（那里本就更高）。山光行号原值 4.19–4.25:1（辅助信息，压一档到 4.6 以上），Solarized 代码标题字由派生表面配深/浅一档（亮 4.96、暗 5.55），理由记在各自 `meta.md` 的偏离表。
+- 语法彩色 token 不在断言范围：Solarized 官方的注释 2.34、字符串 4.12、数字 2.97 属于调色板特征，只抬注释与标识符到可读线；山光派生语法色 4.19–4.36 同理，提高通道走 `prefers-contrast: more`。
 - `checking-dom.py`：C0 palette↔highlight；复制按钮兄弟 DOM；触屏/打印；C4 四份 favicon；Mermaid SVG。

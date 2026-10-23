@@ -47,7 +47,7 @@ html[data-palette="solarized"] code span.wa { color: #CB4B16; }
 html[data-palette="solarized"] body.quarto-dark code span:not([class]),
 html[data-palette="solarized"] body.quarto-dark div.sourceCode,
 html[data-palette="solarized"] body.quarto-dark div.sourceCode pre.sourceCode {
-  color: #839496;
+  color: #93A1A1;
 }
 
 html[data-palette="solarized"] body.quarto-dark code span.an,

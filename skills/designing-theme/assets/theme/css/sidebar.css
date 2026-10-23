@@ -112,6 +112,33 @@ body::-webkit-scrollbar-thumb {
   border-left: 2px solid var(--accent);
   border-radius: 0;
 }
+/* 可折叠章节的箭头：Quarto 把 .sidebar-item-container 设成 space-between，
+   而 part 标题那条规则又给链接 flex: 1 1 0%，两下一夹，箭头被推到 300px 侧栏的最右缘，
+   离标题隔着一大片空白，像一枚落在栏外的游标。只有「带折叠箭头」的行才收拢标题，
+   不带箭头的 part 标题仍保持通栏底色。 */
+#quarto-sidebar .sidebar-item-container {
+  justify-content: flex-start;
+  align-items: center;
+}
+#quarto-sidebar .sidebar-item-container:has(> .sidebar-item-toggle) > .sidebar-item-text.sidebar-link,
+#quarto-sidebar ul.list-unstyled.mt-1 > li.sidebar-item-section > .sidebar-item-container:has(> .sidebar-item-toggle) > .sidebar-item-text.sidebar-link {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+}
+#quarto-sidebar .sidebar-item-container > .sidebar-item-toggle {
+  flex: none;
+  margin-left: 0.35rem;
+  padding: 0.15rem;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+#quarto-sidebar .sidebar-item-container > .sidebar-item-toggle:hover {
+  color: var(--body-color);
+}
+#quarto-sidebar .sidebar-item-container > .sidebar-item-toggle i {
+  font-size: 0.72rem;
+}
 
 /* 右 TOC：分组标题 + 滚动高亮（安静的书页边注：14px 常规、不大写） */
 .sidebar.margin-sidebar nav[role="doc-toc"] h2#toc-title {

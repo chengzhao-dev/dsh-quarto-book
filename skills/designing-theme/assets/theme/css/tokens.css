@@ -43,3 +43,16 @@ body {
      而不是跟随系统偏好；深色由 palette 的 body.quarto-dark 覆盖。 */
   color-scheme: light;
 }
+
+/* 系统开了「减少动态效果」时，色板切换、箭头翻转、浮层淡入都收敛到瞬时：
+   保留状态变化，去掉过程。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

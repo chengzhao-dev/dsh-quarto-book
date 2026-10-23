@@ -22,7 +22,7 @@ html[data-palette="hill-light"]:not([data-mode]) body {
   --code-fg: #2B3538;
   --code-title-bg: #EEEAE0;
   --code-title-fg: #58686B;
-  --line-num-color: #5F6E6F;
+  --line-num-color: #556565;
   --inline-code-bg: rgba(43, 53, 56, 0.06);
   --inline-code-fg: #2B3538;
   --text-secondary: #58686B;
@@ -148,7 +148,7 @@ html[data-palette="hill-light"][data-mode="dusk"] body {
   --code-fg: #3A2C26;
   --code-title-bg: #ECDCC8;
   --code-title-fg: #67534A;
-  --line-num-color: #725F55;
+  --line-num-color: #68554B;
   --inline-code-bg: rgba(58, 44, 38, 0.06);
   --inline-code-fg: #3A2C26;
   --text-secondary: #67534A;
@@ -211,7 +211,7 @@ html[data-palette="hill-light"][data-mode="night"] body {
   --code-fg: #D7DDD9;
   --code-title-bg: #2E3738;
   --code-title-fg: #A2AEA9;
-  --line-num-color: #87938E;
+  --line-num-color: #8F9B96;
   --inline-code-bg: rgba(215, 221, 217, 0.08);
   --inline-code-fg: #D7DDD9;
   --text-secondary: #A2AEA9;
@@ -271,7 +271,7 @@ html[data-palette="hill-light"][data-mode="night"] body {
   --code-fg: #2B3538;
   --code-title-bg: #EEEAE0;
   --code-title-fg: #58686B;
-  --line-num-color: #5F6E6F;
+  --line-num-color: #556565;
   --inline-code-bg: rgba(43, 53, 56, 0.06);
   --inline-code-fg: #2B3538;
   --text-secondary: #58686B;

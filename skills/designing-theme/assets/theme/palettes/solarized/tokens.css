@@ -16,7 +16,7 @@ html[data-palette="solarized"] body {
   --code-border: #93A1A1;
   --code-fg: #526C74;
   --code-title-bg: #E7E0CB;
-  --code-title-fg: #586E75;
+  --code-title-fg: #4C6166;
   --line-num-color: #556C73;
   --inline-code-bg: rgba(82, 108, 116, 0.10);
   --inline-code-fg: #526C74;
@@ -74,12 +74,12 @@ html[data-palette="solarized"] body.quarto-dark {
   --emphasis-color: #93A1A1;
   --code-bg: #073642;
   --code-border: #586E75;
-  --code-fg: #839496;
+  --code-fg: #93A1A1;
   --code-title-bg: #0A3F4C;
-  --code-title-fg: #93A1A1;
+  --code-title-fg: #A9B7B7;
   --line-num-color: #93A1A1;
   --inline-code-bg: rgba(147, 161, 161, 0.10);
-  --inline-code-fg: #839496;
+  --inline-code-fg: #93A1A1;
   --text-secondary: #93A1A1;
   /* 官方 rebase：暗色链接取 base1。 */
   --link-color: #93A1A1;

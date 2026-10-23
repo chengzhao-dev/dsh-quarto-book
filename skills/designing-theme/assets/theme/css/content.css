@@ -162,6 +162,14 @@ mjx-container[display="true"] {
   margin: 1.3rem 0;
 }
 
+/* 源码模态（code-tools）：Bootstrap 默认 1000px，平板宽度下会顶满整屏。
+   这里在 ≥576px 时封顶并留出 1rem 边距；更窄沿用 Bootstrap 的 .5rem 边距。 */
+@media (min-width: 576px) {
+  #quarto-embedded-source-code-modal .modal-dialog {
+    max-width: min(1000px, calc(100vw - 2rem));
+  }
+}
+
 /* 图片灯箱（GLightbox，format.html.lightbox: true 时启用）
    默认遮罩 0.7 黑、页面图注会从图片后面透出来，读起来像「标签贴错位置」；
    这里加深遮罩把图单独抬出来，关闭/翻页按钮统一成白描边胶囊。 */
@@ -221,6 +229,15 @@ mjx-container[display="true"] {
 #quarto-document-content section :is(.code-copy-outer-scaffold, .code-with-filename, pre) + :is(p, ul, ol) {
   font-family: var(--ui-font);
 }
+/* 行内代码遇到无空格的类型名（std::array<std::array<CellType, 3>, 3>）时，
+   窄屏会把正文列顶宽；此时允许行内代码换行，桌面保持原样。 */
+@media (max-width: 575.98px) {
+  #quarto-document-content :is(p, li, dd, td, th) code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* 键盘键 */
 #quarto-document-content kbd {
   font-family: var(--mono-font);
