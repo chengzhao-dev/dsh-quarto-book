@@ -1,6 +1,6 @@
 ---
 name: designing-theme
-description: 维护 Quarto Book 主题资产（CSS、SCSS、字体、palette）；调整页面样式、颜色或字体时使用，不用于改章节正文
+description: 维护 Quarto Book 阅读主题：颜色、字体、间距、导航与 Callout 样式；不用于章节正文
 metadata:
   short-description: 维护 Quarto 图书主题
 ---

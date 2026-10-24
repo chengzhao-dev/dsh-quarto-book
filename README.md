@@ -4,9 +4,9 @@
 
 [English](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.en.md) | **简体中文**
 
-为 Quarto Book 写章节、检查结构并维护主题；只在 `type: book` 的仓库里出现。
+润色中文技术章节、检查 Book 结构与中英混排，并维护一套统一、可读的阅读主题；只在 `type: book` 的仓库里出现。
 
-- 写 `.qmd`：`writing-quarto` 管章节骨架、结构与行文。
+- 写 `.qmd`：`writing-quarto` 管章节骨架、结构与中文行文。
 - 改主题：`designing-theme` 管 CSS、字体与 palette。
 - 渲染后检查 HTML：`quarto_render_check` 判一次可发布性，`quarto_pass_report` 出收尾回执。
 
@@ -26,10 +26,10 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.0
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.1
 ```
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.6.0`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.6.0`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级插件可用 `dsh plugin --profile desktop add <包>`，如果应用拒绝写入，再走「设置 → 插件 → 添加插件」，地址填 `npm:@chengzhao-dev/dsh-quarto-book@0.6.1`。想跟 GitHub 标签，也可以写 `github:chengzhao-dev/dsh-quarto-book#v0.6.1`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级时（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile），先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book` 再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -50,10 +50,11 @@ dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.0
 ```bash
 python scripts/verifying-content.py --root <book>
 python scripts/checking-links.py --root <book>
+python scripts/checking-prose.py --root <book>
 python scripts/checking-names.py --root <book>
 ```
 
-`checking-names.py` 只在全仓重构时加跑；日常章节检查跑前两条即可。
+`checking-prose.py` 只报中文混排里能直接判断的问题；`checking-names.py` 只在全仓重构时加跑。日常章节检查跑前三条即可。
 
 渲染后的 Callout、HTML 产物与 DOM 契约由 `quarto_render_check` 调包内脚本完成，不手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`；`designing-theme` 的 `scripts/checking-layout.py` 在渲染后的 HTML 上检查溢出、对比度和页面结构。`apply()` 不在加载时跑这些脚本，也不跑 `quarto render`。
 

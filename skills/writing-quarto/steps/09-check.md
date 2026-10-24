@@ -2,15 +2,15 @@
 
 产出：内容核对结果、一次渲染检查和 HTML 可用性报告。这一步只跑命令，不按报告改写法。
 
-内容与链接检查需要 Python 3；`dry_run: false` 的渲染还需要 Quarto CLI。缺少依赖时停住并报告，不改回手跑 `quarto render`。
+内容与链接检查需要 Python 3；`dry_run: false` 的渲染还需要 Quarto CLI。缺少依赖时停住并报告，不改回手跑 `quarto render`。跨层失败先按 `quarto/render.md`「排查顺序」定位，再回到对应步骤。
 
 ## 通用情况
 
 ### 内容与链接
 
-项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py` 与 `checking-links.py`。
+项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py`、`checking-links.py` 与 `checking-prose.py`。
 
-`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字和本地链接。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
+`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
 
 ### 渲染与 HTML
 
@@ -69,7 +69,7 @@
 
 ## 完成判据
 
-内容命令通过，`dry_run: false` 返回 `render_result.ok: true`，且 `html_report.usable: true`，并调用一次 `quarto_pass_report` 出回执，才算完成。任一条件不满足，回到报告指向的步骤。
+内容命令与混排检查通过，`dry_run: false` 返回 `render_result.ok: true`，且 `html_report.usable: true`，并调用一次 `quarto_pass_report` 出回执，才算完成。任一条件不满足，回到报告指向的步骤。
 
 ## 正反例
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Quarto 图书写作",
-    "description": "为 Quarto Book 写章节、检查结构并维护主题。"
+    "title": "Quarto 图书写作与主题",
+    "description": "润色中文技术章节，检查 Book 结构与中英混排，并维护一套统一、可读的阅读主题。"
   }
 }

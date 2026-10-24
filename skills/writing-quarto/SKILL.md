@@ -1,8 +1,8 @@
 ---
 name: writing-quarto
-description: 编写和修改 Quarto Book 的 .qmd 章节，覆盖中文技术写作、Book 结构、代码与图表、渲染验证；不用于改 CSS、字体或主题颜色
+description: 润色与重构 Quarto Book 章节：任务与结构、术语与中英混排、检查与渲染；不用于改主题样式
 metadata:
-  short-description: 编写中文 Quarto 图书章节
+  short-description: 润色中文 Quarto 图书章节
 ---
 
 # Skill: writing-quarto
@@ -40,5 +40,7 @@ metadata:
 
 - [ ] 九步走完，每一步的产出都落在正文里。
 - [ ] 内容与链接核对通过：项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
+- [ ] 新人能按正文独立完成任务：前置、动作、结果与失败出口齐全，术语首用有解释；清单见 `quarto/readability.md`。
+- [ ] 混排自查通过：`scripts/checking-prose.py --root <book>` 无高置信问题。
 - [ ] 调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。不手跑 `quarto render`，也不截图 PNG。
 - [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `writing-quarto`，`mode` 填 `polish` 或 `rewrite`，文件与步骤的改动次数、未改项、检查结论照实填。卡片就是回执，回复里不再复述；没改也传 0，当前文件不是章节时传 `executed: false`。

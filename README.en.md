@@ -4,9 +4,9 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Write Quarto Book chapters, check their structure, and maintain the theme; only inside `type: book` repositories.
+Polish Chinese technical chapters, check book structure and mixed Chinese-English prose, and maintain a consistent, readable theme; only inside `type: book` repositories.
 
-- Write `.qmd`: `writing-quarto` covers the chapter skeleton, structure and prose.
+- Write `.qmd`: `writing-quarto` covers the chapter skeleton, structure and Chinese prose.
 - Change the theme: `designing-theme` covers CSS, fonts and palettes.
 - Check rendered HTML: `quarto_render_check` judges publishability once, and `quarto_pass_report` prints the closing receipt.
 
@@ -26,10 +26,10 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 ## Install
 
 ```bash
-dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.0
+dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book@0.6.1
 ```
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.6.0` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.6.0`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade a plugin with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin with `npm:@chengzhao-dev/dsh-quarto-book@0.6.1` only if the app refuses that write. To follow a GitHub tag instead, use `github:chengzhao-dev/dsh-quarto-book#v0.6.1`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -50,10 +50,11 @@ Run the content and link checks from the `writing-quarto` skill directory:
 ```bash
 python scripts/verifying-content.py --root <book>
 python scripts/checking-links.py --root <book>
+python scripts/checking-prose.py --root <book>
 python scripts/checking-names.py --root <book>
 ```
 
-Add `checking-names.py` only for a whole-repository refactor; ordinary chapter checks run the first two.
+`checking-prose.py` reports only high-confidence CJK/Latin spacing and punctuation issues. Add `checking-names.py` only for a whole-repository refactor; ordinary chapter checks run the first three.
 
 Callouts, HTML output and DOM contracts after a render are checked by `quarto_render_check`, which invokes the packaged scripts; do not run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme`'s `scripts/checking-layout.py` inspects rendered HTML for overflow, contrast and page structure. `apply()` runs none of these and never runs `quarto render`.
 

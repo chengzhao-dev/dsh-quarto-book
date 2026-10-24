@@ -40,7 +40,10 @@ def collect_sources(root: Path, paths: list[str]) -> list[Path]:
     found = list(root.rglob("*.qmd")) + list(root.rglob("*.md"))
     return sorted(
         path for path in found
-        if not any(part in {".git", "_book", "_site", "node_modules", ".quarto"} for part in path.parts)
+        if not any(
+            part in {".git", ".cache", ".quarto", "_book", "_freeze", "_site", "build", "node_modules", "temp"}
+            for part in path.parts
+        )
     )
 
 
