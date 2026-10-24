@@ -47,7 +47,7 @@
   "icon": "./icon.svg",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/",
+    "test": "npm run build && node --test \"tests/**/*.test.mjs\"",
     "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs && node scripts/checking-skill-budget.mjs && node scripts/checking-package.mjs",
     "check:lib": "node scripts/checking-lib.mjs",
     "prepack": "npm run build",
