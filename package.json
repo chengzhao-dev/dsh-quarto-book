@@ -1,6 +1,6 @@
 {
   "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "润色中文技术章节，检查 Book 结构与中英混排，并维护一套统一、可读的阅读主题。 · Polish Chinese technical chapters, check book structure and mixed Chinese-English prose, and maintain a consistent, readable theme.",
   "type": "module",
   "main": "./lib/index.js",
