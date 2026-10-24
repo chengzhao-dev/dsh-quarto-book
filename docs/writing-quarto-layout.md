@@ -27,10 +27,10 @@ skills/writing-quarto/
 
 ## 新增或移动一条规则
 
-先判断它属于哪一步，再落到那个 step 的「通用情况」；只有一种情形才成立时落到「情况」。同一个判定在别的 step 里已经有条文，就引用它，不复制。规则要例子才讲得清时，在 step 的「正反例」节加一行引用，例子写进 `examples/` 同号文件。
+先判断它属于哪一步，再落到那个 step 的「通用情况」；只有一种情形才成立时落到「情况」。同一个判定在别的 step 里已经有条文，就引用它，不复制。规则要例子才讲得清时，在 step 的「正反例」节加一行引用，例子写进 `examples/` 同号文件。能机器判定的规则同时补进 `scripts/verifying-content.py`，并在 `scripts/testing-content.py` 加回归用例，正文只写调用方式。
 
-只在渲染层成立的内容放 `quarto/`，写作层不回引。
+只在渲染层成立的内容放 `quarto/`，写作层不回引。`quarto/prose.md` 是唯一例外：它同时是第 7 步的标点与混排细则出处和 `checking-prose.py` 的检查规范，允许写作层指向它，规则本身只写在那里。
 
 ## 自检
 
-`npm run check` 跑 `scripts/checking-skill-links.mjs`：九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，旧目录与 `kb_id` 不再出现，README 与 docs 里的树满足标记列规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。
+`npm run check` 跑 `scripts/checking-skill-links.mjs`：九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，同一文件里的标题文字不重复，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，旧目录与 `kb_id` 不再出现，README 与 docs 里的树满足标记列规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。

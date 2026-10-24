@@ -47,6 +47,7 @@ PLACEHOLDER_RE = re.compile(r"^\s*TODO|待补|待定|TBD", re.IGNORECASE)
 TRAILING_SPACE_RE = re.compile(r"[ 	]+$")
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
+HEADING_PERSONAL_RE = re.compile(r"自己|咱们|我们|你|您|跟我|试试|来看")
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)\s*(\{[^}]*\}|[^\s`]*)?")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
@@ -158,6 +159,10 @@ def check_heading(path: Path, line: int, level: int, text: str, issues: list[Iss
         issues.append(Issue(path, line, "空标题"))
     if re.search(r"[。！？；]$", text):
         issues.append(Issue(path, line, "标题末尾带句读"))
+    if HEADING_PERSONAL_RE.search(text):
+        issues.append(Issue(path, line, "标题带人称或口语劝诱；改写成对象名或「动词 + 具体宾语」"))
+    if "`" in text:
+        issues.append(Issue(path, line, "标题带行内代码；文件名留给正文，标题写对象"))
 
 
 def check_prose_block(path: Path, start_line: int, text: str, issues: list[Issue]) -> None:

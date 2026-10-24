@@ -12,7 +12,7 @@ const fail = (file, message) => problems.push(`${relative(repo, file)}: ${messag
 const expected = [
   'SKILL.md',
   ...['01-task', '02-structure', '03-blocks', '04-paragraphs', '05-sentences', '06-wording', '07-layout', '08-reread', '09-check'].map((n) => `steps/${n}.md`),
-  ...['01-language-scope', '02-structure-shape', '03-block-after', '03-excerpt-lead', '03-layout-list', '03-qmd-elements', '04-paragraph-cases', '04-paragraph-opening', '05-sentence-brevity', '05-sentence-frame', '05-sentence-reference', '06-wording-cases', '08-appendix'].map((n) => `examples/${n}.md`),
+  ...['01-language-scope', '02-structure-shape', '03-block-after', '03-excerpt-lead', '03-qmd-elements', '04-paragraph-cases', '04-paragraph-opening', '05-sentence-brevity', '05-sentence-frame', '05-sentence-reference', '06-wording-cases', '07-layout-list', '08-appendix'].map((n) => `examples/${n}.md`),
   ...['authoring', 'basics', 'comments', 'coords', 'encoding', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'terminal'].map((n) => `quarto/${n}.md`),
   ...['answering-disclosure.lua', 'checking-callouts.py', 'checking-dom.py', 'checking-links.py', 'checking-names.py', 'checking-output.py', 'checking-prose.py', 'testing-check-ascii-names.py', 'testing-content.py', 'verifying-content.py'].map((n) => `scripts/${n}`),
 ];
@@ -116,6 +116,22 @@ for (const file of watched) {
     if (headingCache.get(targetFile).has(section)) continue;
     const line = text.slice(0, match.index).split('\n').length;
     fail(file, `第 ${line} 行引用的节名不存在：${target}「${section}」`);
+  }
+}
+
+// 同一文件里的标题文字不得重复：重复的 H3 会生成重复锚点，目录与读者都分不清。
+for (const file of watched) {
+  if (!file.endsWith('.md')) continue;
+  const seen = new Map();
+  let fence = false;
+  for (const [index, line] of read(file).split('\n').entries()) {
+    if (/^\s*(```|~~~)/.test(line)) { fence = !fence; continue; }
+    if (fence) continue;
+    const match = /^(#{2,4})\s+(.+?)\s*#*\s*$/.exec(line);
+    if (!match) continue;
+    const key = `${match[1]} ${match[2]}`;
+    if (seen.has(key)) fail(file, `第 ${index + 1} 行标题重复：${key}`);
+    else seen.set(key, index + 1);
   }
 }
 

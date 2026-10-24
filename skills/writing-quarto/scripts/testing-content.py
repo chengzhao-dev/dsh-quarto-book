@@ -97,6 +97,8 @@ def main() -> int:
                 failures.append(f"{name}: 输出缺少「{needle}」\n{output[:600]}")
 
     expect("合法样书", VALID_CHAPTER, 0, "OK")
+    expect("标题口语化", VALID_CHAPTER.replace("## 目标", "## 自己走一局"), 1, "标题带人称")
+    expect("标题带行内代码", VALID_CHAPTER.replace("## 目标", "## 运行 `app`"), 1, "标题带行内代码")
     expect("正文 H1", VALID_CHAPTER.replace("## 目标", "# 目标"), 1, "正文出现 H1")
     expect("缺 title", VALID_CHAPTER.replace("title: 入门\n", ""), 1, "缺少 YAML frontmatter")
     expect(
@@ -141,7 +143,7 @@ def main() -> int:
             print(f"  FAIL {line}")
         return 1
 
-    print("PASS：9 个用例全部通过")
+    print("PASS：11 个用例全部通过")
     return 0
 
 
