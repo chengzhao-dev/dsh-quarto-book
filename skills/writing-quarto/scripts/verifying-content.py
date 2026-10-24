@@ -51,6 +51,9 @@ TRAILING_SPACE_RE = re.compile(r"[ 	]+$")
 QA_PROSE_RE = re.compile(r"(?:它|只|都|分别|各自)回答|回答(?:四类|整局|这个|哪些|什么)")
 CODE_META_RE = re.compile(r"对应的代码")
 COINED_RELATION_RE = re.compile(r"(?:组成|依赖|继承|调用)边")
+CARRIER_RE = re.compile("承载")
+NEXT_SECTION_RE = re.compile(r"(?:下一节|上一节)")
+LADDER_RE = re.compile(r"(?:分别交给|各说一层)")
 
 TREE_CATEGORY_COMMENTS = frozenset({
     "头文件", "源文件", "源码", "实现", "测试", "配置文件",
@@ -89,7 +92,8 @@ class Issue:
 
 
 def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8", errors="replace")
+    # utf-8-sig 兼容带 BOM 的合法 UTF-8 文件；BOM 不进入行号与正文。
+    return path.read_text(encoding="utf-8-sig")
 
 
 def strip_frontmatter(text: str) -> tuple[str, str]:
@@ -139,9 +143,9 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
         if stripped and not raw.startswith((" ", "\t", "-")):
             in_chapters = False
             continue
-        if not stripped.startswith("-"):
+        if not stripped:
             continue
-        item = stripped[1:].strip()
+        item = stripped[1:].strip() if stripped.startswith("-") else stripped
         key, sep, value = item.partition(":")
         if sep and re.fullmatch(r"[a-z_]+", key.strip()):
             # 只接受会落到页面的键：href 与 part 的文件形式。
@@ -151,6 +155,17 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
         if href.endswith(".qmd"):
             chapters.append(href)
     return chapters
+
+
+def collect_all_qmd(root: Path) -> list[Path]:
+    excluded = {"node_modules", "_book", ".quarto", ".git", "_freeze", "_site"}
+    found: list[Path] = []
+    for candidate in sorted(root.rglob("*.qmd")):
+        rel_parts = candidate.relative_to(root).parts
+        if any(part in excluded or part.startswith(".") for part in rel_parts):
+            continue
+        found.append(candidate)
+    return found
 
 
 def collect_chapter_files(root: Path, chapters: list[str]) -> list[Path]:
@@ -164,15 +179,8 @@ def collect_chapter_files(root: Path, chapters: list[str]) -> list[Path]:
         found.append(index)
     if chapters:
         return found
-    # No chapter table: audit every tracked .qmd outside generated/vendor dirs.
-    excluded = {"node_modules", "_book", ".quarto", ".git", "_freeze", "_site"}
-    for candidate in sorted(root.rglob("*.qmd")):
-        rel_parts = candidate.relative_to(root).parts
-        if any(part in excluded or part.startswith(".") for part in rel_parts):
-            continue
-        if candidate not in found:
-            found.append(candidate)
-    return found
+    # No chapter table: audit every .qmd outside generated/vendor dirs.
+    return collect_all_qmd(root)
 
 
 def check_heading(path: Path, line: int, level: int, text: str, issues: list[Issue]) -> None:
@@ -425,6 +433,38 @@ def check_tree_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
     return issues
 
 
+def check_html_figure_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
+    """原生 HTML/SVG 图要用 <figure> 包住，<figcaption> 放在图后。"""
+    issues: list[Issue] = []
+    svg_line: int | None = None
+    figure_line: int | None = None
+    caption_line: int | None = None
+    for number, raw in block:
+        if "<figure" in raw and figure_line is None:
+            figure_line = number
+        if "<svg" in raw and svg_line is None:
+            svg_line = number
+            if figure_line is None:
+                issues.append(Issue(
+                    path, number,
+                    "原生 SVG 图要用 <figure> 包住，并在图后写 <figcaption>",
+                ))
+        if "<figcaption" in raw and caption_line is None:
+            caption_line = number
+    if svg_line is not None and figure_line is not None:
+        if caption_line is None:
+            issues.append(Issue(
+                path, svg_line,
+                "原生 SVG 图缺 <figcaption>（图注要落在图下）",
+            ))
+        elif caption_line < svg_line:
+            issues.append(Issue(
+                path, caption_line,
+                "<figcaption> 要放在图后，不能放在图前",
+            ))
+    return issues
+
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
     issues: list[Issue] = []
     text = read_text(path)
@@ -436,6 +476,10 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     elif front and not parse_frontmatter_title(front):
         issues.append(Issue(path, 1, "frontmatter 缺少 title"))
 
+    # 保留 frontmatter 的行数，后续行号才是文件里的真实行号。
+    leading = text[: len(text) - len(body)] if body else ""
+    if leading:
+        body = "\n" * leading.count("\n") + body
     lines = body.splitlines()
     in_fence = False
     fence_lang = ""
@@ -443,8 +487,11 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     fence_lines: list[tuple[int, str]] = []
     fence_blocks: list[list[tuple[int, str]]] = []
     mermaid_blocks: list[list[tuple[int, str]]] = []
+    html_blocks: list[list[tuple[int, str]]] = []
+    fence_is_html = False
     paragraph: list[str] = []
     paragraph_start = 0
+    last_fence_end: int | None = None
 
     def flush_paragraph() -> None:
         nonlocal paragraph
@@ -459,24 +506,35 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             if not in_fence:
                 in_fence = True
                 fence_start = number
+                if last_fence_end is not None and number == last_fence_end + 1:
+                    issues.append(Issue(
+                        path, number,
+                        "相邻围栏之间至少留一个空行（DOC-E11）；空行不等于桥接正文",
+                    ))
                 fence_lang = (fence.group(2) or "").strip()
                 fence_lines = []
+                fence_is_html = False
                 if not fence_lang:
                     issues.append(Issue(path, number, "代码围栏未声明语言"))
                 elif fence_lang == "mermaid":
                     issues.append(Issue(path, number, "plain mermaid 围栏（改用 ```{mermaid}）"))
                 elif fence_lang.startswith("{"):
                     inner = fence_lang.strip("{}").strip()
+                    fence_is_html = inner == "=html"
                     if inner and not inner.startswith((".", "=")) and "mermaid" not in inner:
                         # ```{python} style attribute fences are valid.
                         pass
             else:
                 in_fence = False
+                last_fence_end = number
                 if fence_lines:
                     fence_blocks.append(fence_lines)
                     if "mermaid" in fence_lang:
                         mermaid_blocks.append(fence_lines)
+                    if fence_is_html:
+                        html_blocks.append(fence_lines)
                     fence_lines = []
+                    fence_is_html = False
             continue
 
         if in_fence:
@@ -504,7 +562,12 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             flush_paragraph()
             continue
 
-        if raw.lstrip().startswith((">", "|", "-", "*", "+", "1.")):
+        if raw.lstrip().startswith("|"):
+            flush_paragraph()
+            # 表格行按列组织，不套散文句长阈值；列数与表头一致性由表格检查负责。
+            continue
+
+        if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
             flush_paragraph()
             check_prose_block(path, number, re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw), issues)
             continue
@@ -515,6 +578,9 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
     flush_paragraph()
 
+    if in_fence:
+        issues.append(Issue(path, fence_start, "代码围栏未闭合"))
+
     for block in fence_blocks:
         issues.extend(check_tree_block(path, block))
 
@@ -522,21 +588,41 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
         issues.extend(check_mermaid_block(path, block))
         issues.extend(check_mermaid_wrapper(path, lines, block))
 
-    for index, raw in enumerate(lines, start=1):
-        match = LINK_RE.search(raw)
-        if not match:
-            continue
-        target = match.group(1).strip()
-        if target.startswith(("http://", "https://", "mailto:", "#", "data:")):
-            continue
-        clean = target.split("#", 1)[0].split("?", 1)[0]
-        if not clean or "<" in clean:
-            continue
-        if not (path.parent / clean).exists() and not (root / clean).exists():
-            issues.append(Issue(path, index, f"本地链接不可达：{target}"))
+    for block in html_blocks:
+        issues.extend(check_html_figure_block(path, block))
 
-    if text.count("```") % 2 != 0:
-        issues.append(Issue(path, len(lines), "代码围栏数量为奇数，存在未闭合围栏"))
+    fenced_lines: set[int] = set()
+    inside_fence = False
+    for number, raw in enumerate(lines, start=1):
+        if FENCE_RE.match(raw):
+            fenced_lines.add(number)
+            inside_fence = not inside_fence
+        elif inside_fence:
+            fenced_lines.add(number)
+
+    blob_links: dict[str, list[int]] = {}
+
+    for index, raw in enumerate(lines, start=1):
+        if index in fenced_lines:
+            continue
+        for match in LINK_RE.finditer(raw):
+            target = match.group(1).strip()
+            if target.startswith(("http://", "https://", "mailto:", "#", "data:", "//")):
+                if target.startswith("https://github.com/") and "/blob/" in target:
+                    blob_links.setdefault(target, []).append(index)
+                continue
+            clean = target.split("#", 1)[0].split("?", 1)[0]
+            if not clean or "<" in clean:
+                continue
+            if not (path.parent / clean).exists() and not (root / clean).exists():
+                issues.append(Issue(path, index, f"本地链接不可达：{target}"))
+
+    for target, numbers in blob_links.items():
+        if len(numbers) > 1:
+            issues.append(Issue(
+                path, numbers[1],
+                f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；每章每条仓库路径至多一条",
+            ))
 
     for term in GENERIC_FORBIDDEN_TERMS:
         for index, raw in enumerate(lines, start=1):
@@ -570,6 +656,24 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             issues.append(Issue(
                 path, index,
                 f"自造关系词「{match.group(0)}」；用组成、调用、依赖、继承等通行词",
+            ))
+        match = CARRIER_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                "类型或字段不用「承载」描述；改用表示、保存、记录或对应",
+            ))
+        match = NEXT_SECTION_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                f"小节导航「{match.group(0)}」；删除后用新节首句承接，章末预告保留",
+            ))
+        match = LADDER_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                f"拉链句「{match.group(0)}」；拆句或改成一项一行",
             ))
 
     required = project.get("chapter_titles", {}).get(rel)
@@ -605,6 +709,7 @@ def load_project(root: Path) -> tuple[bool, dict]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="检查 Quarto Book 章节源码")
     parser.add_argument("--root", default=".", help="书根目录（默认当前目录）")
+    parser.add_argument("--paths", nargs="+", help="只检查这些 qmd 路径（相对 --root）")
     parser.add_argument("--strict", action="store_true", help="把未列入目录的文件也视为错误")
     parser.add_argument("--quiet", action="store_true", help="只输出汇总")
     args = parser.parse_args()
@@ -621,27 +726,52 @@ def main() -> int:
         return 2
 
     quarto_yml = root / "_quarto.yml"
-    chapters = parse_chapters(quarto_yml)
+    try:
+        chapters = parse_chapters(quarto_yml)
+    except (OSError, UnicodeDecodeError) as exc:
+        print(f"失败  读取目录表失败: {exc}")
+        return 1
     files = collect_chapter_files(root, chapters)
+    issues: list[Issue] = []
+    if args.paths:
+        requested: list[Path] = []
+        for raw in args.paths:
+            candidate = (root / raw).resolve()
+            if root not in candidate.parents and candidate != root:
+                issues.append(Issue(quarto_yml, 1, f"--paths 落在书根之外：{raw}"))
+            elif not candidate.is_file():
+                issues.append(Issue(candidate, 1, f"--paths 指定的文件不存在：{raw}"))
+            else:
+                requested.append(candidate)
+        files = requested
     if not files:
         print(f"失败  {root} 下没有 .qmd 章节（确认 --root 指向书根目录）")
         return 1
 
-    has_project, project = load_project(root)
+    try:
+        has_project, project = load_project(root)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        print(f"失败  读取项目规则失败: {exc}")
+        return 1
 
     missing = [rel for rel in chapters if not (root / rel).is_file()]
-    issues: list[Issue] = [
+    issues.extend([
         Issue(quarto_yml, 1, f"目录中的章节不存在：{rel}") for rel in missing
-    ]
-
-    for path in files:
-        issues.extend(check_file(path, root, project, chapters))
+    ])
 
     if args.strict:
-        for issue in list(issues):
-            if "未列入 _quarto.yml" in issue.message:
-                issue.message = issue.message.replace("（目录会漏章）", "")
-    else:
+        extras = [item for item in collect_all_qmd(root) if item not in files]
+        for item in extras:
+            issues.append(Issue(item, 1, "未列入 _quarto.yml（strict 模式）"))
+        files.extend(extras)
+
+    for path in files:
+        try:
+            issues.extend(check_file(path, root, project, chapters))
+        except (OSError, UnicodeDecodeError) as exc:
+            issues.append(Issue(path, 1, f"无法按 UTF-8 读取：{exc}"))
+
+    if not args.strict:
         issues = [issue for issue in issues if "未列入 _quarto.yml" not in issue.message]
 
     if not args.quiet:

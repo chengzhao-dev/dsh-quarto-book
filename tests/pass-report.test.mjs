@@ -133,6 +133,19 @@ test('拒绝：未执行缺 skip_reason、模式不匹配、超过 8 个文件',
       }),
     /最多 8 个路径/,
   )
+  assert.throws(
+    () =>
+      buildPassReport({
+        skill: 'writing-quarto',
+        executed: true,
+        mode: 'polish',
+        files: [
+          { path: 'a.qmd', edits: 1 },
+          { path: ' a.qmd ', edits: 1 },
+        ],
+      }),
+    /files 的 path 重复/,
+  )
 })
 
 test('拒绝：未知字段、重复检查项、超长原因', () => {

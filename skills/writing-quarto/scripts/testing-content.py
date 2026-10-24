@@ -68,6 +68,36 @@ title: 入门
 """
 
 
+HTML_FIGURE_BAD = """---
+title: 入门
+---
+
+## 目标
+
+这一章说明一个可以重复验证的目标。
+
+```{=html}
+<svg class="coords-grid" role="img" aria-label="棋盘坐标。"><rect width="10" height="10"/></svg>
+```
+"""
+
+HTML_FIGURE_GOOD = """---
+title: 入门
+---
+
+## 目标
+
+这一章说明一个可以重复验证的目标。
+
+```{=html}
+<figure class="book-figure">
+<svg class="coords-grid" role="img" aria-label="棋盘坐标。"><rect width="10" height="10"/></svg>
+<figcaption>棋盘坐标图：3 行 3 列。</figcaption>
+</figure>
+```
+"""
+
+
 TREE_GAP_CHAPTER = """---
 title: 入门
 ---
@@ -139,8 +169,11 @@ def main() -> int:
         pass
 
     failures: list[str] = []
+    passed_cases = 0
 
     def expect(name: str, chapter: str, code: int, needle: str, project: bool = False) -> None:
+        nonlocal passed_cases
+        passed_cases += 1
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_book(root, chapter)
@@ -177,6 +210,31 @@ def main() -> int:
         VALID_CHAPTER + "\n`Game` 与 `Board` 之间的组成边表示什么？\n",
         1, "自造关系词",
     )
+    expect(
+        "类型承载",
+        VALID_CHAPTER + "\n坐标由 `CellPosition` 承载，取值由 `CellType` 承载。\n",
+        1, "承载",
+    )
+    expect(
+        "小节导航",
+        VALID_CHAPTER + "\n下一节说明落子顺序。\n",
+        1, "小节导航",
+    )
+    expect(
+        "拉链句",
+        VALID_CHAPTER + "\n两个类型分别交给坐标与取值。\n",
+        1, "拉链句",
+    )
+    duplicate_link = (
+        "https://github.com/chengzhao-dev/cpp-board-games/blob/main/"
+        "games/tictactoe/tictactoe/include/board.h"
+    )
+    expect(
+        "同章重复文件链接",
+        VALID_CHAPTER
+        + f"\n[board.h]({duplicate_link})\n\n[board.h]({duplicate_link})\n",
+        1, "同章重复文件链接",
+    )
     expect("标题口语化", VALID_CHAPTER.replace("## 目标", "## 自己走一局"), 1, "标题带人称")
     expect("标题带行内代码", VALID_CHAPTER.replace("## 目标", "## 运行 `app`"), 1, "标题带行内代码")
     expect("正文 H1", VALID_CHAPTER.replace("## 目标", "# 目标"), 1, "正文出现 H1")
@@ -197,6 +255,12 @@ def main() -> int:
         1, "未声明语言",
     )
     expect(
+        "相邻围栏缺少空行",
+        "---\ntitle: 入门\n---\n\n## 目标\n\n"
+        "```text\na\n```\n```text\nb\n```\n",
+        1, "DOC-E11",
+    )
+    expect(
         "项目禁用词生效",
         "---\ntitle: 入门\n---\n\n## 目标\n\n棋盘格子按行列编号，程序读取当前状态。\n",
         1, "项目禁用词",
@@ -209,6 +273,8 @@ def main() -> int:
     )
 
     expect("目录树合格", TREE_CHAPTER, 0, "OK")
+    expect("原生 SVG 缺图注", HTML_FIGURE_BAD, 1, "figcaption")
+    expect("原生 SVG 图注合格", HTML_FIGURE_GOOD, 0, "OK")
     expect(
         "标记后多空格",
         TREE_CHAPTER.replace("# 读入坐标", "#  读入坐标"),
@@ -325,6 +391,7 @@ def main() -> int:
     )
 
     with tempfile.TemporaryDirectory() as raw:
+        passed_cases += 1
         root = Path(raw)
         make_book(root)
         (root / "content" / "part" / "01-intro.qmd").unlink()
@@ -339,7 +406,7 @@ def main() -> int:
             print(f"  FAIL {line}")
         return 1
 
-    print("PASS：36 个用例全部通过")
+    print(f"PASS：{passed_cases} 个用例全部通过")
     return 0
 
 

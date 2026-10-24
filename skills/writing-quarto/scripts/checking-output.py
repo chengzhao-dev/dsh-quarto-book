@@ -7,7 +7,7 @@
 不在本检查范围内。
 
 用法：python checking-output.py [--book-dir _book] [--root .] [--require-sitemap]
-退出码：0 = 通过；1 = 存在阻塞问题。
+退出码：0 = 通过；1 = 存在阻塞问题；2 = 渲染产物目录或首页缺失。
 """
 
 import argparse
@@ -37,12 +37,12 @@ def main() -> int:
     index = book / "index.html"
     if not index.is_file():
         print(f"缺少产物首页 {book.as_posix()}/index.html：确认在仓库根目录渲染")
-        return 1
+        return 2
 
     html_files = sorted(book.rglob("*.html"))
     if not html_files:
         print(f"{book.as_posix()} 下没有任何 HTML 文件")
-        return 1
+        return 2
 
     for path in html_files:
         rel = path.relative_to(book).as_posix()

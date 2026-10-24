@@ -59,15 +59,17 @@ export interface DshContext {
   tools?: ToolRegistry
 }
 
-/** 读取 SKILL.md 实际用到的几个键，只做最简单的 YAML frontmatter 解析。 */
+/** 读取 SKILL.md 实际用到的几个键，只做最小的 YAML frontmatter 解析。 */
 function parseFrontmatter(source: string): { data: Record<string, unknown>; body: string } {
-  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(source)
-  if (!match) return { data: {}, body: source }
+  const normalized = source.replace(/^\uFEFF/, '')
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(normalized)
+  if (!match) return { data: {}, body: normalized }
 
   const data: Record<string, unknown> = {}
   const stack: Array<{ indent: number; target: Record<string, unknown> }> = [{ indent: -1, target: data }]
-  for (const rawLine of match[1].split(/\r?\n/)) {
-    const line = rawLine.replace(/\t/g, '  ')
+  const lines = match[1].split(/\r?\n/)
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].replace(/\t/g, '  ')
     if (!line.trim() || line.trimStart().startsWith('#')) continue
     const indent = line.length - line.trimStart().length
     const pair = /^([A-Za-z0-9_.-]+):(?:\s*(.*))?$/.exec(line.trim())
@@ -75,16 +77,54 @@ function parseFrontmatter(source: string): { data: Record<string, unknown>; body
     while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop()
     const parent = stack[stack.length - 1].target
     const key = pair[1]
-    const value = (pair[2] ?? '').trim()
+    const value = stripInlineComment(pair[2] ?? '').trim()
     if (value === '') {
       const child: Record<string, unknown> = {}
       parent[key] = child
       stack.push({ indent, target: child })
       continue
     }
+    if (/^[>|][+-]?\d?$/.test(value)) {
+      const block: string[] = []
+      let cursor = index + 1
+      for (; cursor < lines.length; cursor += 1) {
+        const next = lines[cursor].replace(/\t/g, '  ')
+        if (!next.trim()) {
+          block.push('')
+          continue
+        }
+        const nextIndent = next.length - next.trimStart().length
+        if (nextIndent <= indent) break
+        block.push(next)
+      }
+      const nonBlank = block.filter((item) => item.trim())
+      const cut = nonBlank.length > 0 ? Math.min(...nonBlank.map((item) => item.length - item.trimStart().length)) : 0
+      const text = block.map((item) => item.slice(cut)).join('\n')
+      parent[key] = value[0] === '|' ? text : text.replace(/([^\n])\n(?=[^\n])/g, '$1 ').replace(/\n{2,}/g, '\n')
+      index = cursor - 1
+      continue
+    }
     parent[key] = parseScalar(value)
   }
-  return { data, body: source.slice(match[0].length) }
+  return { data, body: normalized.slice(match[0].length) }
+}
+
+/** 去掉 plain scalar 末尾的 ` # 注释`；引号内的 # 保留。 */
+function stripInlineComment(value: string): string {
+  let quote: string | undefined
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value[index]
+    if (quote) {
+      if (char === quote && value[index - 1] !== '\\') quote = undefined
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      continue
+    }
+    if (char === '#' && (index === 0 || /\s/.test(value[index - 1]))) return value.slice(0, index)
+  }
+  return value
 }
 
 function parseScalar(value: string): unknown {

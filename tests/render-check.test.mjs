@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
-import { evaluateOutputDir, runRenderCheck } from '../lib/tools/render-check.js'
+import { evaluateOutputDir, inspectHtml, runRenderCheck } from '../lib/tools/render-check.js'
 
 function fakeSpawn({ code = 0, output = '' } = {}) {
   return (command) => {
@@ -51,6 +51,40 @@ test('危险输出目录：../out 落在书外', () => {
   const decision = evaluateOutputDir('C:/book', 'project:\n  output-dir: ../out\n')
   assert.equal(decision.safe, false)
   assert.match(decision.warning, /书根之外/)
+})
+
+test('output-dir 行尾注释不进入目录名', () => {
+  const decision = evaluateOutputDir('C:/book', 'project:\n  output-dir: _book # 输出目录\n')
+  assert.equal(decision.safe, true)
+  assert.equal(decision.value, '_book')
+  assert.equal(decision.resolved, path.resolve('C:/book', '_book'))
+})
+
+test('output-dir 指向书外符号链接时拒绝渲染', async (t) => {
+  const root = await bookFixture()
+  const outside = await mkdtemp(path.join(tmpdir(), 'quarto-outside-'))
+  try {
+    await rm(path.join(root, '_book'), { recursive: true, force: true })
+    try {
+      await symlink(outside, path.join(root, '_book'), 'junction')
+    } catch {
+      t.skip('当前平台不能创建目录符号链接')
+      return
+    }
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: true,
+      spawn: () => {
+        throw new Error('不应调用')
+      },
+    })
+    assert.equal(result.safe_to_render, false)
+    assert.match(result.warnings[0], /符号链接/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+    await rm(outside, { recursive: true, force: true })
+  }
 })
 
 test('dry_run 为 true 时只做安全检查，不启动渲染', async () => {
@@ -187,6 +221,81 @@ test('首页含 charset 与 sitemap/search 时全部通过', async () => {
   }
 })
 
+test('正文举例里的 file:/// 不算本地链接', async () => {
+  const root = await bookFixture({
+    indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body>例如 file:///tmp 是绝对路径</body></html>',
+  })
+  try {
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn: fakeSpawn({ code: 0 }),
+    })
+    const check = result.html_report.checks.find((item) => item.id === 'no_file_uri')
+    assert.equal(check.status, 'pass')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('href 指向 file:/// 时 no_file_uri 失败', async () => {
+  const root = await bookFixture({
+    indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body><a href="file:///tmp/x.html">x</a></body></html>',
+  })
+  try {
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn: fakeSpawn({ code: 0 }),
+    })
+    const check = result.html_report.checks.find((item) => item.id === 'no_file_uri')
+    assert.equal(check.status, 'fail')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('无 theme/ 时跳过主题 DOM 契约', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-dom-'))
+  const output = path.join(root, '_book')
+  await mkdir(output, { recursive: true })
+  await writeFile(
+    path.join(output, 'index.html'),
+    '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body><div class="code-copy-outer-scaffold">代码</div></body></html>',
+    'utf8',
+  )
+  try {
+    const spawn = (_command, args) => {
+      const child = new EventEmitter()
+      child.stdout = new EventEmitter()
+      child.stderr = new EventEmitter()
+      child.kill = () => true
+      const script = args[0] ?? ''
+      const text = script.endsWith('checking-dom.py')
+        ? 'OK C3 打印不隐藏代码\nOK C5 Mermaid\nOK C9 答案折叠\nFAIL C1 复制按钮\nFAIL C6 主题字体\n'
+        : ''
+      queueMicrotask(() => {
+        if (text) child.stdout.emit('data', text)
+        child.emit('close', 0)
+      })
+      return child
+    }
+    const { report } = await inspectHtml({
+      root,
+      outputDir: output,
+      yaml: 'project:\n  type: book\n',
+      spawn,
+    })
+    const dom = report.checks.find((check) => check.id === 'dom')
+    assert.equal(dom.status, 'pass')
+    assert.match(dom.detail, /通用 DOM 契约通过/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('正常中文里的「璇」不算乱码', async () => {
   const root = await bookFixture({
     indexHtml: '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body>璇玑</body></html>',
@@ -231,7 +340,7 @@ test('search.json 为顶层数组时也算索引可用', async () => {
   try {
     await writeFile(
       path.join(root, '_quarto.yml'),
-      'project:\n  type: book\n  output-dir: _book\nbook:\n  search: true\n',
+      'project:\n  type: book\n  output-dir: _book\nbook:\n  search: true # 打开搜索\n',
       'utf8',
     )
     await writeFile(path.join(root, '_book', 'search.json'), '[{"title":"首页"}]', 'utf8')
@@ -244,6 +353,25 @@ test('search.json 为顶层数组时也算索引可用', async () => {
     const search = result.html_report.checks.find((check) => check.id === 'search_index')
     assert.equal(search.status, 'pass')
     assert.equal(result.html_report.usable, true)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('单个 HTML 超过上限时给出明确失败原因', async () => {
+  const root = await bookFixture()
+  try {
+    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body>${'x'.repeat(8 * 1024 * 1024)}</body></html>`
+    await mkdir(path.join(root, '_book'), { recursive: true })
+    await writeFile(path.join(root, '_book', 'index.html'), html, 'utf8')
+    const { report } = await inspectHtml({
+      root,
+      outputDir: path.join(root, '_book'),
+      yaml: 'project:\n  type: book\n  output-dir: _book\n',
+    })
+    const utf8 = report.checks.find((check) => check.id === 'utf8')
+    assert.equal(utf8.status, 'fail')
+    assert.match(utf8.detail, /超过/)
   } finally {
     await rm(root, { recursive: true, force: true })
   }

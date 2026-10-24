@@ -6,24 +6,27 @@
 
 ```text
 skills/writing-quarto/
-├── SKILL.md      # 入口：九步与完成判据
-├── examples/    #/ 案例
-├── quarto/      #/ 渲染与排错
-├── scripts/     #/ 检查脚本
-└── steps/       #/ 九步规则
+├── SKILL.md        # 入口：九步与整书
+├── examples/      #/ 案例
+├── quarto/        #/ 渲染与排错
+├── references/    #/ 整书与预算
+├── scripts/       #/ 检查脚本
+└── steps/         #/ 九步规则
 ```
 
-## 四层各放什么
+## 各层放什么
 
 **steps/** 放规则正文，一个文件一步，文件名按 `NN-名字.md` 编号。读者沿 `SKILL.md` 的九步走进来，读当前这一步的一个文件就够。每个 step 的骨架固定：第 3 行以 `产出：` 开头，正文分「通用情况」「情况」「正反例」三节；第 9 步另加「完成判据」。写法是判断标准和判定信号；正反例句不抄进来，只写指向 `examples/` 的引用。
 
 **examples/** 放正反例，文件名与 step 同号，一个主题一个文件。案例只在判不准时打开：每步的「正反例」节写清该开哪个文件、看哪一节。案例可以贴不佳原文和改写，规则条文不在这里复制。
 
+**references/** 放跨章与加载成本约定：`book-journey.md` 定整书主线、三遍走与章节接口；`token-budget.md` 定每个 Markdown 的 token 上限。只有整书规划或超限判断才打开。
+
 **quarto/** 放 Book 结构与渲染层约定：`basics.md` 管项目结构与 front matter，`authoring.md` 管元素写法，`comments.md` 管 qmd、YAML、SCSS 与 CSS 的注释，`encoding.md` 管编码与行尾，`prose.md` 管中英混排、标点与润色底线，`readability.md` 管新人可读性与任务完整性，`mermaid.md` 与 `coords.md` 管图，`terminal.md` 管命令与输出，`render.md` 管 HTML 输出、链接与排错，`refactor.md` 管全仓重构。排图、查渲染错误或做全仓重构才打开。
 
 **scripts/** 放可机器判定的检查，正文只写调用方式与何时运行。规则能用脚本判定的不再抄进 step。
 
-`SKILL.md` 只留入口：适用场景、两种走法、九步各一句、完成判据。不贴目录树，不复制任何一步的条文。
+`SKILL.md` 只留入口：适用场景、整书走法一句、两种走法、九步各一句、完成判据。不贴目录树，不复制任何一步的条文。
 
 ## 新增或移动一条规则
 
@@ -33,4 +36,4 @@ skills/writing-quarto/
 
 ## 自检
 
-`npm run check` 跑 `scripts/checking-skill-links.mjs`：九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，每个 step 的第 3 行是 `产出：` 且三节齐全，同一文件里的标题文字不重复，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，技能目录不留 `__pycache__` 或 `.pyc`，旧目录与 `kb_id` 不再出现，README、docs 与案例「改写」围栏里的树满足目录 `#/` 在左、文件 `#` 右移一列、节点与注释至少留四个空格、注释文字对齐、目录斜杠、目录注释不超过 16 列且不带冒号或顿号清单、文件注释 1–2 项、行数不超过 20 与注释不超过 28 个显示列的规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。
+`npm run check` 跑 `scripts/checking-skill-links.mjs` 与 `scripts/checking-skill-budget.mjs`：前者检查九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，每个 step 的第 3 行是 `产出：` 且三节齐全，同一文件里的标题文字不重复，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，技能目录不留 `__pycache__` 或 `.pyc`，旧目录与 `kb_id` 不再出现，README、docs 与案例「改写」围栏里的树满足目录 `#/` 在左、文件 `#` 右移一列、节点与注释至少留四个空格、注释文字对齐、目录斜杠、目录注释不超过 16 列且不带冒号或顿号清单、文件注释 1–2 项、行数不超过 20 与注释不超过 28 个显示列的规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。后者按 `references/token-budget.md` 的单文件与总量上限检查技能 Markdown。

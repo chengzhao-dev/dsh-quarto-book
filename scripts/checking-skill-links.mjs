@@ -13,14 +13,15 @@ const expected = [
   'SKILL.md',
   ...['01-task', '02-structure', '03-blocks', '04-paragraphs', '05-sentences', '06-wording', '07-layout', '08-reread', '09-check'].map((n) => `steps/${n}.md`),
   ...['01-language-scope', '02-structure-shape', '03-block-after', '03-excerpt-lead', '03-qmd-elements', '04-paragraph-cases', '04-paragraph-opening', '05-sentence-brevity', '05-sentence-frame', '05-sentence-reference', '06-wording-cases', '07-layout-list', '08-appendix'].map((n) => `examples/${n}.md`),
-  ...['authoring', 'basics', 'comments', 'coords', 'encoding', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'terminal'].map((n) => `quarto/${n}.md`),
+  ...['authoring', 'basics', 'comments', 'coords', 'encoding', 'figures', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'terminal'].map((n) => `quarto/${n}.md`),
+  ...['book-journey', 'token-budget'].map((n) => `references/${n}.md`),
   ...['answering-disclosure.lua', 'checking-callouts.py', 'checking-dom.py', 'checking-links.py', 'checking-names.py', 'checking-output.py', 'checking-prose.py', 'testing-check-ascii-names.py', 'testing-content.py', 'verifying-content.py'].map((n) => `scripts/${n}`),
 ];
 
 const theme = join(repo, 'skills', 'designing-theme');
 const themeExpected = ['SKILL.md', 'scripts/checking-layout.py', 'scripts/measuring-pages.mjs', 'references/theme-system.md', 'knowledge/reading-surface.md'];
 
-const gone = ['references', 'conventions', 'knowledge', 'writer-spine.md', 'writing-spine.md', 'task-routes.md', 'INDEX.md'];
+const gone = ['conventions', 'knowledge', 'writer-spine.md', 'writing-spine.md', 'task-routes.md', 'INDEX.md'];
 
 for (const file of expected) {
   if (!existsSync(join(skill, file))) problems.push(`缺少 skills/writing-quarto/${file}`);
@@ -73,7 +74,7 @@ function walk(dir, out = []) {
 const watched = [...walk(skill), ...walk(join(repo, 'templates')), ...walk(join(repo, 'scripts')).filter((p) => p.endsWith('.ps1'))].filter((p) => !p.includes(`${join('scripts', 'diagrams')}`) || p.endsWith('.md'));
 
 const conflicts = ['不另立第二套', '标记方式统一见', '全角冒号判失败', '注释是名词', '不用全角冒号挂解释'];
-const oldTrees = [/\bconventions\//, /\breferences\/zh\//, /\bknowledge\/cases\//, /\bkb_id\b/, /\bwriting-quarto[/\\](?:conventions|knowledge|references)\b/];
+const oldTrees = [/\bconventions\//, /\breferences\/zh\//, /\bknowledge\/cases\//, /\bkb_id\b/, /\bwriting-quarto[/\\](?:conventions|knowledge)\b/];
 // 检出的工作树可能是 CRLF（Windows + autocrlf），先归一化再解析，
 // 否则行尾的 \r 会让注释匹配和标题匹配静默失配。
 const read = (file) => readFileSync(file, 'utf8').split('\r\n').join('\n');
@@ -104,7 +105,7 @@ for (const file of watched) {
 }
 
 // 反引号里指向技能或仓库的路径必须存在；书仓库自己的路径不在这里核对。
-const own = /^(steps|examples|quarto|scripts|templates|docs|lib|locale)\//;
+const own = /^(steps|examples|quarto|references|scripts|templates|docs|lib|locale)\//;
 for (const file of watched) {
   if (!file.endsWith('.md')) continue;
   const text = read(file);
@@ -131,7 +132,7 @@ function scanHeadings(text) {
       if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && marker[2].trim() === '') fence = null;
       continue;
     }
-    const match = /^(#{1,4})\s+(.+?)\s*#*\s*$/.exec(line);
+    const match = /^(#{1,4})\s+(.*?)(?:\s+#+)?\s*$/.exec(line);
     if (match) found.push({ index, level: match[1], title: match[2].trim() });
   }
   return found;

@@ -6,7 +6,7 @@
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { delimiter, dirname, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const argv = process.argv.slice(2);
@@ -79,7 +79,7 @@ function loadPlaywright() {
   try {
     return require("playwright");
   } catch (error) {
-    for (const directory of (process.env.NODE_PATH || "").split(sep).filter(Boolean)) {
+    for (const directory of (process.env.NODE_PATH || "").split(delimiter).filter(Boolean)) {
       const candidate = join(directory, "playwright", "index.js");
       if (existsSync(candidate)) {
         return require(candidate);

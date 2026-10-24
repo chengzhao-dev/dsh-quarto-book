@@ -33,7 +33,7 @@ EXCLUDE_DIR_SUFFIXES = ("_files",)
 
 TOOL_FIXED_NAMES = {
     "CMakeLists.txt", "_quarto.yml", "_quarto.yaml", "SKILL.md", "AGENTS.md",
-    "README.md", "README.en.md", "LICENSE", "CONTRIBUTING.md",
+    "README.md", "README.en.md", "LICENSE", "OFL.txt", "CONTRIBUTING.md",
     ".editorconfig", ".gitignore", ".gitattributes", "openai.yaml",
     "package.json", "package-lock.json", "pnpm-lock.yaml", "tsconfig.json",
 }
@@ -56,6 +56,8 @@ def name_form_error(name: str) -> str | None:
     if " " in name:
         return "含空格"
     if "-" not in name:
+        if not all(ch.islower() or ch.isdigit() or ch == "." for ch in name):
+            return "含非小写字符"
         return None
     parts = name.split("-")
     if any(part == "" for part in parts):

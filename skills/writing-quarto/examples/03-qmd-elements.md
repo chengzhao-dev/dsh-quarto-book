@@ -48,8 +48,8 @@ constexpr bool IsInRange(Position position) { … }
 不佳（图前图例句复述图注的方位信息，一段三句三个主题）：
 `Position` 把坐标交给 `Board`，负数和行列为 `3` 的位置都会被拒绝。下面的图标出可用的 `(row, col)`。左上角是 `(0, 0)`，行向下增加，列向右增加。
 
-改写（方位与图例由 fig-cap 独自承载，正文只留行为句与桥接句）：
-调用方把 `Position` 交给 `Board`，行列出现负数或 `3` 都会被拒绝。下面的图标出可用的 `(row, col)`。
+改写（方位与图例由 fig-cap 独自说明，正文只留行为句与桥接句）：
+调用方把 `Position` 交给 `Board`，行列出现负数或 `3` 都会被拒绝。图列出可用的 `(row, col)`，桥接句不再交代图面方位。
 ```
 
 判定信号：两个围栏之间只有空行；图后直接进入与图无关的下一块；块前引语同时推进多个对象（如 `Position` 与 `IsInRange` 各讲一句）；图注已写明的方位与图例信息，桥接段或图后正文再讲一遍。
@@ -77,6 +77,33 @@ constexpr bool IsInRange(Position position) { … }
 ````
 
 判定信号：图后句删掉任一分句中心仍成立；图注或桥接句已写明的信息在图后再讲一遍。图后正文只给图注讲不完的新结论，图后对照与句段侧的冒号分号堆叠见 `examples/04-paragraph-opening.md`「冒号后堆叠分号解释」。
+
+## 原生 SVG 图注对照
+
+`{=html}` 围栏里的 SVG 不会被 Quarto 包成 figure；图注必须自己用 `<figure>` 和 `<figcaption>` 放在图下，不要在图前留一句“下图标出……”。
+
+````text
+不佳（图注占图前正文，SVG 裸放）：
+下图标出这块棋盘上可用的 (row, col)。
+
+```{=html}
+<svg class="coords-grid" role="img" aria-label="棋盘坐标。">…</svg>
+```
+````
+
+````text
+改写（图注在图下，正文只留引出关系的一句）：
+代码给出行列上限和坐标字段，图把行列编号落到棋盘格子上。
+
+```{=html}
+<figure class="book-figure">
+<svg class="coords-grid" role="img" aria-label="棋盘坐标。">…</svg>
+<figcaption>棋盘坐标图：3 行 3 列，每格标出 (row, col)；行向下、列向右，左上角是 (0, 0)。</figcaption>
+</figure>
+```
+````
+
+判定信号：`<svg>` 是否在 `<figure>` 内、`<figcaption>` 是否在 `svg` 之后；图前是否还有只交代图面的句子；图注与图后正文是否逐句重复。
 
 ## 块后解释先于图对照
 

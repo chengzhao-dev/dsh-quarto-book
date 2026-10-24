@@ -42,13 +42,13 @@ class Issue:
     message: str
 
 
-def strip_frontmatter(text: str) -> str:
+def split_frontmatter(text: str) -> tuple[int, str]:
     lines = text.splitlines()
     if lines and lines[0].strip() == "---":
         for index in range(1, len(lines)):
             if lines[index].strip() == "---":
-                return "\n".join(lines[index + 1 :])
-    return text
+                return index + 1, "\n".join(lines[index + 1 :])
+    return 0, text
 
 
 def mask_links_and_tags(line: str) -> str:
@@ -98,11 +98,11 @@ def check_line(path: str, number: int, line: str) -> list[Issue]:
 
 
 def scan_file(root: Path, path: Path) -> list[Issue]:
-    text = path.read_text(encoding="utf-8", errors="replace")
-    text = strip_frontmatter(text)
+    text = path.read_text(encoding="utf-8")
+    offset, body = split_frontmatter(text)
     issues: list[Issue] = []
     in_fence = False
-    for number, line in enumerate(text.splitlines(), start=1):
+    for number, line in enumerate(body.splitlines(), start=offset + 1):
         if FENCE.match(line):
             in_fence = not in_fence
             continue
@@ -135,7 +135,11 @@ def main() -> int:
 
     issues: list[Issue] = []
     for path in collect_files(root):
-        issues.extend(scan_file(root, path))
+        try:
+            issues.extend(scan_file(root, path))
+        except UnicodeDecodeError as exc:
+            print(f"失败  {path} 不是合法 UTF-8：{exc}", file=sys.stderr)
+            return 1
 
     if args.json:
         print(

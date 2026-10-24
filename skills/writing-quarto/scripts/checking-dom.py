@@ -240,7 +240,8 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
     ))
 
     # ---------- C1 复制按钮可见性 ----------
-    sibling_ok = False
+    checked = 0
+    bad = 0
     scaffold_pages = 0
     for path, tree, _rels in htmls:
         scaffolds = [n for n in walk(tree) if SCAFFOLD in n.classes]
@@ -249,20 +250,23 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         scaffold_pages += 1
         for sc in scaffolds:
             code = [c for c in sc.children if c.tag == "div" and SRCODE in c.classes]
+            if not code:
+                continue
+            checked += 1
             btns = [c for c in sc.children if c.tag == "button" and COPY_BTN in c.classes]
-            if code and btns and not any(is_descendant(b, code[0]) for b in btns):
-                sibling_ok = True
+            if not btns or any(is_descendant(b, code[0]) for b in btns):
+                bad += 1
     hover_rule = any(
         ".%s:hover .%s" % (SCAFFOLD, COPY_BTN) in css for _, css in css_pairs
     )
     stale_rule = any(
         "div.%s:hover .%s" % (SRCODE, COPY_BTN) in css for _, css in css_pairs
     )
-    c1 = sibling_ok and hover_rule and not stale_rule
+    c1 = checked > 0 and bad == 0 and hover_rule and not stale_rule
     results.append((
         "C1", "复制按钮 hover 可见（兄弟 DOM + scaffold 选择器）", c1,
-        "pages=%d sibling=%s hover-rule=%s%s"
-        % (scaffold_pages, sibling_ok, hover_rule, " stale-rule!" if stale_rule else ""),
+        "pages=%d checked=%d bad=%d hover-rule=%s%s"
+        % (scaffold_pages, checked, bad, hover_rule, " stale-rule!" if stale_rule else ""),
         [
             "产物中 button.%s 必须与 div.%s 同为 .%s 的直接子元素" % (COPY_BTN, SRCODE, SCAFFOLD),
             "CSS 必须含 .%s:hover .%s（不能停留在 div.%s:hover 的后代写法）"
@@ -535,6 +539,8 @@ def main():
     args = parser.parse_args()
 
     book_dir = Path(args.book_dir)
+    if not book_dir.is_absolute():
+        book_dir = Path(args.root) / book_dir
     if not book_dir.is_dir():
         print("MISS 产物目录不存在：%s（请先运行 quarto render）" % book_dir)
         return 2

@@ -5,7 +5,7 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Write Chinese technical chapters in a Quarto Book repository: `writing-quarto` owns the chapter skeleton and prose, `designing-theme` owns the theme. Both skills appear only inside `type: book` repositories. After a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt.
+Take a Quarto Book from chapters to publishable output: `writing-quarto` owns the chapter skeleton, whole-book order and Chinese prose; `designing-theme` owns the theme; after a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt. Both skills appear only inside `type: book` repositories, and the workflow needs Quarto CLI and Python 3.
 
 ## What it provides
 
@@ -16,7 +16,7 @@ Write Chinese technical chapters in a Quarto Book repository: `writing-quarto` o
 | `quarto_render_check` | Check that `output-dir` is safe, render once when asked, and inspect HTML in `_book/` for publishing | Editing `.qmd`, fixing config automatically, or re-running a failed render |
 | `quarto_pass_report` | Compress the run into a fixed-line receipt card: skill, mode, files and steps changed, items held, check verdicts | Saving to disk, quoting chapter prose, or changing the text based on the receipt |
 
-Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill resolve against that skill's directory: `writing-quarto` uses `steps/`, `examples/`, `quarto/`, `scripts/`; `designing-theme` uses `references/`, `knowledge/`, `assets/`, `scripts/`.
+Both skills are discovered from the package's `skills/` directory and loaded on demand. Relative paths inside a skill resolve against that skill's directory: `writing-quarto` uses `steps/`, `examples/`, `quarto/`, `references/`, `scripts/`; `designing-theme` uses `references/`, `knowledge/`, `assets/`, `scripts/`.
 
 ## Quick start
 
@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.3`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.3`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.4`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.4`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 

@@ -121,6 +121,7 @@ function normalizeFiles(value: unknown): PassFile[] {
   if (value === undefined) return []
   if (!Array.isArray(value)) fail('files 必须是数组')
   if (value.length > MAX_FILES) fail(`files 最多 ${MAX_FILES} 个路径`)
+  const seen = new Set<string>()
   return value.map((item) => {
     if (!isRecord(item)) fail('files 的每一项必须是 { path, edits }')
     const keys = Object.keys(item)
@@ -128,7 +129,10 @@ function normalizeFiles(value: unknown): PassFile[] {
     const filePath = item.path
     if (typeof filePath !== 'string' || filePath.trim() === '') fail('files 的 path 必须是非空字符串')
     if (!isPlainCount(item.edits)) fail('files 的 edits 必须是非负整数')
-    return { path: filePath.trim(), edits: item.edits }
+    const normalizedPath = filePath.trim()
+    if (seen.has(normalizedPath)) fail(`files 的 path 重复：${normalizedPath}`)
+    seen.add(normalizedPath)
+    return { path: normalizedPath, edits: item.edits }
   })
 }
 
@@ -226,17 +230,10 @@ export function buildPassReport(input: unknown): PassReportResult {
     const reason = input.skip_reason
     if (typeof reason !== 'string' || reason.trim() === '') fail('未执行时必须给出 skip_reason')
     if ([...reason.trim()].length > MAX_SKIP_REASON) fail(`skip_reason 最多 ${MAX_SKIP_REASON} 个字`)
-    if (input.files !== undefined && Array.isArray(input.files) && input.files.length > 0) {
-      fail('未执行时 files 必须为空')
-    }
-    if (input.steps !== undefined && Array.isArray(input.steps) && input.steps.length > 0) {
-      fail('未执行时 steps 必须为空')
-    }
-    if (input.held !== undefined && Array.isArray(input.held) && input.held.length > 0) {
-      fail('未执行时 held 必须为空')
-    }
-    if (input.checks !== undefined && Array.isArray(input.checks) && input.checks.length > 0) {
-      fail('未执行时 checks 必须为空')
+    for (const key of ['files', 'steps', 'held', 'checks'] as const) {
+      const value = input[key]
+      if (value === undefined) continue
+      if (!Array.isArray(value) || value.length > 0) fail(`未执行时 ${key} 必须为空数组`)
     }
     return { receipt: `未执行 ${typedSkill}：${reason.trim()}` }
   }

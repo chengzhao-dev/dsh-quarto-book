@@ -1,7 +1,7 @@
 {
   "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.6.3",
-  "description": "润色中文技术章节，检查 Book 结构与中英混排，并维护一套统一、可读的阅读主题。 · Polish Chinese technical chapters, check book structure and mixed Chinese-English prose, and maintain a consistent, readable theme.",
+  "version": "0.6.4",
+  "description": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。 · Write, check, and publish a Chinese Quarto Book: nine-step chapter writing, structure/link/figure checks, a consistent theme, and render acceptance.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -35,8 +35,8 @@
     "catalog": {
       "category": "skill",
       "summary": {
-        "zh": "润色中文技术章节，检查 Book 结构与中英混排，并维护一套统一、可读的阅读主题。",
-        "en": "Polish Chinese technical chapters, check book structure and mixed Chinese-English prose, and maintain a consistent, readable theme."
+        "zh": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。",
+        "en": "Write, check, and publish a Chinese Quarto Book: a nine-step chapter workflow, structure/link/figure checks, a consistent theme, and render acceptance."
       },
       "capabilities": [
         "skills",
@@ -47,8 +47,11 @@
   "icon": "./icon.svg",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/*.test.mjs",
-    "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs",
+    "test": "npm run build && node --test tests/",
+    "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs && node scripts/checking-skill-budget.mjs && node scripts/checking-package.mjs",
+    "check:lib": "node scripts/checking-lib.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run check && npm run check:lib",
     "pack": "node -e \"require('fs').mkdirSync('temp',{recursive:true})\" && npm pack --pack-destination temp",
     "pack:check": "npm pack --dry-run"
   },

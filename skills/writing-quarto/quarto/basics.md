@@ -126,5 +126,6 @@ title: "章节标题"
 ## 延伸
 
 - 正文结构、代码块/终端约定与文档元素：`quarto/authoring.md`
+- 图、图注与图前句的分工：`quarto/figures.md`
 - 外观配置与渲染排错：`quarto/render.md`
 - 页面宽度与视觉依据：`steps/02-structure.md`

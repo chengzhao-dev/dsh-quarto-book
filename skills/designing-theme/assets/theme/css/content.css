@@ -199,6 +199,21 @@ mjx-container[display="true"] {
   box-sizing: border-box;
 }
 
+/* 原生 HTML/SVG 图：图与图注作为一个整体居中；图注在图下，沿用上面的 figure 图注样式。 */
+#quarto-document-content .book-figure {
+  margin: 1.25rem auto;
+  text-align: center;
+}
+#quarto-document-content .book-figure > svg {
+  display: block;
+  margin-inline: auto;
+  max-width: 100%;
+  height: auto;
+}
+#quarto-document-content .book-figure > figcaption {
+  margin-top: 0.5rem;
+}
+
 /* jupyter 单元的图必须用 IPython.display.HTML 输出保持 SVG 内联：image/svg+xml 输出会被
    Quarto 外置成 <img>，无法继承站点 data-bs-theme 明暗与文档字体。text/html 输出不被
    Quarto 识别为图像，fig-cap 退化为图后一个裸 <p>，这里按 figcaption 同款图注样式居中。 */

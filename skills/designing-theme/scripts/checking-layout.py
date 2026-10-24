@@ -7,7 +7,7 @@ Node、Playwright 与 Edge 可用时，measuring-pages.mjs 验证真实几何。
 规范出处：本技能 `references/theme-system.md`。
 
 用法：python checking-layout.py [--root .] [--book-dir _book] [--browser]
-退出码：0 = 关键令牌全部存在，1 = 有缺失。
+退出码：0 = 关键令牌全部存在，1 = 有缺失，2 = 渲染产物目录缺失，3 = 请求了 --browser 但运行时不可用。
 """
 
 import argparse
@@ -348,7 +348,12 @@ def resolve_node():
 
 
 def resolve_playwright_root():
-    candidates = [os.environ.get("BOARD_GAMES_NODE_PATH"), os.environ.get("NODE_PATH")]
+    candidates = [
+        os.environ.get("BOARD_GAMES_NODE_PATH"),
+        os.environ.get("NODE_PATH"),
+        str(THEME_DIR.parents[1] / "node_modules"),
+        str(ROOT / "node_modules"),
+    ]
     cache = Path.home() / ".cache" / "codex-runtimes"
     if cache.is_dir():
         candidates.extend(
@@ -838,7 +843,7 @@ def main():
         book_dir = ROOT / book_dir
     if not book_dir.is_dir():
         print(f"BookDir not found: {book_dir}. Run 'quarto render' first.")
-        return 1
+        return 2
 
     css_texts = [
         p.read_text(encoding="utf-8", errors="ignore")
@@ -1024,6 +1029,9 @@ def main():
 
     print()
     if fail == 0:
+        if args.browser and browser_note:
+            print(f"SKIP browser-layout  {browser_note}")
+            return 3
         if browser_note:
             print(f"PASS theme-static；SKIP browser-layout {browser_note}")
         else:

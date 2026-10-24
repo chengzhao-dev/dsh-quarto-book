@@ -6,7 +6,7 @@ Quarto 只认内置 5 类 callout（note/tip/warning/important/caution）。未�
 <section> 没有提示框样式。它还混进右侧目录。本脚本在 _book/**/*.html 里抓这一回归。
 
 用法：python checking-callouts.py [--root .] [--book-dir _book]
-退出码：0 = 全部正常，1 = 发现退化的 callout。
+退出码：0 = 全部正常，1 = 发现退化的 callout，2 = 渲染产物目录缺失。
 """
 
 import argparse
@@ -71,7 +71,7 @@ def main():
         book_dir = root / book_dir
     if not book_dir.is_dir():
         print(f"未找到渲染产物目录：{book_dir}；请先执行 quarto render。")
-        return 1
+        return 2
 
     html_files = sorted(book_dir.rglob("*.html"))
     bad_pages = 0

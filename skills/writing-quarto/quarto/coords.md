@@ -12,12 +12,13 @@
 
 - 页面 frontmatter 开 `engine: jupyter`，只给含图页面开启，避免全书每次渲染都起 kernel。
 - 坐标图单元用 ```` ```{python} ```` 围栏，块首写 `#| echo: false`、`#| warning: false`，再写 `#| fig-cap: "图 N：…"` 与 `#| fig-align: center`；图注文字概括图意，不与图后正文逐句重复，也不用 `>` 引用块另起一套图注。
+- 没有执行环境或页面保持静态时，允许直接写原生 HTML/SVG；图必须用 `<figure class="book-figure">` 包住，`<figcaption>` 在图后。三类图的统一图注约定见 `quarto/figures.md`，不要把图注留成图前的独立段落。
 - 单元内从当前目录向上定位含 `_quarto.yml` 的书根，按路径加载本技能 `scripts/diagrams/rendering-coords.py`，绑定名仍是 `coords_grid`，用 `IPython.display.HTML` 输出保持 SVG 内联。不要换成 `IPython.display.SVG`：image/svg+xml 输出会被 Quarto 外置成 `<img>` 文件引用，无法继承站点 `data-bs-theme` 明暗与文档字体（书内字体退回系统字体）。
 - 图注讲不完的读图要点写在图后正文（一两句），不复述图注已写明的信息。
 
 ## 上游代码与图的桥接
 
-坐标图不孤立出现：引出图的代码块与图之间必须有桥接句，说明图核对代码的哪部分契约（如「下面的图标出每个数据项的 (row, col)，与 `IsValid` 接受的范围一致」）；图后先给从图带走的结论，再进入下一块；小节以图收尾时，从图带走的结论可并入桥接段（如 示例章先给 `row` 为 `3` 或 `col` 为 `-1` 这类反例再上图），不在图后孤悬一句。代码块与图之间只有空行视为堆叠，固定序列见 `writing-quarto` 技能 `quarto/authoring.md`「代码与图的桥接」与 `steps/03-blocks.md`。
+坐标图不孤立出现：引出图的代码块与图之间必须有桥接句，说明图核对代码的哪部分契约（如「图核对 `IsValid` 接受的范围」）；图后先给从图带走的结论，再进入下一块；小节以图收尾时，从图带走的结论可并入桥接段（如 示例章先给 `row` 为 `3` 或 `col` 为 `-1` 这类反例再上图），不在图后孤悬一句。代码块与图之间只有空行视为堆叠，固定序列见 `writing-quarto` 技能 `quarto/authoring.md`「代码与图的桥接」与 `steps/03-blocks.md`；图注与图前句的分工见 `quarto/figures.md`。
 
 坐标图单元计入盒子密度（口径见 `steps/03-blocks.md`）：同一 `###` 内坐标图与代码块相邻出现时，桥接句就是盒子之间的承接正文；`verifying-content.py` 对两围栏之间无正文给出 WARN 提示，人审与对照案例仍是主检查。
 

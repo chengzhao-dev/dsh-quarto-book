@@ -21,7 +21,9 @@ from pathlib import Path
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 HTML_LINK_RE = re.compile(r"<(?:a|img)\b[^>]*\b(?:href|src)=\"([^\"]+)\"", re.IGNORECASE)
+FENCE_RE = re.compile(r"^\s*(```+|~~~+)")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "tel:", "data:", "#", "//")
+SKIP_DIRS = {".git", ".cache", ".quarto", "_book", "_freeze", "_site", "build", "node_modules", "temp"}
 
 
 def collect_sources(root: Path, paths: list[str]) -> list[Path]:
@@ -41,17 +43,24 @@ def collect_sources(root: Path, paths: list[str]) -> list[Path]:
     return sorted(
         path for path in found
         if not any(
-            part in {".git", ".cache", ".quarto", "_book", "_freeze", "_site", "build", "node_modules", "temp"}
-            for part in path.parts
+            part in SKIP_DIRS
+            for part in path.relative_to(root).parts
         )
     )
 
 
-def link_targets(text: str):
-    for match in LINK_RE.finditer(text):
-        yield match.group(1)
-    for match in HTML_LINK_RE.finditer(text):
-        yield match.group(1)
+def iter_links(text: str):
+    in_fence = False
+    for number, line in enumerate(text.splitlines(), start=1):
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        for match in LINK_RE.finditer(line):
+            yield number, match.group(1)
+        for match in HTML_LINK_RE.finditer(line):
+            yield number, match.group(1)
 
 
 def main() -> int:
@@ -72,13 +81,20 @@ def main() -> int:
         return 2
 
     sources = collect_sources(root, args.paths)
-    broken: list[tuple[str, str, str]] = []
+    if not sources:
+        print("失败  没有可检查的 Markdown/Quarto 源文件", file=sys.stderr)
+        return 2
+    broken: list[tuple[str, int, str, str]] = []
     checked = 0
 
     for source in sources:
-        text = source.read_text(encoding="utf-8", errors="replace")
+        try:
+            text = source.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:
+            print(f"失败  {source} 不是合法 UTF-8：{exc}", file=sys.stderr)
+            return 1
         rel = source.relative_to(root).as_posix()
-        for raw in link_targets(text):
+        for number, raw in iter_links(text):
             target = raw.strip()
             if not target or target.startswith(SKIP_PREFIXES):
                 continue
@@ -91,7 +107,7 @@ def main() -> int:
             candidates = [source.parent / clean, root / clean]
             if any(candidate.exists() for candidate in candidates):
                 continue
-            broken.append((rel, target, "目标不存在"))
+            broken.append((rel, number, target, "目标不存在"))
 
     print(f"扫描 {len(sources)} 个文件，检查 {checked} 条本地链接。")
     if not broken:
@@ -99,8 +115,8 @@ def main() -> int:
         return 0
 
     print(f"发现 {len(broken)} 条断链：")
-    for rel, target, reason in broken[:80]:
-        print(f"  {rel} -> {target}（{reason}）")
+    for rel, number, target, reason in broken[:80]:
+        print(f"  {rel}:{number} -> {target}（{reason}）")
     return 1
 
 
