@@ -105,14 +105,13 @@ body {
   color: var(--body-color) !important;
 }
 
-/* ---------- 类图：按内容测量出宽，容器横向滚动 ----------
-   程序全图页与包在 .class-diagram 里的子图，标签按测量宽绘制；超出栏宽时由 figure 横向滚动。 */
-body.program-map #quarto-document-content .cell-output-display figure.figure,
+/* ---------- 类图：预算优先，容器只做兜底 ----------
+   类图先按 writing-quarto 技能 quarto/mermaid.md 的内容预算删到栏宽以内；
+   这里只保证高度自适应并居中，内容超宽时由容器兜底。 */
 #quarto-document-content .class-diagram .cell-output-display figure.figure {
   overflow-x: auto;
 }
-body.program-map #quarto-document-content .cell-output-display figure.figure svg,
 #quarto-document-content .class-diagram .cell-output-display figure.figure svg {
-  min-width: max-content;
-  max-width: none;
+  height: auto;
+  margin-inline: auto;
 }

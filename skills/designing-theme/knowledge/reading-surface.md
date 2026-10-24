@@ -65,7 +65,7 @@ Bright Code 在 16px 下每个 ASCII 字符前进 8px；现在代码正文 15px�
 
 编译默认色板是 Flexoki（亮纸 `#FFFCF0`、暗墨 `#100F0F`），Solarized 是读者运行时可选的第二套。两套都只换语义令牌和语法色，不换字体、栏宽与组件。Flexoki 的 callout 是编辑注：2px 左条、无填充、无圆角，note 取中性灰，其余用官方语义色（tip 绿、warning 橙、important 紫、caution 红）。文本对比度按 WCAG 2.2 的 1.4.3（4.5:1）校验：正文、强调、链接、13px 表头、14px 图注与代码标题在各自底色上低于 4.5:1 时升到更实的一档，不改成纯黑或纯白，也不借用语法蓝。链接本身不靠颜色，常态与正文同色并保留下划线；Solarized 的正文与注释抬到 4.5:1，链接回到官方 rebase（base01 / base1），页面底色、强调色与 callout 条保持官方值。
 
-第三套是读者自己的「山光」四时色板（`palettes/hill-light`，取自 `D:\Github\hill-light\hill-light-theme` 的单一色值来源）：晓雾、午荫、暮烟三种浅纸与夜月一种暗纸。它不是照搬原站，而是过一遍本书的令牌契约：保留原站的色相与命名，按本书的 WCAG 4.5:1 校验抬了正文与表头，callout 类型色与代码语法色沿用本书的语义映射（原站的 callout 与代码几乎是单色）。四种时辰里只有夜月是暗色，所以它同时要驱动 Quarto 的 light/dark 基座——`includes/palette.html` 在首帧写 `quarto-color-scheme` 哨兵，运行时对齐 `body` 类；打印时夜月回落到晓雾令牌，纸面不出深底。
+第三套是读者自己的「山光」四时色板（`palettes/hill-light`，取自 `D:\Github\hill-light\hill-light-theme` 的单一色值来源）：晓雾、午荫、暮烟三种浅纸与夜月一种暗纸。它不是照搬原站，而是过一遍本书的令牌约定：保留原站的色相与命名，按本书的 WCAG 4.5:1 校验抬了正文与表头，callout 类型色与代码语法色沿用本书的语义映射（原站的 callout 与代码几乎是单色）。四种时辰里只有夜月是暗色，所以它同时要驱动 Quarto 的 light/dark 基座——`includes/palette.html` 在首帧写 `quarto-color-scheme` 哨兵，运行时对齐 `body` 类；打印时夜月回落到晓雾令牌，纸面不出深底。
 
 ## 抬色记录与保留的低对比项
 

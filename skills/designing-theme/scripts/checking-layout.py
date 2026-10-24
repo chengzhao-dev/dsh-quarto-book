@@ -645,8 +645,52 @@ def read_font_cmap(path):
     return set(cmap)
 
 
+def qmd_font_chunks(path):
+    """Split a qmd into prose text and code text for font coverage checks."""
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    text = re.sub(r"\A---\s*\n.*?\n---\s*\n", "", text, count=1, flags=re.S)
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    prose_lines = []
+    prose_chunks = []
+    code_chunks = []
+    fence = None
+    fence_is_mermaid = False
+    buffer = []
+    for line in text.splitlines():
+        if fence is not None:
+            if line.strip().startswith(fence):
+                chunk = "\n".join(buffer)
+                if fence_is_mermaid:
+                    prose_chunks.append(chunk)
+                else:
+                    code_chunks.append(chunk)
+                fence = None
+                buffer = []
+            else:
+                buffer.append(line)
+            continue
+        match = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
+        if match:
+            fence = match.group(1)
+            fence_is_mermaid = "mermaid" in match.group(2)
+            buffer = []
+        else:
+            prose_lines.append(line)
+    if fence is not None:
+        chunk = "\n".join(buffer)
+        (prose_chunks if fence_is_mermaid else code_chunks).append(chunk)
+    prose = "\n".join(prose_lines)
+    prose = re.sub(r"\]\([^)]*\)", "]", prose)
+    prose = re.sub(r"^\s*\[[^\]]+\]:\s*\S+.*$", "", prose, flags=re.M)
+    prose = re.sub(r"https?://\S+", "", prose)
+    prose = re.sub(r"<[^>]+>", "", prose)
+    inline_code = re.findall(r"`([^`\n]+)`", prose)
+    prose = re.sub(r"`[^`\n]+`", "", prose)
+    return [prose, *prose_chunks], [*inline_code, *code_chunks]
+
+
 def check_font_coverage(book_dir):
-    """Check Chinese coverage for UI text and code text separately.
+    """Check Chinese coverage for prose and code in qmd sources separately.
 
     声明了 unicode-range 的 face 按声明区间判定。未声明时用 fontTools
     读取字体文件的真实 cmap 判定。起因：子集字符表漏字，正文落到系统宋体。
@@ -676,15 +720,11 @@ def check_font_coverage(book_dir):
     missing = {family: set() for family in FONT_FAMILIES}
     if not any(coverage.values()):
         return coverage, missing
-    for html_path in sorted(book_dir.rglob("*.html")):
-        html_text = html_path.read_text(encoding="utf-8", errors="ignore")
-        page_parser = VisibleTextParser()
-        page_parser.feed(html_text)
-        code_parser = VisibleTextParser(code_only=True)
-        code_parser.feed(html_text)
+    for qmd_path in sorted(book_dir.rglob("*.qmd")):
+        prose_chunks, code_chunks = qmd_font_chunks(qmd_path)
         for family, chunks in (
-            ("LXGW Bright Medium", page_parser.chunks),
-            ("LXGW Bright Code", code_parser.chunks),
+            ("LXGW Bright Medium", prose_chunks),
+            ("LXGW Bright Code", code_chunks),
         ):
             for chunk in chunks:
                 for char in chunk:

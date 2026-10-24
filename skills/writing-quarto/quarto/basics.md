@@ -36,9 +36,9 @@ format: html
 ## 常用命令
 
 ```bash
-quarto render 文档.qmd            # 渲染单个文档
-quarto preview 文档.qmd           # 本地预览（实时刷新）
-quarto render                     # 渲染当前项目全部内容
+quarto render 文档.qmd      # 渲染单个文档
+quarto preview 文档.qmd     # 本地预览（实时刷新）
+quarto render               # 渲染当前项目全部内容
 ```
 
 `quarto render` 必须在仓库根目录执行，在其他目录执行会静默不渲染。书里若有 `{python}` 可执行单元，先按项目约定设置 `QUARTO_PYTHON`，再运行 `quarto render`；不要依赖系统 PATH 里的 `python3`（Windows 上可能是 Store 占位符）。
@@ -49,17 +49,17 @@ quarto render                     # 渲染当前项目全部内容
 
 ```text
 book/
-├── _quarto.yml                           # 书配置：chapters、appendices 与输出
-├── index.qmd                             # 根首页：只导航到各 part 落地页
-├── content                               #/ 正文与附录
-│   ├── <part>                            #/ 一个部分
-│   │   ├── index.qmd                     # part 落地页：本部分章节卡片
-│   │   ├── 01-intro.qmd
-│   │   └── 02-topic.qmd
-│   └── appendix                          #/ 附录
-│       └── references.qmd
-├── theme                                 #/ 书内主题副本
-└── filters                               #/ 书内过滤器
+├── _quarto.yml                # 章序与输出配置
+├── index.qmd                  # 首页：导航到各 part
+├── content/                  #/ 正文与附录
+│   ├── <part>/               #/ 一个部分
+│   │   ├── index.qmd          # part 落地页：本部分章节卡片
+│   │   ├── 01-intro.qmd       # 第一章的正文
+│   │   └── 02-topic.qmd       # 第二章的正文
+│   └── appendix/             #/ 附录
+│       └── references.qmd     # 参考文献与术语出处
+├── theme/                    #/ 书内主题副本
+└── filters/                  #/ 书内过滤器
 ```
 
 Quarto Book 的核心配置在书根 `_quarto.yml`：
@@ -78,7 +78,7 @@ book:
       chapters:
         - content/<part>/01-intro.qmd
         - content/<part>/02-topic.qmd
-    - content/<part>/99-bibliography.qmd   # 书目页：#refs 留在 chapters
+    - content/<part>/99-bibliography.qmd     # 书目页：#refs 留在 chapters
   appendices:
     - content/appendix/references.qmd
 ```
@@ -109,7 +109,7 @@ title: "章节标题"
 
 开篇说明写正文普通段落（1-3 句）；章节与 part 落地页不写 `description`，定位信息只保留在开篇说明。
 
-## 第一个小节
+     # # 第一个小节
 正文。
 ```
 

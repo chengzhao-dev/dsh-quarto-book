@@ -44,7 +44,7 @@ Game::GetResult 这三个成员。Game::ReadCellState 与 Game::GetResult 声明
 
 ```text
 不佳（一段压三问）：
-配置由 CMake 完成：读取 CMakeLists.txt，在 build/ 下生成构建计划。构建由 Ninja 完成：按计划把源码编译成可执行文件。所以改了 CMakeLists.txt 要重跑配置，而只改 main.cpp 时重新构建就够了。
+配置由 CMake 完成：读取 CMakeLists.txt，在 build/ 下生成构建计划。构建由 Ninja 完成：按计划把源码编译成可执行文件。所以改了 CMakeLists.txt 要重新运行配置，而只改 main.cpp 时重新构建就够了。
 
 改写（引言 → 引导词列表 → 收束）：
 配置和构建是两件不同的事，由不同工具完成。
@@ -52,7 +52,7 @@ Game::GetResult 这三个成员。Game::ReadCellState 与 Game::GetResult 声明
 - **配置**：由 CMake 完成，读取 CMakeLists.txt，在 build/ 下生成构建计划。
 - **构建**：由 Ninja 完成，按计划把源码编译成可执行文件。
 
-改了 CMakeLists.txt 要重跑配置；只改 main.cpp 时重新构建即可。
+改了 CMakeLists.txt 要重新运行配置；只改 main.cpp 时重新构建即可。
 ```
 
 ## 问答对象错位

@@ -32,6 +32,34 @@ for (const name of gone) {
   if (existsSync(join(skill, name))) problems.push(`旧路径仍在 skills/writing-quarto/${name}`);
 }
 
+// 技能目录里不留 Python 缓存：package.json 的 files 白名单把技能目录整棵带走，
+// 缓存一旦留在工作树就会进本地 tarball，和 CI 从干净检出打出的包不一致。
+function walkAll(dir, out = []) {
+  for (const entry of readdirSync(dir)) {
+    const path = join(dir, entry);
+    if (statSync(path).isDirectory()) walkAll(path, out);
+    else out.push(path);
+  }
+  return out;
+}
+for (const root of [skill, theme, join(repo, 'templates')]) {
+  for (const file of walkAll(root)) {
+    if (file.includes(`${sep}__pycache__${sep}`) || file.endsWith('.pyc')) {
+      fail(file, '技能目录不得包含 Python 缓存（__pycache__ / *.pyc）');
+    }
+  }
+}
+
+// 案例只能经由引用出现：examples 下每个文件至少被一个技能文件点名，否则加了也没人打开。
+const skillMarkdown = walk(skill).filter((path) => path.endsWith('.md'));
+for (const example of readdirSync(join(skill, 'examples'))) {
+  if (!example.endsWith('.md')) continue;
+  const needle = `examples/${example}`;
+  if (!skillMarkdown.some((path) => readFileSync(path, 'utf8').includes(needle))) {
+    fail(join(skill, 'examples', example), '案例没有被任何技能文件引用');
+  }
+}
+
 function walk(dir, out = []) {
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry);
@@ -91,16 +119,26 @@ for (const file of watched) {
 
 // 「`steps/03-blocks.md`「情况：目录树」」这类引用，节名必须真在目标文件里。
 // 路径能解析而节名不存在，读者打开文件找不到那句话，等于断链。
-function headings(file) {
-  const titles = new Set();
-  let fence = false;
-  for (const line of read(file).split('\n')) {
-    if (/^\s*(```|~~~)/.test(line)) { fence = !fence; continue; }
-    if (fence) continue;
-    const match = /^#{1,4}\s+(.+?)\s*#*\s*$/.exec(line);
-    if (match) titles.add(match[1].trim());
+// 围栏按反引号长度配对：四反引号外层可包三反引号示例，标题扫描不能因此错位。
+function scanHeadings(text) {
+  const found = [];
+  let fence = null;
+  for (const [index, line] of text.split('\n').entries()) {
+    const marker = /^\s*(`{3,}|~{3,})(.*)$/.exec(line);
+    if (fence === null) {
+      if (marker) { fence = marker[1]; continue; }
+    } else {
+      if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && marker[2].trim() === '') fence = null;
+      continue;
+    }
+    const match = /^(#{1,4})\s+(.+?)\s*#*\s*$/.exec(line);
+    if (match) found.push({ index, level: match[1], title: match[2].trim() });
   }
-  return titles;
+  return found;
+}
+
+function headings(file) {
+  return new Set(scanHeadings(read(file)).map((heading) => heading.title));
 }
 
 const headingCache = new Map();
@@ -123,15 +161,11 @@ for (const file of watched) {
 for (const file of watched) {
   if (!file.endsWith('.md')) continue;
   const seen = new Map();
-  let fence = false;
-  for (const [index, line] of read(file).split('\n').entries()) {
-    if (/^\s*(```|~~~)/.test(line)) { fence = !fence; continue; }
-    if (fence) continue;
-    const match = /^(#{2,4})\s+(.+?)\s*#*\s*$/.exec(line);
-    if (!match) continue;
-    const key = `${match[1]} ${match[2]}`;
-    if (seen.has(key)) fail(file, `第 ${index + 1} 行标题重复：${key}`);
-    else seen.set(key, index + 1);
+  for (const heading of scanHeadings(read(file))) {
+    if (!/^#{2,4}$/.test(heading.level)) continue;
+    const key = `${heading.level} ${heading.title}`;
+    if (seen.has(key)) fail(file, `第 ${heading.index + 1} 行标题重复：${key}`);
+    else seen.set(key, heading.index + 1);
   }
 }
 
@@ -148,7 +182,19 @@ for (const slug of stepSlugs) {
   if (!skillText.includes(`steps/${slug}.md`)) fail(join(skill, 'SKILL.md'), `九步清单没点到 steps/${slug}.md`);
 }
 
-// 目录树注释只有「名词」与「名词：一句」两档，同一棵树不混用。
+// 每个 step 的正文骨架固定：第 3 行「产出：…」，正文三节「通用情况」「情况」「正反例」各一次。
+// 第 9 步多一节「完成判据」，允许；这里只约束三节不能缺、不能重复。
+for (const slug of stepSlugs) {
+  const file = join(skill, 'steps', `${slug}.md`);
+  const lines = read(file).split('\n');
+  if (!(lines[2] ?? '').startsWith('产出：')) fail(file, '第 3 行应以「产出：」开头');
+  for (const section of ['## 通用情况', '## 情况', '## 正反例']) {
+    const count = lines.filter((line) => line.trim() === section).length;
+    if (count !== 1) fail(file, `应恰有一节「${section.slice(3)}」，实际 ${count} 节`);
+  }
+}
+
+// 目录树每个节点一条注释，只做一件事：冒号最多一个，不写第二句；整条只有类别词时不合格。
 function treeBlocks(text) {
   const blocks = [];
   let current = null;
@@ -176,20 +222,24 @@ function treeBlocks(text) {
 for (const file of [join(repo, 'README.md'), join(repo, 'README.en.md'), ...walk(join(repo, 'docs')).filter((p) => p.endsWith('.md'))]) {
   const text = read(file);
   for (const block of treeBlocks(text)) {
-    const styles = new Set();
     for (const comment of block) {
       const colons = comment.split('：').length - 1;
       if (colons > 1) fail(file, `树注释有第二个冒号：${comment}`);
       if (/[。；]/.test(comment)) fail(file, `树注释不止一句：${comment}`);
       if (colons === 1 && comment.split('：')[1].trim() === '') fail(file, `树注释冒号后为空：${comment}`);
-      styles.add(colons === 0 ? 'noun' : 'clause');
+      if (/^(头文件|实现|源码|测试|构建脚本|配置文件)$/.test(comment)) fail(file, `树注释只写类别词：${comment}`);
     }
-    if (styles.size > 1) fail(file, `同一棵树混用了两档注释：${block.join(' / ')}`);
   }
 }
 
-// 目录 `#/`、文件 `#` 且右移 4 列：列错一位读者就看不出哪个是目录。
+// 目录 `#/` 在 D 列，文件 `#` 在 D+1 列（落在 `/` 下方），两种注释文字在 D+3 列。
+// 注释只列 1–2 项；多一个「、」或「与」就说明在罗列，不是一条路标。
 // 只查整棵树（README、docs）与案例里标成「改写」的围栏；「不佳」保留同一作对照。
+function displayWidth(text) {
+  let width = 0;
+  for (const char of text) width += /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/.test(char) ? 2 : 1;
+  return width;
+}
 function columnFences(file, text) {
   const fences = [];
   let current = null;
@@ -229,6 +279,18 @@ for (const file of [
       const marker = /( +)(#\/?) /.exec(line);
       if (!marker) { fail(file, `树行没有行尾注释：${line.trim()}`); continue; }
       const column = marker.index + marker[1].length;
+      const prefix = line.slice(0, column);
+      if (displayWidth(prefix) - displayWidth(prefix.trimEnd()) < 4) {
+        fail(file, `节点与注释之间至少留四个空格：${line.trim()}`);
+      }
+      const afterMarker = line.slice(column + marker[2].length);
+      if (!afterMarker.startsWith(' ') || (afterMarker.length > 1 && afterMarker[1] === ' ')) {
+        fail(file, `标记后只留一个空格：${line.trim()}`);
+      }
+      const comment = afterMarker.trim();
+      const separators = (comment.match(/、/g)?.length ?? 0)
+        + (comment.match(/(?<!参)与/g)?.length ?? 0);
+      if (separators > 1) fail(file, `树注释列了 ${separators + 1} 项，只留 1 到 2 项：${comment}`);
       // 目录不带结尾斜杠，只能看后面还有没有更深的节点。
       let hasChild = false;
       for (const next of lines.slice(index + 1)) {
@@ -238,21 +300,41 @@ for (const file of [
         hasChild = true;
         break;
       }
-      tree.push({ column, line, marker: marker[2], isDir: hasChild || marker[2] === '#/' });
+      tree.push({ column, line, marker: marker[2], comment, isDir: hasChild || marker[2] === '#/', textColumn: column + marker[2].length + afterMarker.length - afterMarker.trimStart().length });
+    }
+    for (const entry of tree) {
+      if (!entry.isDir) continue;
+      if (/[：:]/.test(entry.comment)) fail(file, `目录注释只写这里装什么，不加冒号：${entry.comment}`);
+      if (entry.comment.includes('、')) fail(file, `目录注释不列清单，用名词短语：${entry.comment}`);
+      if (displayWidth(entry.comment) > 16) fail(file, `目录注释超过 16 列，只留名词短语：${entry.comment}`);
     }
     const dirs = tree.filter((entry) => entry.isDir);
     const files = tree.filter((entry) => !entry.isDir);
     for (const entry of tree) {
       if (entry.isDir && entry.marker !== '#/') fail(file, `目录行注释缺 #/：${entry.line.trim()}`);
       if (!entry.isDir && entry.marker === '#/') fail(file, `文件行不应写 #/：${entry.line.trim()}`);
+      if (entry.isDir && !entry.line.slice(0, entry.line.indexOf('#')).trimEnd().endsWith('/')) fail(file, `目录名应以 / 结尾：${entry.line.trim()}`);
     }
-    if (!dirs.length || !files.length) continue;
-    const dirColumn = dirs[0].column;
-    for (const entry of dirs.slice(1)) {
-      if (entry.column !== dirColumn) fail(file, `目录行 #/ 没对齐：${entry.line.trim()}`);
+    if (dirs.length) {
+      const dirColumn = dirs[0].column;
+      for (const entry of dirs.slice(1)) {
+        if (entry.column !== dirColumn) fail(file, `目录行 #/ 没对齐：${entry.line.trim()}`);
+      }
+      for (const entry of files) {
+        if (entry.column !== dirColumn + 1) fail(file, `文件行 # 应比目录 # 右移一列（目录在 ${dirColumn}，文件在 ${entry.column}）：${entry.line.trim()}`);
+      }
+    } else {
+      const fileColumn = files[0].column;
+      for (const entry of files.slice(1)) {
+        if (entry.column !== fileColumn) fail(file, `文件行 # 没对齐：${entry.line.trim()}`);
+      }
     }
-    for (const entry of files) {
-      if (entry.column !== dirColumn + 4) fail(file, `文件行 # 未右移 4 列（目录在 ${dirColumn}，文件在 ${entry.column}）：${entry.line.trim()}`);
+    const textColumn = tree[0].textColumn;
+    for (const entry of tree.slice(1)) {
+      if (entry.textColumn !== textColumn) {
+        fail(file, `注释文字未对齐（应在 ${textColumn} 列）：${entry.line.trim()}`);
+        break;
+      }
     }
   }
 }

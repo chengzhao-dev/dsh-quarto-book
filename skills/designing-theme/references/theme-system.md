@@ -40,11 +40,11 @@
 正文与标题各一面。**正文**用 `LXGW Bright Medium`（Klee One 中笔画 + Ysabeau Office 西文，登记 `font-weight: 400`，`font-synthesis: none` 下不合成粗体）；**代码**用 `LXGW Bright Code`（Klee + Monaspace Argon）；**标题**（h1–h6、导航书名、首页卡片小标题）用 `--heading-font` 的系统黑体栈（`Noto Sans SC` → 思源黑体 → `PingFang SC` → `Microsoft YaHei` → system-ui），请求 600/700 时由系统字面真正加粗。理由：单字面的楷体在 24px 以上笔画偏细、600 又不合成，标题与正文层级只靠字号，层级弱；对照实测 h2 换黑体后层级立刻清楚，且不新增字体文件、不影响正文观感。中文正文保持霞鹜楷体路线；文楷 Screen 与 Fixel 已移除。候选对比、授权与字面实测（数字等宽、标点宽度、`+` 墨迹 0.23em）见 `docs/research/font-selection.md`。西文来源依据：文楷仓库点名 Ysabeau；Bright 用齐线数字的 Ysabeau Office；文楷 Screen 的 Medium 笔画标 Regular、度量对齐 Roboto，不适合中西文都自托管的站点。
 
 - 文件与预算：`assets/theme/assets/fonts/` 每字体一个 `*-common.woff2`（共 2 个），单页合计 ≤ 1.6 MB、≤ 5 个文件。
-- 子集：沿用常用字表并覆盖全书正文与终端输出；生成方式 `pyftsubset --flavor=woff2 --no-hinting`。改结果文案或新增字符后，用 fontTools 读 woff2 cmap 复核（起因：子集共用字符表漏「胜」，结果行末字落到宋体）；`checking-layout.py` 的覆盖断言在未声明 unicode-range 时直接读 cmap。
+- 子集：沿用常用字表并覆盖全书正文与终端输出；生成方式 `pyftsubset --flavor=woff2 --no-hinting`。改结果文案或新增字符后，用 fontTools 读 woff2 cmap 复核（起因：子集共用字符表漏「胜」，结果行末字落到宋体）；`checking-layout.py` 的覆盖断言在未声明 unicode-range 时直接读 cmap。新增字符时，按同版本上游 TTF（Bright 5.528、Bright Code 2.922）保留现 cmap 并入新码位后重建，输出到插件与书内两份；跑页面矩阵时用 `NODE_PATH` 指向插件的 `node_modules`。
 - 覆盖范围不只汉字：西文标点、数学/箭头、制表符、几何图形与全角形式（U+FF01–FF5E）同在断言内（`GLYPH_RANGES`）。漏一个字不会被发现，却会静默回落到系统 CJK 字体，按 0.5em 的中线画出——正文 `+` 墨迹在 0.23em，「++」会显得浮在汉字上方。表情符号（≥U+1F000、U+2600–U+27BF）按设计走系统 emoji，不在断言内。
 - 不逐符号位移：Bright 的数字、括号、`× ÷ = +` 共用同一条数学轴（+ 中心 0.23em，汉字 0.357em）。只抬 `++` 会脱离同行的符号，所以 `.plus-align` 这类 `translateY` 已删除；对齐问题只在字形缺失时补码位。
 - 同步点：改字体须同步 SCSS、tokens、fonts、OFL、资产与 `checking-layout.py`；Mermaid 的 `%%{init}%%` 与坐标图脚本的 `FONT_FAMILY` 用同栈短版（`LXGW Bright Medium, system-ui, sans-serif`），保证测量与渲染一致。
-- 栈尾 CJK 系统字体兜底（PingFang SC、Microsoft YaHei、Noto Sans CJK SC、Source Han Sans SC）保留，缺字时落系统黑体而不是浏览器默认宋体。
+- 栈尾 CJK 系统字体后备（PingFang SC、Microsoft YaHei、Noto Sans CJK SC、Source Han Sans SC）保留，缺字时落系统黑体而不是浏览器默认宋体。
 - 不采用 Inter、思源黑体、JetBrains Mono、Cascadia、Iosevka、Inconsolata；Roboto/Segoe UI 不放进 `assets/theme/assets/fonts/`（OFL 政策）。
 
 ## 字号、行长与页面尺度（定尺度）
@@ -79,7 +79,7 @@
 - **列表与折叠**：marker 用 `--text-secondary`，折叠三角用正文色；答案盒子只用上下 hairline，不做卡片。
 - **首页目录**：不是卡片；每行一条顶线、透明底、无圆角，一行最多两列；单张卡占满整行，序号 `01` 起、动作链接靠右下，窄屏动作移到提要下方；hover 只把顶线换成 `--accent`。
 - **章节翻页**：一条顶线 + 左右两个文字链接，不用边框卡片；箭头用 `<` / `>`，hover 才转 `--accent`，下一页右对齐。箭头用字符而不用 SVG 是量过的：Bright 的 `<` `>` 墨迹中心在 0.23em，与同行西文同一轴，没有面包屑 `>` 那种偏高，换 SVG 反而要另配基线。
-- **章节线**：标题不画线。全书只有一种横线——通栏 1px `--card-border` 发丝线，只出现在顶栏底边、引用块上下边、表格 booktabs、首页目录每行顶线、翻页顶线、页脚顶线、答案折叠线；`h2::after` 的 2.25rem 短发丝线已删除（连同首页 `.feature-grid` 例外），章节节奏只靠 H2 的 `margin-top: 3.25rem` 与字号台阶。契约改动时同步本节与 `css/base.css`。
+- **章节线**：标题不画线。全书只有一种横线——通栏 1px `--card-border` 发丝线，只出现在顶栏底边、引用块上下边、表格 booktabs、首页目录每行顶线、翻页顶线、页脚顶线、答案折叠线；`h2::after` 的 2.25rem 短发丝线已删除（连同首页 `.feature-grid` 例外），章节节奏只靠 H2 的 `margin-top: 3.25rem` 与字号台阶。约定改动时同步本节与 `css/base.css`。
 - **引用块**：上下各一条 1px `--card-border` 横线、正文色、无底色、无左右竖条；与 Callout 的 2px 左色条区分开（后者是类型标记，不是分隔线）。
 - **表格**：`display: block` + 块内横向滚动承载宽表；Chrome 的表格修复会把同一块里的 `thead`/`tbody` 包进一个匿名表，所以列宽仍逐列对齐（1280 与 390 实测一致），不需要 JS 量列宽。表题走 `caption-side: top`、左对齐、14px `--text-secondary`；`table-striped` 压平成与普通行同底。
 - **脚注**：区块顶部一条 1px `--card-border`、`margin-top: 3rem`、14px / lh 1.7、`--text-secondary`；回跳箭头随正文链接色。
@@ -112,7 +112,7 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 
 ## 主题结构与装配
 
-官方字段见 Quarto HTML format reference。下列路径与装配顺序是本项目契约。
+官方字段见 Quarto HTML format reference。下列路径与装配顺序是本项目约定。
 
 ### 文件职责
 
@@ -162,7 +162,7 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/highlight-style：读
 3. `callouts.css` 加 `.callout.callout-<name>`。
 4. 新语义写入本节令牌索引。
 
-### 校验与高亮契约
+### 校验与高亮约定
 
 - `checking-layout.py` 校验令牌与布局；发布用 `1280/768/390/360` 明暗与触屏、窄屏浮层。
 - 高亮由 `_quarto.yml` 提供且与 palette `meta.md` 一致（默认 `palettes/flexoki/highlight-light.theme` / `highlight-dark.theme`，取色自 Flexoki 官方 VS Code 主题）；Solarized 的语法色由 `palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，山光的由 `palettes/hill-light/syntax.css` 在 `html[data-palette="hill-light"][data-mode]` 下覆盖，都不改编译配置。注释色必须在本书代码底（亮 `#F2F0E5`、暗 `#1C1B1A`）上达到 4.5:1：亮色注释用 `#575653`（6.42:1），暗色用 `#878580`（4.67:1）。

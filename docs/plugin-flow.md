@@ -6,7 +6,7 @@
 
 | 层 | 读者看到什么 | 生效条件 | 排障入口 |
 | --- | --- | --- | --- |
-| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@<版本>` 成功，profile 的 `package.json` 有这条依赖；`<版本>` 取 README 安装命令里的当前发布号 | `docs/versioning.md` |
+| 1 安装 | 插件出现在 profile 的依赖里 | `dsh plugin --profile <profile> add npm:@chengzhao-dev/dsh-quarto-book@<版本>` 成功，profile 的 `package.json` 有这条依赖；`<版本>` 不写时由 npm 解析 `latest`，README 的默认命令就写 `@latest`，需要固定时再写具体版本 | `docs/versioning.md` |
 | 2 书门禁 | 选题里能看到 `writing-quarto`、`designing-theme` | 会话 `cwd` 向上到 git 根，沿途 `_quarto.yml` 有一行独立的 `type: book`，且这本书至少有一个章节源文件 | `docs/plugin-boundaries.md` |
 | 3 按文件分流 | 章节走九步，书根 README 只走第 5–8 步，主题转另一个技能 | 第 2 层通过 | `skills/writing-quarto/SKILL.md` |
 | 4 检查与渲染 | 内容与链接脚本通过，`quarto_render_check` 返回 `html_report` | 与第 2 层同一道门禁 | `skills/writing-quarto/steps/09-check.md` |
@@ -18,12 +18,12 @@
 
 ```text
 <DSH_HOME>/profiles/<profile>/
-├── package.json                                # 依赖清单
-└── node_modules/                           #/ 依赖目录
-    └── @chengzhao-dev/dsh-quarto-book/     #/ 安装目录
-        ├── package.json                        # 包名与版本
-        ├── cordis.patch.yml                    # 宿主补丁
-        └── skills/                         #/ 两个技能
+├── package.json                            # 本 profile 的插件依赖
+└── node_modules/                          #/ npm 依赖
+    └── @chengzhao-dev/dsh-quarto-book/    #/ 插件包
+        ├── package.json                    # 包名与发布白名单
+        ├── cordis.patch.yml                # 宿主补丁：注册技能与工具
+        └── skills/                        #/ 两个技能
 ```
 
 装好后 profile 的 `package.json` 里出现 `@chengzhao-dev/dsh-quarto-book`。`package.json` 的 `name` 与 `cordis.patch.yml` 里 `- name:` 必须逐字一致；不一致时补丁插不进去，工具和技能都不会注册。
@@ -55,7 +55,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 - 项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
 - `dry_run: true` 只判断输出目录，最多 2 次：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。
-- `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重跑。`html_report.usable` 是最终结论。
+- `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重新运行。`html_report.usable` 是最终结论。
 - 工具与技能共用同一道门禁；渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只用来定位卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
 - 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
 

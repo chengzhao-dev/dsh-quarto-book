@@ -4,6 +4,7 @@
 The checks encode the writing-quarto conventions: one chapter table in
 `_quarto.yml`, YAML titles instead of a body H1, ##/### heading depth, short
 paragraphs and sentences, declared code-fence languages, `{mermaid}` fences,
+class-diagram content budgets, directory-tree annotation columns and markers,
 and no placeholder text left in the prose.
 
 Project-specific rules are optional. If the book has
@@ -31,6 +32,7 @@ import argparse
 import json
 import re
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -45,6 +47,27 @@ GENERIC_FORBIDDEN_TERMS = (
 CHAPTER_NUMBER_RE = re.compile(r"第\s*\d+\s*章")
 PLACEHOLDER_RE = re.compile(r"^\s*TODO|待补|待定|TBD", re.IGNORECASE)
 TRAILING_SPACE_RE = re.compile(r"[ 	]+$")
+
+QA_PROSE_RE = re.compile(r"(?:它|只|都|分别|各自)回答|回答(?:四类|整局|这个|哪些|什么)")
+CODE_META_RE = re.compile(r"对应的代码")
+COINED_RELATION_RE = re.compile(r"(?:组成|依赖|继承|调用)边")
+
+TREE_CATEGORY_COMMENTS = frozenset({
+    "头文件", "源文件", "源码", "实现", "测试", "配置文件",
+    "构建脚本", "构建规则", "动态库", "可执行文件",
+})
+MAX_TREE_LINES = 20
+MAX_TREE_COMMENT_WIDTH = 28
+MAX_TREE_DIR_COMMENT_WIDTH = 16
+MIN_TREE_GAP = 4
+
+# 类图的内容预算。数字是版面判断，不是浏览器实测：正文栏约 840 px、字号
+# 15 px 时，6 个类型、14 行成员、单行 40 列仍能在栏内排下；超过就删内容或拆图。
+MAX_CLASS_DIAGRAM_TYPES = 6
+MAX_CLASS_DIAGRAM_MEMBERS = 14
+MAX_CLASS_MEMBERS = 5
+MAX_CLASS_MEMBER_COLUMNS = 40
+CLASS_RE = re.compile(r"^class\s+([A-Za-z_]\w*)\s*(\{)?")
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
 HEADING_PERSONAL_RE = re.compile(r"自己|咱们|我们|你|您|跟我|试试|来看")
@@ -188,6 +211,220 @@ def check_prose_block(path: Path, start_line: int, text: str, issues: list[Issue
                 break
 
 
+def display_width(text: str) -> int:
+    return sum(2 if unicodedata.east_asian_width(char) in {"W", "F"} else 1 for char in text)
+
+
+def check_mermaid_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
+    """Check a class diagram's content budget and direction."""
+    diagram_at = next((index for index, (_, raw) in enumerate(block) if "classDiagram" in raw), None)
+    if diagram_at is None:
+        return []
+
+    issues: list[Issue] = []
+    start_line = block[diagram_at][0]
+    text = "\n".join(raw for _, raw in block)
+    if "hideEmptyMembersBox" not in text:
+        issues.append(Issue(
+            path, start_line,
+            "类图块首缺少 hideEmptyMembersBox 配置；空类会画出空成员栏",
+        ))
+    caption_at = next(
+        (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%| fig-cap:")),
+        None,
+    )
+    init_at = next(
+        (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%{init")),
+        None,
+    )
+    if caption_at is None:
+        issues.append(Issue(
+            path, start_line,
+            "类图缺少 fig-cap 图注；线型与读图约定应写在图注里",
+        ))
+    elif init_at is not None and caption_at > init_at:
+        issues.append(Issue(
+            path, block[caption_at][0],
+            "fig-cap 必须写在 init 之前；写在 init 之后会原样渲染成 Mermaid 注释",
+        ))
+
+    classes: dict[str, list[tuple[int, str]]] = {}
+    order: list[str] = []
+    direction = ""
+    direction_line = start_line
+    current: str | None = None
+    for number, raw in block[diagram_at:]:
+        line = raw.strip()
+        if not line or line.startswith("%%"):
+            continue
+        if line.startswith("direction "):
+            direction = line.split(None, 1)[1].strip().upper()
+            direction_line = number
+            continue
+        match = CLASS_RE.match(line)
+        if match:
+            name = match.group(1)
+            if name not in classes:
+                classes[name] = []
+                order.append(name)
+            current = name if "{" in line else None
+            continue
+        if current is None:
+            continue
+        if line == "}":
+            current = None
+            continue
+        if line.startswith("<<") and line.endswith(">>"):
+            continue
+        classes[current].append((number, line))
+
+    total_members = sum(len(lines) for lines in classes.values())
+    if len(order) > MAX_CLASS_DIAGRAM_TYPES:
+        issues.append(Issue(
+            path, start_line,
+            f"类图有 {len(order)} 个类型，超过 {MAX_CLASS_DIAGRAM_TYPES} 个；删节点或拆图",
+        ))
+    if total_members > MAX_CLASS_DIAGRAM_MEMBERS:
+        issues.append(Issue(
+            path, start_line,
+            f"类图成员共 {total_members} 行，超过 {MAX_CLASS_DIAGRAM_MEMBERS} 行；只留本章连边要用的成员",
+        ))
+    for name in order:
+        members = classes[name]
+        if len(members) > MAX_CLASS_MEMBERS:
+            issues.append(Issue(
+                path, members[MAX_CLASS_MEMBERS][0],
+                f"类 {name} 有 {len(members)} 行成员，超过 {MAX_CLASS_MEMBERS} 行；删到本章要用的",
+            ))
+        for number, line in members:
+            width = display_width(line)
+            if width > MAX_CLASS_MEMBER_COLUMNS:
+                issues.append(Issue(
+                    path, number,
+                    f"类图成员行 {width} 列，超过 {MAX_CLASS_MEMBER_COLUMNS} 列；参数省略类型名",
+                ))
+    if direction == "LR" and total_members:
+        issues.append(Issue(
+            path, direction_line,
+            "类图有成员却用 LR；改成 TB，让类型上下排",
+        ))
+    return issues
+
+
+def check_mermaid_wrapper(path: Path, lines: list[str], block: list[tuple[int, str]]) -> list[Issue]:
+    """Check a class diagram sits in the .class-diagram scroll container."""
+    if not any("classDiagram" in raw for _, raw in block):
+        return []
+    start = block[0][0]
+    index = start - 2
+    if 0 <= index < len(lines) and lines[index].lstrip().startswith("```"):
+        index -= 1
+    while index >= 0 and not lines[index].strip():
+        index -= 1
+    if index < 0 or ".class-diagram" not in lines[index]:
+        return [Issue(
+            path, start,
+            "类图缺少 .class-diagram 包裹；无法应用类图的宽度与居中规则",
+        )]
+    return []
+
+
+def check_tree_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
+    """Check tree glyph lines: size, marker, width, items, and two marker columns."""
+    tree_lines = [(number, raw) for number, raw in block if "├──" in raw or "└──" in raw]
+    if len(tree_lines) < 2:
+        return []
+    issues: list[Issue] = []
+    if len(tree_lines) > MAX_TREE_LINES:
+        issues.append(Issue(
+            path, tree_lines[0][0],
+            f"树有 {len(tree_lines)} 行，超过 {MAX_TREE_LINES} 行；只留本章会点名的文件",
+        ))
+    dirs: list[tuple[int, int]] = []
+    files: list[tuple[int, int]] = []
+    text_columns: list[tuple[int, int]] = []
+    for number, raw in tree_lines:
+        hash_index = raw.find("#")
+        if hash_index < 0:
+            issues.append(Issue(path, number, "树行缺少行尾注释"))
+            continue
+        prefix = raw[:hash_index]
+        entry = prefix.rstrip()
+        if display_width(prefix) - display_width(entry) < MIN_TREE_GAP:
+            issues.append(Issue(path, number, "节点与注释之间至少留四个空格"))
+        rest = raw[hash_index:]
+        marker = "#/" if rest.startswith("#/") else "#"
+        after = rest[len(marker):]
+        if not after.startswith(" ") or (len(after) > 1 and after[1] == " "):
+            issues.append(Issue(path, number, "标记后只留一个空格"))
+        is_directory = entry.endswith("/")
+        if is_directory and marker != "#/":
+            issues.append(Issue(path, number, "目录行的注释以 #/ 开头"))
+        if not is_directory and marker == "#/":
+            issues.append(Issue(path, number, "文件行的注释以 # 开头"))
+        comment = after.strip()
+        if not comment:
+            issues.append(Issue(path, number, "树行注释为空"))
+            continue
+        if is_directory:
+            if "：" in comment or ":" in comment:
+                issues.append(Issue(
+                    path, number,
+                    "目录注释只写这里装什么，不加冒号或子项职责",
+                ))
+            if "、" in comment:
+                issues.append(Issue(
+                    path, number,
+                    "目录注释不列清单，用名词短语",
+                ))
+            if display_width(comment) > MAX_TREE_DIR_COMMENT_WIDTH:
+                issues.append(Issue(
+                    path, number,
+                    f"目录注释 {display_width(comment)} 列，超过 {MAX_TREE_DIR_COMMENT_WIDTH} 列；只留名词短语",
+                ))
+        else:
+            if display_width(comment) > MAX_TREE_COMMENT_WIDTH:
+                issues.append(Issue(
+                    path, number,
+                    f"注释 {display_width(comment)} 列，超过 {MAX_TREE_COMMENT_WIDTH} 列；缩成短名词短语",
+                ))
+            elif comment.rstrip("：:") in TREE_CATEGORY_COMMENTS:
+                issues.append(Issue(path, number, f"注释只写类别词「{comment}」；写对象与用途"))
+            separators = comment.count("、") + len(re.findall(r"(?<!参)与", comment))
+            if separators > 1:
+                issues.append(Issue(
+                    path, number, f"注释列了 {separators + 1} 项；压到 1 到 2 项",
+                ))
+        column = display_width(prefix)
+        if is_directory:
+            dirs.append((number, column))
+        else:
+            files.append((number, column))
+        text_columns.append((number, column + len(marker) + len(after) - len(after.lstrip(" "))))
+    if dirs:
+        dir_column = dirs[0][1]
+        if any(column != dir_column for _, column in dirs[1:]):
+            issues.append(Issue(path, dirs[0][0], "目录 #/ 未对齐"))
+        for number, column in files:
+            if column != dir_column + 1:
+                issues.append(Issue(
+                    path, number,
+                    f"文件 # 应比目录 # 右移一列（目录在 {dir_column}，文件在 {column}）",
+                ))
+                break
+    elif files:
+        file_column = files[0][1]
+        if any(column != file_column for _, column in files[1:]):
+            issues.append(Issue(path, files[0][0], "文件 # 未对齐"))
+    if text_columns:
+        text_column = text_columns[0][1]
+        for number, column in text_columns[1:]:
+            if column != text_column:
+                issues.append(Issue(path, number, "注释文字未对齐"))
+                break
+    return issues
+
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
     issues: list[Issue] = []
     text = read_text(path)
@@ -203,6 +440,9 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     in_fence = False
     fence_lang = ""
     fence_start = 0
+    fence_lines: list[tuple[int, str]] = []
+    fence_blocks: list[list[tuple[int, str]]] = []
+    mermaid_blocks: list[list[tuple[int, str]]] = []
     paragraph: list[str] = []
     paragraph_start = 0
 
@@ -220,6 +460,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                 in_fence = True
                 fence_start = number
                 fence_lang = (fence.group(2) or "").strip()
+                fence_lines = []
                 if not fence_lang:
                     issues.append(Issue(path, number, "代码围栏未声明语言"))
                 elif fence_lang == "mermaid":
@@ -231,11 +472,17 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                         pass
             else:
                 in_fence = False
+                if fence_lines:
+                    fence_blocks.append(fence_lines)
+                    if "mermaid" in fence_lang:
+                        mermaid_blocks.append(fence_lines)
+                    fence_lines = []
             continue
 
         if in_fence:
             if "\t" in raw:
                 issues.append(Issue(path, number, "代码含制表符（改用空格）"))
+            fence_lines.append((number, raw))
             continue
 
         heading = HEADING_RE.match(raw)
@@ -268,6 +515,13 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
     flush_paragraph()
 
+    for block in fence_blocks:
+        issues.extend(check_tree_block(path, block))
+
+    for block in mermaid_blocks:
+        issues.extend(check_mermaid_block(path, block))
+        issues.extend(check_mermaid_wrapper(path, lines, block))
+
     for index, raw in enumerate(lines, start=1):
         match = LINK_RE.search(raw)
         if not match:
@@ -295,6 +549,28 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             if term and term in raw:
                 issues.append(Issue(path, index, f"项目禁用词「{term}」"))
                 break
+
+    for index, raw in enumerate(lines, start=1):
+        if raw.lstrip().startswith(("```", "    ")):
+            continue
+        match = QA_PROSE_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                f"问答式讲解「{match.group(0)}」；改成返回值、判断结果或直接陈述",
+            ))
+        match = CODE_META_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                f"代码字面复述「{match.group(0)}」；改成围栏没给出的行为或约束",
+            ))
+        match = COINED_RELATION_RE.search(raw)
+        if match:
+            issues.append(Issue(
+                path, index,
+                f"自造关系词「{match.group(0)}」；用组成、调用、依赖、继承等通行词",
+            ))
 
     required = project.get("chapter_titles", {}).get(rel)
     if required:
