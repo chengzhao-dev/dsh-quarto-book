@@ -10,7 +10,7 @@ flowchart TD
     B -- 没有 --> C["list() 返回空：<br/>两个技能都不出现"]
     B -- 有 --> D["注册 writing-quarto 与 designing-theme"]
     D --> E["项目技能 .agents/skills/quarto-book-project/SKILL.md<br/>书名、读者、术语、章节对照"]
-    D --> F["writing-quarto/SKILL.md<br/>九步：定任务→定结构→排块→定段→改句→措辞→布局→回读→检查"]
+    D --> F["writing-quarto/SKILL.md<br/>九步：1 定任务→2 定结构→3 排列内容块→4 定段落→5 定句子→6 定用词→7 定版式→8 回读→9 检查"]
     F --> G["steps/0N-*.md<br/>每步只开同号一份"]
     G --> H["quarto/*.md<br/>表格、图、坐标、Mermaid、终端输出"]
     G --> I["examples/*.md 与 references/*.md<br/>正反例、整书次序、token 预算"]
@@ -63,4 +63,4 @@ flowchart TD
 
 ## 检查
 
-`npm run check` 依次跑构建、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `tests/*.test.mjs`。结构检查覆盖本图里的每一层：`SKILL.md` 的 H2 与九步表、步骤文件号与 H1、`quarto/` 与 `examples/` 非空、Markdown 链接可解析、本页存在且被 README 的文档表引用。新增或改名文件时先改本页的文件职责表，再改结构检查，最后改 `docs/plugin-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs` 与 `scripts/checking-package.mjs`；`npm test` 先构建再跑 `tests/*.test.mjs`，两者都要过。结构检查覆盖本图里的每一层：`SKILL.md` 的 H2 与九步表、步骤文件号与 H1、`quarto/` 与 `examples/` 非空、Markdown 链接可解析、本页存在且被 README 的文档表引用。新增或改名文件时先改本页的文件职责表，再改结构检查，最后改 `docs/plugin-layout.md` 的目录树。
