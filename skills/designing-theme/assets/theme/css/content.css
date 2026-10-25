@@ -7,32 +7,37 @@
      扫读时表格被读成「另一类内容」。表头小一号但不加大写（中文表头 uppercase 无意义且显僵硬）。 */
   font-size: 1rem;
   border-collapse: collapse;
-  display: block; /* 宽表横向滚动，避免移动端溢出 */
+  /* 表格本体保持表格布局：display: table 才能让 tbl-colwidths 生效，
+     width: 100% 让表与代码块占满同一正文栏。横向滚动交给 .table-responsive。 */
+  display: table;
+  table-layout: fixed;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  /* 列宽随内容分配：不写固定像素，长单元格换行，整表窄屏横向滚动。 */
-  table-layout: auto;
   margin-block: 1.35rem 1.5rem;
   border: none;
   border-radius: 0;
   font-variant-numeric: tabular-nums;
 }
+/* Quarto 的 .responsive 类把宽表包进这层：外层承担横向滚动。表体是 fixed + 100%
+   时不会溢出，滚动条永远不出现；包内因此改回按内容宽度排布，min-width 保证短表
+   仍占满正文栏，内容更宽时才真的滚动。 */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+}
 .table > :not(caption) > * > * {
-  padding: 0.55rem 0.95rem;
+  padding: 0.625rem 1rem;
   /* 多行单元格从顶部起排，同一行里短格子不被拉到垂直居中。 */
   vertical-align: top;
   /* 长 API 名与长句允许在格内折行，避免把整张表撑出内容列。 */
   overflow-wrap: break-word;
   border-bottom: 0;
-}
-/* 首尾列贴边，让表格与正文左缘对齐 */
-.table > :not(caption) > * > :first-child {
-  padding-inline-start: 0;
-}
-.table > :not(caption) > * > :last-child {
-  padding-inline-end: 0;
 }
 .table thead th {
   /* 表头用加粗与一道极浅底色标出层级；不套 .compact-table，列宽仍随内容。 */
@@ -41,9 +46,9 @@
   /* 表头比表体小 1px（17px → 15px），层级靠字重、字号与底色，不靠更粗的线。 */
   font-size: 0.9375rem;
   line-height: 1.6;
-  text-align: left;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  /* 表头是短标签，水平与垂直都居中；表体长句保持左对齐、顶对齐。 */
+  text-align: center;
+  vertical-align: middle;
   border-top: 1px solid var(--table-border);
   border-bottom: 1px solid var(--table-border);
 }
@@ -52,25 +57,15 @@
 }
 
 /* 短对照表保持全宽左对齐（与正文同宽，不居中收窄）；左对齐便于中文术语扫读。
-   宽表仍由通用 .table 规则负责滚动，不要给多列/长单元格表套本类。 */
+   宽表由 .table 默认规则负责，不要给多列/长单元格表套本类。 */
 .compact-table {
-  overflow-x: auto;
-}
-.compact-table .table {
-  display: table;
   width: 100%;
-  max-width: 100%;
+  overflow-x: auto;
 }
 .compact-table .table th,
 .compact-table .table td {
   text-align: left;
   padding-inline: 1.25rem;
-}
-.compact-table .table > :not(caption) > * > :first-child {
-  padding-inline-start: 0;
-}
-.compact-table .table > :not(caption) > * > :last-child {
-  padding-inline-end: 0;
 }
 
 /* 表题：Pandoc 输出 <caption>，Bootstrap 默认把它放表下（caption-side: bottom），
