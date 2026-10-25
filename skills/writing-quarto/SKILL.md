@@ -1,6 +1,6 @@
 ---
 name: writing-quarto
-description: 润色与重构 Quarto Book 章节：任务与结构、术语与中英混排、检查与渲染；不用于改主题样式
+description: 写作、布局、排版与润色 Quarto Book 章节：任务与结构、内容块与表格、段落与句子、中英混排与术语、检查与渲染；不用于改主题样式
 metadata:
   short-description: 润色中文 Quarto 图书章节
 ---
@@ -32,9 +32,11 @@ metadata:
 
 ## 九步
 
+九步按四个写作域分：写作 1–2，布局 3–4 与 7，润色 5–6 与 8，排版归主题技能；第 9 步是检查与渲染。跨域改动按「写作 → 布局 → 润色」的顺序推进，前一步落定再进下一步。
+
 1. 定任务：写出读者做完能完成的那件事，再列这一章要覆盖的任务。规则在 `steps/01-task.md`。
 2. 定结构：排页面骨架、二级标题和篇幅预算，只定删留、标题与章题对齐。规则在 `steps/02-structure.md`。
-3. 排列内容块：导语、围栏、收束与 Callout 的次序，一个围栏只放正在讲的那一块。规则在 `steps/03-blocks.md`。
+3. 排列内容块：导语、围栏、收束与 Callout 的次序，一个围栏只放正在讲的那一块。规则在 `steps/03-blocks.md`，表格写法见 `quarto/tables.md`。
    图注写在图下、图前只写引出关系；三类图的统一写法见 `quarto/figures.md`。
 4. 定段落：一段一个对象，段间衔接落在话题切换处。规则在 `steps/04-paragraphs.md`。
 5. 定句子：主语选执行者，对象先行，一句一动作。规则在 `steps/05-sentences.md`。

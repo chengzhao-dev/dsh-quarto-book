@@ -14,18 +14,18 @@
 |---|---|---|
 | `theme` | `light: [cosmo, theme/palettes/flexoki/theme-light.scss]` + `dark: [darkly, theme/palettes/flexoki/theme-dark.scss]` | 内置主题与项目样式叠加，顺序决定覆盖关系；Flexoki 是编译默认 |
 | `highlight-style` | `light:`/`dark:` 指向 `theme/palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` | 明暗分别指定，与 `palettes/flexoki/meta.md` 同步；Solarized 的语法色由 `theme/palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，不改这里 |
-| `filters` | `scripts/answering-disclosure.lua`（顶层 `filters:`） | 将正文 `.answer` 转为默认收起的原生 `details` |
+| `filters` | `filters/answering-disclosure.lua`（顶层 `filters:`，书内副本） | 将正文 `.answer` 转为默认收起的原生 `details` |
 | `toc` / `toc-depth` / `toc-location` | `true` / `3` / `right` | 右侧目录最多到 H3，窄屏会折叠，不作唯一定位手段 |
 | `number-sections` | `false` | 因此标题不手填序号，见 `quarto/basics.md` |
 | `code-copy` / `code-overflow` | `true` / `wrap` | 长行换行，不让读者横向拖动 |
-| `grid` | sidebar 300 / body 800 / margin 272 / gutter 1rem | 正文列约 50 个汉字；四值是最大基准值，窄视口由 Quarto 响应缩放 |
+| `grid` | sidebar 300 / body 872 / margin 272 / gutter 1rem | 正文列 840px，约 50 个汉字；四值是最大基准值，窄视口由 Quarto 响应缩放 |
 | `lang` | `zh` | 影响部分 HTML 行为与提示框默认词 |
 
 本书**不开启**代码行号（`code-line-numbers`）与代码折叠（`code-fold`）。站点 QMD 代码块使用 `{.语言 filename="标题"}`；Quarto 会把标题渲染为 `.code-with-filename`，外观与复制按钮位置由主题统一控制。filename 缺失由 `verifying-content.py` 拦截，内容语义与篇幅由 `verifying-content.py` 负责。
 
 ### 改动约定
 
-1. 改 `format: html:` 任何取值都属于主题级改动，会触发整本渲染，先确认代价再走 `quarto render`。
+1. 改 `format: html:` 任何取值都属于主题级改动，会触发整本渲染，先确认代价，再用 `quarto_render_check` 渲染。
 2. 新增或删减主题样式表（`.agents/skills/designing-theme/assets/theme/css/**` 或书内 `theme/css/**`）时，同步修改配置里的样式表清单，否则新样式不参与渲染。
 3. 页面视觉问题（提示符配色、文件名条、术语色）改 `.agents/skills/designing-theme/assets/theme/**` 或书内 `theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../designing-theme/references/theme-system.md`。
 4. 流程图使用 `{mermaid}` 属性围栏，配色由主题样式控制。配置里不指定图表主题名；围栏与 init 指令细则见 `quarto/mermaid.md`。
@@ -151,7 +151,7 @@
 
 - include 路径相对于 qmd 文件所在目录解析（`content/<part>/` 下用 `../../src/...` 指向仓库根的 `src/`）。
 - 语言标注决定语法高亮：Python 用 `python`，C++ 用 `cpp`，Shell 用 `bash`。
-- 新增或修改 include 后必须 `quarto render` 并检查 `_book` 中对应 HTML：嵌入内容应出现在 `<pre class="sourceCode ...">` 代码块中，而不是 `<p>` 段落里。
+- 新增或修改 include 后必须用 `quarto_render_check` 渲染，并核对返回的 `html_report`：嵌入内容应出现在 `<pre class="sourceCode ...">` 代码块中，而不是 `<p>` 段落里。
 - include 展示的是 `src/` 下真实源文件，渲染问题只修 qmd 的包裹方式，不改被引用的源文件。
 
 ## 链接使用约定

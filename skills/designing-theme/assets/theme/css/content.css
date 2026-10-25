@@ -1,6 +1,6 @@
 /* dsh-quarto-book Quarto 主题 · 正文内容（表格 / 引用 / 正文组件与排版；自 common.css 拆分） */
 
-/* ---------- 表格（booktabs：顶/底粗线、表头细线，无行线与竖线） ---------- */
+/* ---------- 表格（booktabs：顶/底细线、表头加粗带浅底，无行线与竖线） ---------- */
 .table {
   --bs-table-hover-bg: transparent;
   /* 表体与正文同档：表格字号一旦小于正文，正文里嵌表格就会出现两次字级跳变，
@@ -12,13 +12,19 @@
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  /* 列宽随内容分配：不写固定像素，长单元格换行，整表窄屏横向滚动。 */
+  table-layout: auto;
+  margin-block: 1.35rem 1.5rem;
   border: none;
   border-radius: 0;
   font-variant-numeric: tabular-nums;
 }
 .table > :not(caption) > * > * {
-  padding: 0.55rem 0.9rem;
-  vertical-align: baseline;
+  padding: 0.55rem 0.95rem;
+  /* 多行单元格从顶部起排，同一行里短格子不被拉到垂直居中。 */
+  vertical-align: top;
+  /* 长 API 名与长句允许在格内折行，避免把整张表撑出内容列。 */
+  overflow-wrap: break-word;
   border-bottom: 0;
 }
 /* 首尾列贴边，让表格与正文左缘对齐 */
@@ -29,13 +35,15 @@
   padding-inline-end: 0;
 }
 .table thead th {
-  background-color: transparent;
-  font-weight: 600;
-  /* 表头比表体小 1px（17px → 15px），层级靠字重与字号，不靠比顶线更粗的线。 */
+  /* 表头用加粗与一道极浅底色标出层级；不套 .compact-table，列宽仍随内容。 */
+  background-color: color-mix(in srgb, var(--table-border) 24%, transparent);
+  font-weight: 700;
+  /* 表头比表体小 1px（17px → 15px），层级靠字重、字号与底色，不靠更粗的线。 */
   font-size: 0.9375rem;
+  line-height: 1.6;
   text-align: left;
-  padding-top: 0;
-  padding-bottom: 0.45rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   border-top: 1px solid var(--table-border);
   border-bottom: 1px solid var(--table-border);
 }

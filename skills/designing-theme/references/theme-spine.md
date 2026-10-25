@@ -21,4 +21,4 @@
 2. 新规则必须先标明属于哪一步：能放进已有 `##` 就放进去；只有尺度真的变了才允许新开一步。禁止再写一条不标明步骤的禁令。
 3. 字体、栏宽、颜色决定的理由写进 `knowledge/reading-surface.md`，不在 reference 里重复论证。
 4. 同步更新本文件、`SKILL.md`、`theme-system.md`、知识文件与检查脚本。
-5. 改完运行 `scripts/checking-layout.py` 与整本 `quarto render`；两者都通过才算完成。
+5. 改完运行 `scripts/checking-layout.py`，再用 `quarto_render_check` 做整本渲染；两者都通过才算完成。

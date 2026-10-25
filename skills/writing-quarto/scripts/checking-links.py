@@ -20,6 +20,9 @@ import sys
 from pathlib import Path
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+REF_USE_RE = re.compile(r"(!?)\[([^\]]*)\]\[([^\]]*)\]")
+REF_DEF_RE = re.compile(r"^ {0,3}\[([^\]]+)\]:\s*(?:<([^>\s]+)>|(\S+))")
+INLINE_CODE_RE = re.compile(r"`+[^`]*`+")
 HTML_LINK_RE = re.compile(r"<(?:a|img)\b[^>]*\b(?:href|src)=\"([^\"]+)\"", re.IGNORECASE)
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "tel:", "data:", "#", "//")
@@ -49,7 +52,13 @@ def collect_sources(root: Path, paths: list[str]) -> list[Path]:
     )
 
 
-def iter_links(text: str):
+def normalize_label(label: str) -> str:
+    return re.sub(r"\s+", " ", label.strip()).casefold()
+
+
+def collect_definitions(text: str) -> dict[str, tuple[int, str]]:
+    """收集引用式链接定义 `[label]: target`；围栏内的定义不算。"""
+    definitions: dict[str, tuple[int, str]] = {}
     in_fence = False
     for number, line in enumerate(text.splitlines(), start=1):
         if FENCE_RE.match(line):
@@ -57,10 +66,37 @@ def iter_links(text: str):
             continue
         if in_fence:
             continue
-        for match in LINK_RE.finditer(line):
-            yield number, match.group(1)
-        for match in HTML_LINK_RE.finditer(line):
-            yield number, match.group(1)
+        match = REF_DEF_RE.match(line)
+        if not match:
+            continue
+        label = normalize_label(match.group(1))
+        target = match.group(2) or match.group(3) or ""
+        if label and label not in definitions:
+            definitions[label] = (number, target)
+    return definitions
+
+
+def iter_links(text: str, definitions: dict[str, tuple[int, str]]):
+    in_fence = False
+    for number, line in enumerate(text.splitlines(), start=1):
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence or REF_DEF_RE.match(line):
+            continue
+        # 行内代码里的方括号不是链接；先抹掉，避免把示例当引用。
+        visible = INLINE_CODE_RE.sub(lambda match: " " * len(match.group(0)), line)
+        for match in LINK_RE.finditer(visible):
+            yield number, match.group(1), None
+        for match in REF_USE_RE.finditer(visible):
+            label = match.group(3) or match.group(2)
+            key = normalize_label(label)
+            if not key:
+                continue
+            definition = definitions.get(key)
+            yield number, definition[1] if definition else None, label
+        for match in HTML_LINK_RE.finditer(visible):
+            yield number, match.group(1), None
 
 
 def main() -> int:
@@ -94,7 +130,12 @@ def main() -> int:
             print(f"失败  {source} 不是合法 UTF-8：{exc}", file=sys.stderr)
             return 1
         rel = source.relative_to(root).as_posix()
-        for number, raw in iter_links(text):
+        definitions = collect_definitions(text)
+        for number, raw, label in iter_links(text, definitions):
+            if raw is None:
+                checked += 1
+                broken.append((rel, number, f"[{label}]", "引用标签未定义"))
+                continue
             target = raw.strip()
             if not target or target.startswith(SKIP_PREFIXES):
                 continue

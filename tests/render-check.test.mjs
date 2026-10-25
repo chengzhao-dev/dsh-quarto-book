@@ -377,3 +377,22 @@ test('单个 HTML 超过上限时给出明确失败原因', async () => {
   }
 })
 
+test('首页超过上限时在读取前拒绝', async () => {
+  const root = await bookFixture()
+  try {
+    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body>${'x'.repeat(8 * 1024 * 1024)}</body></html>`
+    await mkdir(path.join(root, '_book'), { recursive: true })
+    await writeFile(path.join(root, '_book', 'index.html'), html, 'utf8')
+    const { report } = await inspectHtml({
+      root,
+      outputDir: path.join(root, '_book'),
+      yaml: 'project:\n  type: book\n  output-dir: _book\n',
+    })
+    const index = report.checks.find((check) => check.id === 'index_html')
+    assert.equal(index.status, 'fail')
+    assert.match(index.detail, /超过/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+

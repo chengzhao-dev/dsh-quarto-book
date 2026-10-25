@@ -29,7 +29,7 @@
 2. 在书仓库里打开会话。`_quarto.yml` 要有独立一行的 `type: book`，书根至少有一个 `.qmd` 或 `.md` 章节源文件；两个技能名这时才会出现。
 3. 调用技能：写正文用 `writing-quarto`，改主题用 `designing-theme`。
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.4`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.4`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.5`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.5`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile）：先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book`，再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -87,10 +87,12 @@ python scripts/checking-names.py --root <book>
 
 | 文档 | 内容 |
 | --- | --- |
+| [docs/architecture.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/architecture.md) | 两个技能与两个工具的分层、四个写作域与文件职责 |
 | [docs/plugin-flow.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-flow.md) | 从安装到回执的五层结构、文件分流与渲染顺序 |
 | [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) | 工作区检查的六类情形与判定顺序 |
 | [docs/plugin-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-layout.md) | 仓库目录、发布包内容与 Python/Quarto 分工 |
 | [docs/writing-quarto-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/writing-quarto-layout.md) | 写作技能的目录分层 |
+| [docs/triggering.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/triggering.md) | 两个技能的触发判据、四个写作域与正反例 |
 | [docs/versioning.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/versioning.md) | 版本号与发布顺序 |
 
 ## 开发

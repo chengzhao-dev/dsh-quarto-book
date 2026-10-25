@@ -28,7 +28,7 @@
 
 局部删除或移动内容后必须回读切口，并为后文仍引用的动作保留「触发时机 → 状态变化及原因 → 可观察结果 → 下一步」的最短闭环。后文出现悬空的「然后、因此、此时、重启、再次」等承接时必须重写切口，不能只按表面冗余删除过渡句。
 
-改标题等于改锚点。改完运行 `scripts/verifying-content.py` 与 `quarto render` 核对交叉引用。
+改标题等于改锚点。改完运行 `scripts/verifying-content.py`，再用 `quarto_render_check` 核对交叉引用；只有人工复现问题才在仓库根裸跑 `quarto render`。
 
 ## 配置文件与构建脚本
 
@@ -122,7 +122,7 @@ Callout 个数见 `steps/02-structure.md`，本段不写数字；`warning` 只�
 ```
 
 - 只有读者可以先自行回答、再核对结论的内容才折叠。定义、命令和必经判据留在正文。
-- `.answer` 由 `scripts/answering-disclosure.lua` 渲染为默认收起的原生 `details.answer-disclosure`，摘要固定为「查看答案」。正文不手写这段 HTML。
+- `.answer` 由书内 `filters/answering-disclosure.lua` 渲染为默认收起的原生 `details.answer-disclosure`，摘要固定为「查看答案」。正文不手写这段 HTML。
 - 答案只使用本章已经讲解的概念，内部不使用 `h1`–`h6`。
 
 ### 交叉引用

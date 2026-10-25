@@ -624,6 +624,28 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                 f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；每章每条仓库路径至多一条",
             ))
 
+    # 章引言（第一个标题之前）只留承接上一章的一个章节链接；其余章节引用下沉到正文。
+    # 着陆页 index.qmd 是目录页，不受这条预算约束。
+    if path.name != "index.qmd":
+        first_heading = next(
+            (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
+            len(lines) + 1,
+        )
+        intro_links: list[tuple[int, str]] = []
+        for index, raw in enumerate(lines, start=1):
+            if index >= first_heading or index in fenced_lines:
+                continue
+            for match in LINK_RE.finditer(raw):
+                target = match.group(1).strip()
+                if target.endswith(".qmd"):
+                    intro_links.append((index, target))
+        if len(intro_links) > 1:
+            issues.append(Issue(
+                path, intro_links[1][0],
+                f"章引言有 {len(intro_links)} 个章节链接（{'、'.join(t for _, t in intro_links)}）；"
+                "只留承接上一章的一个，其余移到正文首次用到处",
+            ))
+
     for term in GENERIC_FORBIDDEN_TERMS:
         for index, raw in enumerate(lines, start=1):
             if term in raw and not raw.lstrip().startswith(("```", "    ")):

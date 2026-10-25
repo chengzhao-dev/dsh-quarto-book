@@ -227,10 +227,14 @@ function killProcessTree(child: SpawnedProcess, cwd: string, spawnFn: SpawnLike)
   if (pid && process.platform === 'win32') {
     // Windows 上只杀直接子进程会留下 Quarto 派生的 pandoc/python。
     try {
-      spawnFn('taskkill', ['/pid', String(pid), '/T', '/F'], {
+      const killer = spawnFn('taskkill', ['/pid', String(pid), '/T', '/F'], {
         cwd,
         windowsHide: true,
         shell: false,
+      })
+      // taskkill 启动失败会走异步 error；不监听会成为未处理错误。
+      killer.on('error', () => {
+        // 下面仍会尝试 child.kill，这里只保证异步错误有出口。
       })
     } catch {
       // taskkill 不可用时退回 child.kill。
@@ -436,15 +440,27 @@ export async function inspectHtml(input: {
   const errors: string[] = []
   const checks: CheckResult[] = []
   const index = path.join(input.outputDir, 'index.html')
-  const indexText = await readUtf8(index)
+  const indexPath = relativeTo(input.root, index)
+  let indexText: string | undefined
+  let indexDetail: string
+  try {
+    const indexStat = await stat(index)
+    if (indexStat.size > MAX_HTML_BYTES) {
+      indexDetail = `${indexPath} 超过 ${Math.round(MAX_HTML_BYTES / 1024 / 1024)} MiB，未读`
+      errors.push(`${indexPath} 太大，未读`)
+    } else {
+      indexText = await readUtf8(index)
+      indexDetail =
+        indexText === undefined ? `缺少可读的 ${indexPath}` : `${indexPath} 已生成`
+    }
+  } catch {
+    indexDetail = `缺少可读的 ${indexPath}`
+  }
 
   checks.push({
     id: 'index_html',
     status: indexText === undefined ? 'fail' : 'pass',
-    detail:
-      indexText === undefined
-        ? `缺少可读的 ${relativeTo(input.root, index)}`
-        : `${relativeTo(input.root, index)} 已生成`,
+    detail: indexDetail,
   })
 
   const broken: string[] = []
