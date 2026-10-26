@@ -34,6 +34,16 @@
 
 本包不探测别的插件，也不因它们改变书门禁。社区插件没有「只对某个 GitHub 仓库启用」的开关，profile 安装加 cwd 门禁就是最小范围；想更窄，就只把它装进写书用的那个 profile。项目 `.agents/skills` 下的同名技能仍按 rank 覆盖插件技能（项目 200 高于插件 550）；不要把 `writing-quarto`、`designing-theme` 复制进项目。
 
+| 邻居 | 分工 |
+| --- | --- |
+| `dsh-cpp-workflow` | 章节与主题归本插件，实现文件归它。本插件只处理 Quarto 文件，不点名实现目录，也不写实现工程的语言或目录。 |
+| 上下文压缩类（`billion-context`、`dsh-context` 等） | 它们压缩已进入上下文的内容，本插件负责少放进去。不新增系统提示段落去重复 `SKILL.md`；压缩后可丢步骤，下一步按路径重读那一个文件。 |
+| 命令与权限类（`dsh-ops`、`cc-safety-net`、`dsh-perm-gate`、`dsh-trust-check`） | 检查命令以项目技能列出的那条为准；不把某个命令宿主或包装命令写进技能。权限插件拦住就停住并报告，不写绕过开关。 |
+| 技能目录类（`dsh-skills-manager`、skills deck） | 技能名保持 `writing-quarto` 与 `designing-theme`，可以由目录类关闭；关闭后书仍能用 Quarto 渲染，只是代理不再读这些步骤。 |
+| 写作类（`lunheng-article-pipeline`、`dsh-simplify`、`dsh-prompt`、`dsh-ppt`、`dsh-univer-office`） | 只借「一层技能目录」的形状，不接多角色流水线；去 AI 腔与 pptx/docx 转换不并入本插件，也不调用它们的工具。 |
+| 评审与代理团队（`dsh-code-review`、`dsh-agent-teams`） | 子会话按自己的 cwd 重新 `list()`；父会话不把技能正文写进子代理提示。本插件不注册评审工具，也不抄它们的检查单。 |
+| 看图类（`modlens`、`modsearch`） | 图仍走 `quarto/figures.md`、`quarto/mermaid.md`、`quarto/coords.md`，不靠 OCR 改章节。 |
+
 ## 已知边界
 
 - 门禁是文件事实启发式，不解析 Quarto 语义：`type` 必须独立成行，注释不算。

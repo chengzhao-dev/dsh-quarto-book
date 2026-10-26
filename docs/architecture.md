@@ -26,9 +26,7 @@ flowchart TD
 
 ## 四个写作域
 
-`writing-quarto` 的九步按「写什么、放哪里、怎么排、怎么润」四类改动重排入口：写作域落在第 1–2 步，布局落在第 3–4 步与第 7 步，润色落在第 5–6 步与第 8 步，排版交给 `designing-theme` 的四个定；第 9 步是统一的检查与渲染出口，不属于任何写作域。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
-
-四域与九步、条文的对应表只写在 `skills/writing-quarto/SKILL.md` 的「九步」小节，本页不复制；改那张表时只改 `SKILL.md`。
+写作域与九步的对应表只在 `skills/writing-quarto/SKILL.md` 的「九步」小节，本页不复制。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
 
 ## 四层加载
 
@@ -39,7 +37,7 @@ flowchart TD
 | 步骤 | `steps/0N-*.md` | 走到第 N 步时只开同号一份 | 见 `references/token-budget.md` |
 | 条文与案例 | `quarto/`、`examples/`、`references/` | 判不准、排错或步骤明确指向时 | 见 `references/token-budget.md` |
 
-`SKILL.md` 的九步表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，口径在 `references/token-budget.md`。
+`SKILL.md` 的九步表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `references/token-budget.md`。
 
 ## 文件职责
 

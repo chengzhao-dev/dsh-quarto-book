@@ -213,4 +213,4 @@
 
 ## 正反例
 
-通用情况判得准就不打开。判不准时打开 `examples/04-paragraph-cases.md`、`examples/04-paragraph-opening.md`。
+通用情况判得准就不打开。判不准时只开 `examples/04-paragraph-cases.md`，按命中的信号读其中一节；`04-paragraph-opening.md` 留到下一次激活。

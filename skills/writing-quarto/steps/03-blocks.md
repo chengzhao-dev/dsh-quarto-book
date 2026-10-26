@@ -260,4 +260,4 @@ int main() {
 
 ## 正反例
 
-通用情况判得准就不打开。判不准时打开同号案例：`examples/03-block-after.md`、`examples/03-excerpt-lead.md`、`examples/03-qmd-elements.md`。
+通用情况判得准就不打开。判不准时只开 `examples/03-block-after.md`，按命中的信号读其中一节；`03-excerpt-lead.md` 与 `03-qmd-elements.md` 留到下一次激活。

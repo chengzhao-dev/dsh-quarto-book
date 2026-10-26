@@ -233,4 +233,4 @@
 
 ## 正反例
 
-通用情况判得准就不打开。判不准时打开 `examples/05-sentence-frame.md`、`examples/05-sentence-reference.md`、`examples/05-sentence-brevity.md`。
+通用情况判得准就不打开。判不准时只开 `examples/05-sentence-frame.md`，按命中的信号读其中一节；另外两份 05 案例留到下一次激活。

@@ -47,7 +47,7 @@
 | --- | --- | --- | --- |
 | 13 | 「修一下 CI 里的 Python 检查脚本」 | 都不出现 | 脚本不归写作技能 |
 | 14 | 「解释一下什么是 Quarto Book」 | 都不出现 | 概念问答，不动仓库 |
-| 15 | 「把 README 的安装命令更新到 0.6.7」 | 都不出现 | 仓库说明页，不套九步 |
+| 15 | 「把 README 的安装命令更新到 0.6.8」 | 都不出现 | 仓库说明页，不套九步 |
 | 16 | 「改一下 `_quarto.yml` 里 book 的章节顺序」 | `writing-quarto` | 目录与结构 |
 | 17 | 「把这个 CSS 变量的颜色换深一点」 | `designing-theme` | 主题变量 |
 | 18 | 「qmd 里 front matter 的 `format` 加个字段」 | `writing-quarto` | 章节 front matter |

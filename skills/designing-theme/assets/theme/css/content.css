@@ -11,9 +11,12 @@
      width: 100% 让表与代码块占满同一正文栏。横向滚动交给 .table-responsive。 */
   display: table;
   table-layout: fixed;
+  /* 与代码块同宽：占满正文栏、边框算在宽度内、左右不留外边距。 */
   width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
   margin-block: 1.35rem 1.5rem;
+  margin-inline: 0;
   border: none;
   border-radius: 0;
   font-variant-numeric: tabular-nums;
@@ -31,23 +34,24 @@
   width: max-content;
   min-width: 100%;
 }
-.table > :not(caption) > * > * {
-  padding: 0.625rem 1rem;
+#quarto-document-content .table > :not(caption) > * > * {
+  /* 左右 1.25rem 让首列离开表的左缘，上下 0.7rem 保持行距；四边对称。 */
+  padding: 0.7rem 1.25rem;
   /* 多行单元格从顶部起排，同一行里短格子不被拉到垂直居中。 */
   vertical-align: top;
   /* 长 API 名与长句允许在格内折行，避免把整张表撑出内容列。 */
   overflow-wrap: break-word;
   border-bottom: 0;
 }
-.table thead th {
+#quarto-document-content .table thead th {
   /* 表头用加粗与一道极浅底色标出层级；不套 .compact-table，列宽仍随内容。 */
   background-color: color-mix(in srgb, var(--table-border) 24%, transparent);
   font-weight: 700;
   /* 表头比表体小 1px（17px → 15px），层级靠字重、字号与底色，不靠更粗的线。 */
   font-size: 0.9375rem;
   line-height: 1.6;
-  /* 表头是短标签，水平与垂直都居中；表体长句保持左对齐、顶对齐。 */
-  text-align: center;
+  /* 表头跟随该列：默认左对齐，数字列由 Pandoc 的行内 text-align 右对齐。 */
+  text-align: left;
   vertical-align: middle;
   border-top: 1px solid var(--table-border);
   border-bottom: 1px solid var(--table-border);
@@ -56,16 +60,11 @@
   border-bottom: 1px solid var(--table-border);
 }
 
-/* 短对照表保持全宽左对齐（与正文同宽，不居中收窄）；左对齐便于中文术语扫读。
+/* 短对照表保持全宽（与正文同宽，不居中收窄）；对齐与内边距已由 .table 统一。
    宽表由 .table 默认规则负责，不要给多列/长单元格表套本类。 */
 .compact-table {
   width: 100%;
   overflow-x: auto;
-}
-.compact-table .table th,
-.compact-table .table td {
-  text-align: left;
-  padding-inline: 1.25rem;
 }
 
 /* 表题：Pandoc 输出 <caption>，Bootstrap 默认把它放表下（caption-side: bottom），
