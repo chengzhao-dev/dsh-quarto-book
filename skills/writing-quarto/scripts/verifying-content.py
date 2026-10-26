@@ -54,6 +54,16 @@ COINED_RELATION_RE = re.compile(r"(?:组成|依赖|继承|调用)边")
 CARRIER_RE = re.compile("承载")
 NEXT_SECTION_RE = re.compile(r"(?:下一节|上一节)")
 LADDER_RE = re.compile(r"(?:分别交给|各说一层)")
+SKILL_TONE_RE = re.compile(r"这里不定义|测试也不必|不必为[^。；\n]{0,20}再记|不写双层循环")
+INLINE_NAME_RE = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
+FUNCTION_NAME_RE = re.compile(
+    r"^(?:Is|Get|Set|Has|Can|Completes|Place|Read|Write|Print|Run|Make|Collect|Judge|"
+    r"Score|Search|Choose|Add|Clear|Reset|Find|Build|Parse|Format|Render|Report|Show|"
+    r"Start|Stop|Create|Destroy|Update|Check|Validate|To)[A-Z0-9_]"
+    r"|^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$"
+)
+TERMINAL_RE = re.compile(r"终端|打印|显示|输入|读入|命令行")
+TEST_RE = re.compile(r"测试|断言|用例|gtest|CTest")
 
 TREE_CATEGORY_COMMENTS = frozenset({
     "头文件", "源文件", "源码", "实现", "测试", "配置文件",
@@ -196,12 +206,27 @@ def check_heading(path: Path, line: int, level: int, text: str, issues: list[Iss
         issues.append(Issue(path, line, "标题带行内代码；文件名留给正文，标题写对象"))
 
 
-def check_prose_block(path: Path, start_line: int, text: str, issues: list[Issue]) -> None:
+def check_prose_block(
+    path: Path, start_line: int, text: str, issues: list[Issue], is_list: bool = False
+) -> None:
     compact = text.strip()
     if not compact:
         return
     if CHAPTER_NUMBER_RE.search(compact):
         issues.append(Issue(path, start_line, "第 N 章式编号指称（用章节标题或链接）"))
+    if SKILL_TONE_RE.search(compact):
+        issues.append(Issue(path, start_line, "技能腔：只约束作者的选择，整句删掉"))
+    if not is_list and CJK_RE.search(compact):
+        names = {
+            match.group(1)
+            for match in INLINE_NAME_RE.finditer(compact)
+            if FUNCTION_NAME_RE.search(match.group(1))
+        }
+        if len(names) >= 3 and TERMINAL_RE.search(compact) and TEST_RE.search(compact):
+            issues.append(Issue(
+                path, start_line,
+                f"一段里出现 {len(names)} 个函数名，还同时讲终端与测试；拆成列表，一项一件",
+            ))
     if CJK_RE.search(compact):
         length = len(re.sub(r"\s+", "", compact))
         if length > MAX_PARAGRAPH_CHARS:
@@ -569,7 +594,9 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
         if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
             flush_paragraph()
-            check_prose_block(path, number, re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw), issues)
+            check_prose_block(
+                path, number, re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw), issues, is_list=True
+            )
             continue
 
         if not paragraph:
