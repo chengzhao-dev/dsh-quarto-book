@@ -171,7 +171,14 @@ def main() -> int:
     failures: list[str] = []
     passed_cases = 0
 
-    def expect(name: str, chapter: str, code: int, needle: str, project: bool = False) -> None:
+    def expect(
+        name: str,
+        chapter: str,
+        code: int,
+        needle: str,
+        project: bool = False,
+        checks_json: str | None = None,
+    ) -> None:
         nonlocal passed_cases
         passed_cases += 1
         with tempfile.TemporaryDirectory() as raw:
@@ -185,7 +192,8 @@ def main() -> int:
                     encoding="utf-8",
                 )
                 (skill_dir / "checks.json").write_text(
-                    '{"forbidden_terms": ["棋盘格子"]}', encoding="utf-8"
+                    checks_json or '{"forbidden_terms": ["棋盘格子"]}',
+                    encoding="utf-8",
                 )
             result = run_case(root)
             output = result.stdout + result.stderr
@@ -235,8 +243,44 @@ def main() -> int:
         + f"\n[board.h]({duplicate_link})\n\n[board.h]({duplicate_link})\n",
         1, "同章重复文件链接",
     )
+    expect(
+        "章引言主源文件可重复链接",
+        "---\ntitle: 入门\n---\n\n"
+        f"本章的声明在 [board.h]({duplicate_link})。\n\n"
+        "## 目标\n\n"
+        "这一章说明一个可以重复验证的目标。读者读完之后能够判断结果是否正确。\n\n"
+        f"正文再提 [board.h]({duplicate_link})。\n",
+        0, "OK",
+    )
+    expect(
+        "链接目标不计入句长",
+        VALID_CHAPTER + f"\n读 [board.h]({duplicate_link})。\n",
+        0, "OK",
+    )
     expect("标题口语化", VALID_CHAPTER.replace("## 目标", "## 自己走一局"), 1, "标题带人称")
     expect("标题带行内代码", VALID_CHAPTER.replace("## 目标", "## 运行 `app`"), 1, "标题带行内代码")
+    expect(
+        "三级标题在数条目",
+        VALID_CHAPTER.replace("### 步骤", "### 八条线"),
+        1,
+        "三级标题在数条目",
+    )
+    expect(
+        "对象章点到后章类型",
+        VALID_CHAPTER + "\n三类结果都交给 `LaterType` 处理。\n",
+        1,
+        "对象章点到后章类型",
+        project=True,
+        checks_json='{"later_chapter_names": {"content/part/01-intro.qmd": ["LaterType"]}}',
+    )
+    expect(
+        "围栏内后章类型不报",
+        VALID_CHAPTER + "\n```cpp\nLaterType value;\n```\n",
+        0,
+        "OK",
+        project=True,
+        checks_json='{"later_chapter_names": {"content/part/01-intro.qmd": ["LaterType"]}}',
+    )
     expect("正文 H1", VALID_CHAPTER.replace("## 目标", "# 目标"), 1, "正文出现 H1")
     expect("缺 title", VALID_CHAPTER.replace("title: 入门\n", ""), 1, "缺少 YAML frontmatter")
     expect(

@@ -1,6 +1,6 @@
 ---
 name: writing-quarto
-description: 写作、布局、排版与润色 Quarto Book 章节：任务与结构、内容块与表格、段落与句子、中英混排与术语、检查与渲染；不用于改主题样式
+description: 写作、布局、排版与润色 Quarto Book 章节：任务与结构、内容块与表格、段落与句子、中英混排与术语、改 qmd 代码围栏与块后解说、检查与渲染；不用于改主题样式与只改 .cpp。
 metadata:
   short-description: 润色中文 Quarto 图书章节
 ---
@@ -47,11 +47,11 @@ metadata:
 2. 定结构：排页面骨架、二级标题和篇幅预算，只定删留、标题与章题对齐。规则在 `steps/02-structure.md`。
 3. 排列内容块：导语、围栏、收束与 Callout 的次序，一个围栏只放正在讲的那一块。规则在 `steps/03-blocks.md`，表格写法见 `quarto/tables.md`。
    图注写在图下、图前只写引出关系；三类图的统一写法见 `quarto/figures.md`。
-4. 定段落：一段一个对象，段间衔接落在话题切换处。规则在 `steps/04-paragraphs.md`。
+4. 定段落：一段一个关键，下一句接住上一句的新信息；段间衔接落在话题切换处。规则在 `steps/04-paragraphs.md`。
 5. 定句子：主语选执行者，对象先行，一句一动作。规则在 `steps/05-sentences.md`。
 6. 定用词：统一术语、主动语态和语气。规则在 `steps/06-wording.md`。
 7. 定版式：标点、中英混排、列表和加粗。规则在 `steps/07-layout.md`。
-8. 回读并退回：按现象判断属于哪一步，退回那一步改。规则在 `steps/08-reread.md`。
+8. 回读并退回：按现象判断属于哪一步，先按 `references/priority.md` 判冲突，再退回那一步改。规则在 `steps/08-reread.md`。
 9. 检查与渲染：先核对内容与链接，再调 `quarto_render_check` 渲染并检查 HTML。规则在 `steps/09-check.md`。
 
 ## 完成判据

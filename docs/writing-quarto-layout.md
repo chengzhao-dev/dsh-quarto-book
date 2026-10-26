@@ -20,7 +20,7 @@ skills/writing-quarto/
 
 **examples/** 放正反例，文件名与 step 同号，一个主题一个文件。案例只在判不准时打开：每步的「正反例」节写清该开哪个文件、看哪一节。案例可以贴不佳原文和改写，规则条文不在这里复制。
 
-**references/** 放跨章与加载成本约定：`book-journey.md` 定整书主线、三遍走与章节接口；`token-budget.md` 定每个 Markdown 的 token 上限。只有整书规划或超限判断才打开。
+**references/** 放跨章与加载成本约定：`book-journey.md` 定整书主线、三遍走与章节接口；`priority.md` 定规则冲突时的五级次序；`token-budget.md` 定每个 Markdown 的 token 上限。只有整书规划、判冲突或超限判断才打开。
 
 **quarto/** 放 Book 结构与渲染层约定：`basics.md` 管项目结构与 front matter，`authoring.md` 管元素写法，`comments.md` 管 qmd、YAML、SCSS 与 CSS 的注释，`encoding.md` 管编码与行尾，`prose.md` 管中英混排、标点与润色底线，`readability.md` 管新人可读性与任务完整性，`mermaid.md` 与 `coords.md` 管图，`terminal.md` 管命令与输出，`tables.md` 管表格的列宽与排版，`render.md` 管 HTML 输出、链接与排错，`refactor.md` 管全仓重构。排图、查渲染错误或做全仓重构才打开。
 

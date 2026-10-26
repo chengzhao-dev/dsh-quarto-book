@@ -179,6 +179,9 @@ for (const [index, slug] of stepSlugs.entries()) {
   if (!heading.startsWith(`# 第 ${number} 步`)) fail(file, `H1 应是「# 第 ${number} 步…」，实际是「${heading}」`);
 }
 const skillText = read(join(skill, 'SKILL.md'));
+const skillDescription = skillText.match(/^description:\s*(.*)$/m)?.[1] ?? '';
+if ([...skillDescription].length > 450) fail(join(skill, 'SKILL.md'), 'description 超过 450 字符');
+if (!skillDescription.includes('不用于')) fail(join(skill, 'SKILL.md'), 'description 缺少「不用于」');
 for (const slug of stepSlugs) {
   if (!skillText.includes(`steps/${slug}.md`)) fail(join(skill, 'SKILL.md'), `九步清单没点到 steps/${slug}.md`);
 }

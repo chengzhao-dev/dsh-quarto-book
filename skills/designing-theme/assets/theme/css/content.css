@@ -56,7 +56,7 @@
   border-top: 1px solid var(--table-border);
   border-bottom: 1px solid var(--table-border);
 }
-.table > tbody > tr:last-child > * {
+#quarto-document-content .table > tbody > tr:last-child > * {
   border-bottom: 1px solid var(--table-border);
 }
 
@@ -78,9 +78,15 @@
   padding: 0 0 0.5rem;
 }
 
-/* 斑马纹压平：书籍表格靠表头线与列距，不靠交替底色（打印时还要 print-color-adjust）。 */
+/* 斑马纹默认关闭：三五行短表靠表头线与列距就够，不加交替底色。
+   只有作者在长表上显式加 .table-striped 时才启用极浅一档，避免整本书变成条纹墙。 */
 #quarto-document-content .table-striped > tbody > tr:nth-of-type(odd) > * {
-  background-color: transparent;
+  background-color: color-mix(in srgb, var(--table-border) 6%, transparent);
+}
+
+/* 悬停只提亮当前行，帮助横向扫读；不改变默认表体，也不替代表头层级。 */
+#quarto-document-content .table > tbody > tr:hover > * {
+  background-color: color-mix(in srgb, var(--table-border) 10%, transparent);
 }
 
 /* 任务列表：checkbox 跟强调色，不加卡片。 */

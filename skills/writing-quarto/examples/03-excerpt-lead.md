@@ -4,24 +4,17 @@
 
 ## 摘录链接密度
 
-章引言的源文件链接一章挂几次：挂一次。正文写 state.h 这类源文件名，链接怎么挂：章引言挂一次，正文复提用裸文件名。以 示例章改稿前为对照：摘录块每节重新挂一次同文件链接，读者在正文里反复撞见同一串 URL，阅读断点全落在链接上。链接分三层：章引言是全章介绍位，首次点名源文件并挂链接（示例章引言）；摘录围栏的短 filename 自明文件；正文复提用裸文件名。
+章引言的源文件链接是本章主源文件的链接位：章引言挂一次，正文再点名同一文件时复用同一链接，读者不用回翻章首。不属于本章主源的文件用行内代码；摘录导语仍先报块内标识符，不把链接当作导语内容。
 
 ```text
-不佳（同节两个摘录导语各挂一条同文件链接）：
-先在 [state.h](…) 里声明状态面板的尺寸常量……
-每个数据项保存 [state.h](…) 中 `CellState` 的三种取值之一。
+不佳（章引言不挂链，正文才第一次出现链接）：
+规则在 state.h 和 state.cpp。……每个数据项保存 [state.h](…) 中 `CellState` 的三种取值之一。
 
-改写（每章每条仓库路径只在章引言保留一条，供片段校验解析源路径；后续导语与正文用行内代码）：
-先在 [state.h](…) 里声明状态面板的尺寸常量……
-每个数据项保存 `CellState` 的三种取值之一。
+改写（章引言挂本章主源文件，正文复提时复用）：
+规则写在 [state.h](https://github.com/your-org/your-book/blob/main/src/include/state.h) 和 [state.cpp](https://github.com/your-org/your-book/blob/main/src/state.cpp) 里。……每个数据项保存 [state.h](https://github.com/your-org/your-book/blob/main/src/include/state.h) 中 `CellState` 的三种取值之一。
 ```
 
-```text
-不佳（章引言不挂链，正文又逐节重挂同文件链接）：规则在 state.h 和 state.cpp。……每个数据项保存 [state.h](…) 中 `CellState` 的三种取值之一。
-改写：规则写在 [state.h](https://github.com/your-org/your-book/blob/main/src/include/state.h) 和 [state.cpp](https://github.com/your-org/your-book/blob/main/src/state.cpp) 里。……每个数据项保存 `CellState` 的三种取值之一。
-```
-
-判定信号：同一章内同一 URL 的 blob 链接 ≥2（`verifying-content.py` 判失败「同章重复文件链接」）；或摘录导语为「告诉读者文件在哪」挂链，而非预告块内内容；或正文复提源文件仍挂着链接。
+判定信号：章引言没有挂本章主源文件链接；正文链接的文件不在章引言的主源文件集合里（`verifying-content.py` 对非章引言主源文件的同章重复 URL 判失败）；或摘录导语只报文件位置、不预告块内标识符。
 
 ## 摘录导语只报出处
 

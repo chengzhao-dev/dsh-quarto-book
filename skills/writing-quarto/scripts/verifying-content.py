@@ -14,7 +14,8 @@ Project-specific rules are optional. If the book has
   {
     "forbidden_terms": ["..."],
     "fragment_prefixes": ["games/", "shared/"],
-    "chapter_titles": {"content/part/01-intro.qmd": "入门"}
+    "chapter_titles": {"content/part/01-intro.qmd": "入门"},
+    "later_chapter_names": {"content/part/02-board.qmd": ["LaterType"]}
   }
 
 Without a project skill, those checks are skipped and only the generic rules
@@ -86,6 +87,7 @@ HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
 HEADING_PERSONAL_RE = re.compile(r"自己|咱们|我们|你|您|跟我|试试|来看")
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)\s*(\{[^}]*\}|[^\s`]*)?")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+LINK_LABEL_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
 TITLE_RE = re.compile(r"^title:\s*(.+?)\s*$", re.MULTILINE)
 
@@ -204,6 +206,8 @@ def check_heading(path: Path, line: int, level: int, text: str, issues: list[Iss
         issues.append(Issue(path, line, "标题带人称或口语劝诱；改写成对象名或「动词 + 具体宾语」"))
     if "`" in text:
         issues.append(Issue(path, line, "标题带行内代码；文件名留给正文，标题写对象"))
+    if level == 3 and re.search(r"[0-9一二三四五六七八九十百]+条", text):
+        issues.append(Issue(path, line, "三级标题在数条目；拆成实体标题或改成承载对象"))
 
 
 def check_prose_block(
@@ -228,13 +232,14 @@ def check_prose_block(
                 f"一段里出现 {len(names)} 个函数名，还同时讲终端与测试；拆成列表，一项一件",
             ))
     if CJK_RE.search(compact):
-        length = len(re.sub(r"\s+", "", compact))
+        visible = LINK_LABEL_RE.sub(r"\1", compact)
+        length = len(re.sub(r"\s+", "", visible))
         if length > MAX_PARAGRAPH_CHARS:
             issues.append(Issue(
                 path, start_line,
                 f"段落 {length} 字符，超过 {MAX_PARAGRAPH_CHARS}；拆成两段或删枝蔓",
             ))
-        for sentence in re.split(r"(?<=[。！？])", compact):
+        for sentence in re.split(r"(?<=[。！？])", visible):
             sentence = sentence.strip()
             if len(sentence) > MAX_SENTENCE_CHARS:
                 issues.append(Issue(
@@ -628,6 +633,18 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             fenced_lines.add(number)
 
     blob_links: dict[str, list[int]] = {}
+    first_heading = next(
+        (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
+        len(lines) + 1,
+    )
+    intro_blob_targets: set[str] = set()
+    for index, raw in enumerate(lines, start=1):
+        if index >= first_heading or index in fenced_lines:
+            continue
+        for match in LINK_RE.finditer(raw):
+            target = match.group(1).strip()
+            if target.startswith("https://github.com/") and "/blob/" in target:
+                intro_blob_targets.add(target)
 
     for index, raw in enumerate(lines, start=1):
         if index in fenced_lines:
@@ -645,19 +662,16 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                 issues.append(Issue(path, index, f"本地链接不可达：{target}"))
 
     for target, numbers in blob_links.items():
-        if len(numbers) > 1:
+        if len(numbers) > 1 and target not in intro_blob_targets:
             issues.append(Issue(
                 path, numbers[1],
-                f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；每章每条仓库路径至多一条",
+                f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；"
+                "只有章引言挂过的本章主源文件可重复，其他仓库路径每章至多一条",
             ))
 
     # 章引言（第一个标题之前）只留承接上一章的一个章节链接；其余章节引用下沉到正文。
     # 着陆页 index.qmd 是目录页，不受这条预算约束。
     if path.name != "index.qmd":
-        first_heading = next(
-            (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
-            len(lines) + 1,
-        )
         intro_links: list[tuple[int, str]] = []
         for index, raw in enumerate(lines, start=1):
             if index >= first_heading or index in fenced_lines:
@@ -684,6 +698,18 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             if term and term in raw:
                 issues.append(Issue(path, index, f"项目禁用词「{term}」"))
                 break
+
+    later_names = project.get("later_chapter_names", {}).get(rel, [])
+    if later_names:
+        for index, raw in enumerate(lines, start=1):
+            if index in fenced_lines or raw.lstrip().startswith(("```", "    ")):
+                continue
+            for name in later_names:
+                if name and re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", raw):
+                    issues.append(Issue(
+                        path, index,
+                        f"对象章点到后章类型「{name}」；删掉这句，留给后章",
+                    ))
 
     for index, raw in enumerate(lines, start=1):
         if raw.lstrip().startswith(("```", "    ")):
