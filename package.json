@@ -1,6 +1,6 @@
 {
   "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.6.12",
+  "version": "0.6.13",
   "description": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。 · Write, check, and publish a Chinese Quarto Book: nine-step chapter writing, structure/link/figure checks, a consistent theme, and render acceptance.",
   "type": "module",
   "main": "./lib/index.js",
