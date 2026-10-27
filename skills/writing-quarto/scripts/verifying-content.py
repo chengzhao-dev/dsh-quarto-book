@@ -54,6 +54,8 @@ CODE_META_RE = re.compile(r"对应的代码")
 COINED_RELATION_RE = re.compile(r"(?:组成|依赖|继承|调用)边")
 CARRIER_RE = re.compile("承载")
 NEXT_SECTION_RE = re.compile(r"(?:下一节|上一节)")
+CALLOUT_OPEN_RE = re.compile(r"^\s*:::\s*\{?\s*\.callout-")
+OPENING_CLICHE_RE = re.compile(r"^(?:本章|本节|这一章|这一节)(?:将|会|要)|^下面(?:介绍|讲)")
 LADDER_RE = re.compile(r"(?:分别交给|各说一层)")
 SKILL_TONE_RE = re.compile(r"这里不定义|测试也不必|不必为[^。；\n]{0,20}再记|不写双层循环")
 INLINE_NAME_RE = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
@@ -94,6 +96,10 @@ TITLE_RE = re.compile(r"^title:\s*(.+?)\s*$", re.MULTILINE)
 MAX_HEADING_LEVEL = 3
 MAX_PARAGRAPH_CHARS = 320
 MAX_SENTENCE_CHARS = 95
+
+# 导语长度由项目在 checks.json 的 lead_chars 里声明，例如 [60, 140]；没有声明
+# 就不检查，避免把一个项目的版面预算带进另一本书。
+LEAD_SKIP_RE = re.compile(r"^\s*(?:::|\||```|~~~|[-*+]\s|\d+\.\s|>|#)")
 
 
 @dataclass
@@ -495,6 +501,51 @@ def check_html_figure_block(path: Path, block: list[tuple[int, str]]) -> list[Is
     return issues
 
 
+def visible_chars(text: str) -> int:
+    label = LINK_LABEL_RE.sub(r"\1", text)
+    return len(re.sub(r"\s+", "", label))
+
+
+def check_lead(
+    path: Path, front: str, lines: list[str], issues: list[Issue], limits: list[int]
+) -> None:
+    """检查 title 与第一个标题之间的首段导语长度。
+
+    着陆页（body-classes 里有 index-page 或 homepage）按卡片组织，不受限。
+    """
+    if "body-classes:" in front and ("index-page" in front or "homepage" in front):
+        return
+    first = len(lines)
+    for index, raw in enumerate(lines):
+        if HEADING_RE.match(raw):
+            first = index
+            break
+    paragraph: list[str] = []
+    start = 1
+    for index, raw in enumerate(lines[:first], start=1):
+        if not raw.strip() or LEAD_SKIP_RE.match(raw):
+            if paragraph:
+                break
+            continue
+        if not paragraph:
+            start = index
+        paragraph.append(raw.strip())
+    if not paragraph:
+        return
+    length = visible_chars(" ".join(paragraph))
+    low, high = limits[0], limits[1]
+    if length < low:
+        issues.append(Issue(
+            path, start,
+            f"导语 {length} 字符，短于 {low}；补一句本章要解决什么",
+        ))
+    elif length > high:
+        issues.append(Issue(
+            path, start,
+            f"导语 {length} 字符，超过 {high}；先删下一块已经摆出来的内容",
+        ))
+
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
     issues: list[Issue] = []
     text = read_text(path)
@@ -511,6 +562,9 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     if leading:
         body = "\n" * leading.count("\n") + body
     lines = body.splitlines()
+    limits = project.get("lead_chars")
+    if isinstance(limits, list) and len(limits) == 2 and all(isinstance(v, int) for v in limits):
+        check_lead(path, front, lines, issues, limits)
     in_fence = False
     fence_lang = ""
     fence_start = 0
@@ -561,6 +615,11 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                     fence_blocks.append(fence_lines)
                     if "mermaid" in fence_lang:
                         mermaid_blocks.append(fence_lines)
+                        if "aria-label=" not in fence_lang or "role=" not in fence_lang:
+                            issues.append(Issue(
+                                path, number,
+                                'mermaid 图缺少无障碍名称：围栏写 role="img" 与 aria-label="…"',
+                            ))
                     if fence_is_html:
                         html_blocks.append(fence_lines)
                     fence_lines = []
@@ -637,6 +696,30 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
         (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
         len(lines) + 1,
     )
+    # 章首（第一个标题之前）只放自然段与列表：Callout 会把导语压成旁注，开篇套话则先讲
+    # 章节安排、不讲读者要做的事。着陆页是目录页，不受这条限制。
+    if path.name != "index.qmd":
+        opening_line = 0
+        opening_text = ""
+        for index, raw in enumerate(lines, start=1):
+            if index >= first_heading:
+                break
+            if index in fenced_lines:
+                continue
+            if CALLOUT_OPEN_RE.match(raw):
+                issues.append(Issue(
+                    path, index,
+                    "章首出现 Callout；第一个标题之前的导语只用自然段与列表（steps/02-structure.md）",
+                ))
+                continue
+            if not opening_text and raw.strip() and not raw.lstrip().startswith(("|", ">", "-", "*", "+")):
+                opening_line = index
+                opening_text = raw.strip()
+        if opening_text and OPENING_CLICHE_RE.match(opening_text):
+            issues.append(Issue(
+                path, opening_line,
+                "引言以「本章将…／下面介绍…」开场；第一句写读者要做成的事（steps/02-structure.md）",
+            ))
     intro_blob_targets: set[str] = set()
     for index, raw in enumerate(lines, start=1):
         if index >= first_heading or index in fenced_lines:

@@ -76,3 +76,101 @@ test('围栏外拦住技能腔与混段，列表项不按混段计', { skip: pyt
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('章首不放 Callout，也不以「本章将」开场；着陆页豁免', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'chapters:', '  - index.qmd', '  - 01.qmd'].join(String.fromCharCode(10)) + String.fromCharCode(10),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, 'index.qmd'),
+      ['---', 'title: "首页"', '---', '', '::: {.callout-note}', '目录页的旁注。', ':::', '', '## 当前游戏', '', '正文。', ''].join(String.fromCharCode(10)),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      ['---', 'title: "第一章"', '---', '', '本章将介绍棋盘。', '', '::: {.callout-note}', '旁注。', ':::', '', '## 棋盘', '', '正文。', ''].join(String.fromCharCode(10)),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /章首出现 Callout/)
+    assert.match(output, /引言以「本章将/)
+    assert.equal((output.match(/章首出现 Callout/g) ?? []).length, 1)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('项目用 lead_chars 声明后按字数检查导语，着陆页豁免', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    const nl = String.fromCharCode(10)
+    const skillDir = path.join(root, '.agents', 'skills', 'quarto-book-project')
+    await mkdir(skillDir, { recursive: true })
+    await writeFile(path.join(skillDir, 'SKILL.md'), '# 项目规则' + nl, 'utf8')
+    await writeFile(path.join(skillDir, 'checks.json'), JSON.stringify({ lead_chars: [60, 140] }) + nl, 'utf8')
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'chapters:', '  - index.qmd', '  - 01.qmd', '  - 02.qmd'].join(nl) + nl,
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, 'index.qmd'),
+      ['---', 'title: "首页"', 'body-classes: index-page', '---', '', '太短。', '', '## 目录', '', '正文。', ''].join(nl),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      ['---', 'title: "短导语"', '---', '', '太短。', '', '## 正文', '', '正文。', ''].join(nl),
+      'utf8',
+    )
+    const long = '这一句写到三百二十字以内的上限，用来确认导语超长时检查器会报出来。'.repeat(5)
+    await writeFile(
+      path.join(root, '02.qmd'),
+      ['---', 'title: "长导语"', '---', '', long, '', '## 正文', '', '正文。', ''].join(nl),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /导语 3 字符，短于 60/)
+    assert.match(output, /导语 \d+ 字符，超过 140/)
+    assert.equal((output.match(/导语 /g) ?? []).length, 2)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('mermaid 图必须带角色与无障碍名称', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    const nl = String.fromCharCode(10)
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'chapters:', '  - 01.qmd', '  - 02.qmd'].join(nl) + nl,
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      ['---', 'title: "无名称"', '---', '', '正文。', '', '```{.mermaid}', 'flowchart LR', '  A --> B', '```', ''].join(nl),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '02.qmd'),
+      ['---', 'title: "有名称"', '---', '', '正文。', '', '```{.mermaid role="img" aria-label="调用链：A 调用 B。"}', 'flowchart LR', '  A --> B', '```', ''].join(nl),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /mermaid 图缺少无障碍名称/)
+    assert.equal((output.match(/mermaid 图缺少无障碍名称/g) ?? []).length, 1)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

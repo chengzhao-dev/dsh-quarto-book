@@ -10,6 +10,19 @@ Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏
 
 渲染核对方法：调用 `quarto_render_check`，在返回的 `html_report` 对应 HTML 中应出现 mermaid 图表容器（`mermaid-js` 或 `quarto-diagram` 类名），不应出现 `sourceCode mermaid` 高亮代码块。
 
+## 无障碍名称
+
+每个 `{mermaid}` 围栏都带角色与名称，读屏软件把整张图当成一张带替代文本的图片。围栏属性这么写：
+
+```text
+```{.mermaid role="img" aria-label="调用链：Server 接收请求，交给 Controller 处理，结果写回 Response。" fig-cap="调用链"}
+```
+```
+
+- `aria-label` 给读屏软件，`fig-cap` 给视觉读者。两处各写一句短名称，不把正文整段搬进属性。
+- 名称说清谁和谁、按什么顺序、结果落到哪，不写“流程图”“结构图”这类对象名。
+- 缺名称时 axe 报 `svg-img-alt` 或容器无可访问名称。渲染核对时在 HTML 里搜 `<pre class="mermaid" role="img"`，确认每个图块都有名称。
+
 ## 块首固定 init 指令
 
 每个 `{mermaid}` 块的第一行写：
