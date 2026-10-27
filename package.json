@@ -48,6 +48,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node scripts/checking-github-workflows.mjs && node --test \"tests/**/*.test.mjs\"",
+    "ci": "npm ci && npm test && npm run check:lib && npm run check && npm run pack:check",
     "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs && node scripts/checking-skill-budget.mjs && node scripts/checking-package.mjs && node scripts/checking-github-workflows.mjs",
     "check:lib": "node scripts/checking-lib.mjs",
     "check:workflows": "node scripts/checking-github-workflows.mjs",

@@ -106,6 +106,14 @@ npm run pack
 
 `npm test` compiles and runs the tool tests; `npm run check` type-checks and validates skill paths; `npm run pack` writes the tarball into `temp/`, which is already in `.gitignore`.
 
+Replay the CI sequence locally with one command before pushing:
+
+```bash
+npm run ci
+```
+
+It runs `npm ci`, `npm test`, `npm run check:lib`, `npm run check`, and `npm run pack:check` — the same steps as `.github/workflows/ci.yml`, plus the publish-time package gate.
+
 Development install:
 
 ```bash

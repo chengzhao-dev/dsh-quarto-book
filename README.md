@@ -108,6 +108,14 @@ npm run pack
 
 `npm test` 会先编译再跑工具测试；`npm run check` 做类型检查与技能路径自检；`npm run pack` 把 tarball 只写进 `temp/`，那个目录已在 `.gitignore` 里。
 
+推送前用一条命令复现 CI 的检查序列：
+
+```bash
+npm run ci
+```
+
+`npm run ci` 依次执行 `npm ci`、`npm test`、`npm run check:lib`、`npm run check` 与 `npm run pack:check`，覆盖 `.github/workflows/ci.yml` 的全部步骤，并在打包前挡住发布内容的问题。
+
 开发安装：
 
 ```bash
