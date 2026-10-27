@@ -146,6 +146,39 @@ test('项目用 lead_chars 声明后按字数检查导语，着陆页豁免', { 
   }
 })
 
+test('整仓扫描跳过 temp 与 build-* 生成目录', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    const nl = String.fromCharCode(10)
+    await mkdir(path.join(root, 'temp'), { recursive: true })
+    await mkdir(path.join(root, 'build-release', 'chapters'), { recursive: true })
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'chapters:', '  - 01.qmd'].join(nl) + nl,
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      ['---', 'title: "第一章"', '---', '', '正文。', '', '## 小节', '', '正文。', ''].join(nl),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, 'temp', 'probe.qmd'),
+      ['---', 'title: "试验稿"', '---', '', '太短。', ''].join(nl),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, 'build-release', 'chapters', 'stale.qmd'),
+      ['---', 'title: "构建产物"', '---', '', '太短。', ''].join(nl),
+      'utf8',
+    )
+    const output = execFileSync(python, [script, '--root', root], { encoding: 'utf8' })
+    assert.doesNotMatch(output, /probe|stale|导语/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('mermaid 图必须带角色与无障碍名称', { skip: python ? false : '没有可用的 Python' }, async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
   try {
@@ -170,6 +203,61 @@ test('mermaid 图必须带角色与无障碍名称', { skip: python ? false : '�
     assert.equal(result.status, 1)
     assert.match(output, /mermaid 图缺少无障碍名称/)
     assert.equal((output.match(/mermaid 图缺少无障碍名称/g) ?? []).length, 1)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('只有声明围栏时正文不能讲实现', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    const nl = String.fromCharCode(10)
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'chapters:', '  - 01.qmd', '  - 02.qmd'].join(nl) + nl,
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      [
+        '---',
+        'title: "讲实现"',
+        '---',
+        '',
+        '## 赢家判断',
+        '',
+        '```{.cpp filename="board.h"}',
+        'bool IsWin() const;',
+        '```',
+        '',
+        '`IsWin` 复用 `GetWinner` 的结果。',
+        '',
+      ].join(nl),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '02.qmd'),
+      [
+        '---',
+        'title: "讲契约"',
+        '---',
+        '',
+        '## 赢家判断',
+        '',
+        '```{.cpp filename="board.h"}',
+        'bool IsWin() const;',
+        '```',
+        '',
+        '`IsWin` 回答这一问：当前棋盘上有没有赢家。调用方不需要知道它怎么找。',
+        '',
+      ].join(nl),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /只有声明围栏，正文却讲实现/)
+    assert.equal((output.match(/只有声明围栏，正文却讲实现/g) ?? []).length, 1)
   } finally {
     await rm(root, { recursive: true, force: true })
   }

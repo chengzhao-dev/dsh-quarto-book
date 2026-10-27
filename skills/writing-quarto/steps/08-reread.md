@@ -21,6 +21,7 @@
 | 定段落 | 一段内两个独立中心 | 按「拆核四步」拆段或改列表 | `steps/04-paragraphs.md`「拆核四步（多核混段的拆段方法）」、`examples/04-paragraph-cases.md`「自然段多中心未拆」 |
 | 定结构 | 章引言顿号串 ≥3 个交付物 | 下沉为列表或正文 `##` | `steps/02-structure.md`「六段块序列」、`examples/02-structure-shape.md`「目录式堆砌」 |
 | 排列内容块 | 过简实现围栏（单次比较或直接 `return`） | 删围栏，改入口列表 + 失败策略列表 | `steps/03-blocks.md` |
+| 排列内容块 | 声明围栏 + 实现文字（正文讲复用、委托、扫描，围栏只有 `.h`） | 按 `references/fence-semantics.md` 三选一：改契约文字、补组合或定义围栏、删实现句 | `steps/03-blocks.md`「声明围栏与定义围栏」、`references/fence-semantics.md` |
 | 排列内容块 | 块间闭环缺失（标题下无引导、段→列表无 lead-in、代码→图只有空行、表前无关系句、Callout 复述块内） | 按块链检查清单补桥接 | `steps/03-blocks.md`「块链检查清单」、`steps/03-blocks.md` |
 | 排列内容块 | 节末旁注裸句（`##` 最后一块是一句可跳过的补充，前面是列表、表格或围栏） | 改写为独立可读的 Callout 收尾，正文删同句；超过两句改小节 | `steps/03-blocks.md`「节末旁注与 Callout 收尾」、`examples/03-qmd-elements.md`「节末旁注改为 Callout 收尾」 |
 | 定段落 | 段内同义堆叠（两句换说法讲同一机制） | 删辅句或合并；公式递进与简洁边界豁免 | `steps/04-paragraphs.md`「段内同义堆叠禁令」 |

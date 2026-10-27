@@ -68,6 +68,14 @@ FUNCTION_NAME_RE = re.compile(
 TERMINAL_RE = re.compile(r"终端|打印|显示|输入|读入|命令行")
 TEST_RE = re.compile(r"测试|断言|用例|gtest|CTest")
 
+# 围栏与正文的配对：声明围栏只配契约文字。正文出现实现词而小节里没有定义围栏时
+# 报 decl-without-def，规则与正反例见 references/fence-semantics.md。
+FENCE_FILENAME_RE = re.compile(r'filename="([^"]+)"')
+IMPL_MARKER_RE = re.compile(r"复用|委托给|扫描|遍历|对每个|短路|表达式|状态位|缓存|不再单独|递归")
+FENCE_SKIP_SECTION_RE = re.compile(r"常见错误|自测|回顾|练习|小结")
+DECL_SUFFIXES = (".h", ".hpp", ".hh", ".hxx")
+DEF_SUFFIXES = (".cpp", ".cc", ".cxx", ".inl")
+
 TREE_CATEGORY_COMMENTS = frozenset({
     "头文件", "源文件", "源码", "实现", "测试", "配置文件",
     "构建脚本", "构建规则", "动态库", "可执行文件",
@@ -175,12 +183,24 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
     return chapters
 
 
+EXCLUDED_DIRS = {
+    "node_modules", "_book", ".quarto", ".git", "_freeze", "_site",
+    "temp", "build", "dist", "_build",
+}
+EXCLUDED_DIR_PREFIXES = ("build-",)
+
+
+def is_generated_dir(part: str) -> bool:
+    # 生成物与缓存目录整棵跳过：临时试验稿、构建产物里的 .qmd 不属于书稿源，
+    # 整仓扫描时报出它们的问题会让作者去改根本没有交付的文件。
+    return part in EXCLUDED_DIRS or part.startswith(".") or part.startswith(EXCLUDED_DIR_PREFIXES)
+
+
 def collect_all_qmd(root: Path) -> list[Path]:
-    excluded = {"node_modules", "_book", ".quarto", ".git", "_freeze", "_site"}
     found: list[Path] = []
     for candidate in sorted(root.rglob("*.qmd")):
         rel_parts = candidate.relative_to(root).parts
-        if any(part in excluded or part.startswith(".") for part in rel_parts):
+        if any(is_generated_dir(part) for part in rel_parts):
             continue
         found.append(candidate)
     return found
@@ -546,6 +566,72 @@ def check_lead(
         ))
 
 
+def check_fence_semantics(path: Path, lines: list[str]) -> list[Issue]:
+    """声明围栏只能配契约文字：小节内没有定义围栏却讲实现时报错。"""
+    issues: list[Issue] = []
+    section_title: str | None = None
+    section_line = 0
+    fences: list[str] = []
+    prose: list[str] = []
+    in_fence = False
+    in_section = False
+
+    def flush() -> None:
+        nonlocal fences, prose
+        if section_title is None:
+            return
+        if not FENCE_SKIP_SECTION_RE.search(section_title):
+            has_decl = any(name.endswith(DECL_SUFFIXES) for name in fences if name)
+            has_def = any(name.endswith(DEF_SUFFIXES) for name in fences if name)
+            if has_decl and not has_def and prose:
+                text = " ".join(prose)
+                marker = IMPL_MARKER_RE.search(text)
+                if marker:
+                    issues.append(Issue(
+                        path, section_line,
+                        f"小节「{section_title}」只有声明围栏，正文却讲实现（{marker.group(0)}）；"
+                        "按 references/fence-semantics.md 改成契约文字，或补定义围栏",
+                    ))
+        fences = []
+        prose = []
+
+    section_title = None
+    fences = []
+    prose = []
+    in_fence = False
+    in_section = False
+    for number, raw in enumerate(lines, start=1):
+        if FENCE_RE.match(raw):
+            if not in_fence:
+                match = FENCE_FILENAME_RE.search(raw)
+                fences.append(match.group(1) if match else "")
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        heading = HEADING_RE.match(raw)
+        if heading:
+            level = len(heading.group(1))
+            if level in (2, 3):
+                flush()
+                section_title = heading.group(2)
+                section_line = number
+                in_section = True
+            elif level == 1:
+                flush()
+                section_title = None
+                in_section = False
+            continue
+        if not in_section or not raw.strip():
+            continue
+        stripped = raw.strip()
+        if stripped.startswith(("|", ">", ":::", "-", "*", "+")) or re.match(r"^\d+\.\s", stripped):
+            continue
+        prose.append(stripped)
+    flush()
+    return issues
+
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
     issues: list[Issue] = []
     text = read_text(path)
@@ -671,6 +757,8 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
     if in_fence:
         issues.append(Issue(path, fence_start, "代码围栏未闭合"))
+
+    issues.extend(check_fence_semantics(path, lines))
 
     for block in fence_blocks:
         issues.extend(check_tree_block(path, block))
