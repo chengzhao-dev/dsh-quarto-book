@@ -36,21 +36,20 @@ flowchart TD
 
 ## 发布
 
-发布时三处一起动：`package.json` 的 `version`、`package-lock.json` 顶部与 `packages[""]` 的版本、同号的 annotated git tag（如 `0.4.3` 对应 `v0.4.3`）。两份 README 与 `docs/plugin-flow.md` 里的安装命令随版本更新；`SKILL.md` 不再维护一套包版本。
+发布时改 `package.json` 的 `version` 与 `package-lock.json` 顶部、`packages[""]`；两份 README 与 `docs/plugin-flow.md` 的安装命令随版本更新。`publish.yml` 在 `main` 推送新版本后自动建 annotated `v<版本>` 标签，不再要求先手工打标签。
 
 发布走 npm trusted publisher。`0.3.4` 是这个作用域包的首个版本，由本机手工 `npm publish` 引导，同时登记了关联（仓库 `chengzhao-dev/dsh-quarto-book`、文件 `publish.yml`、动作 `npm publish`）；`0.3.5` 起不再本机发布。`0.4.2` 的 npm attestation 已证明关联有效；需要重查时运行 `npm trust list @chengzhao-dev/dsh-quarto-book --json`，应匹配上述仓库、文件与动作。该命令要 OTP，本地无法完成就跳过重查，不重复登记，也不改用 token 发布。
 
-顺序固定：
+发布顺序：
 
-1. 先改版本与文档，提交并推送 `main`；CI 只在 `main` 与 PR 上运行。
-2. 只读核对 `npm view @chengzhao-dev/dsh-quarto-book version` 仍是上一个发布号，避免重复发布同一版本。
-3. 在用于发布的提交上打 annotated `v<版本>` 并推送标签；标签直接指向该提交，不另起一个只改文档的提交。
-4. `publish.yml` 先校验标签与 `package.json` 版本一致，再 `npm ci`、`npm test`（含构建）、`npm publish --provenance`。发布成功后，独立的 `release` job 创建 GitHub Release：标题用标签名，正文用 GitHub 自动生成的发布说明。
-5. 读回四项：Actions 的 `publish` 与 `release` 两个 job 都成功；`npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 返回该版本且 `dist.attestations.provenance` 存在；`npm view ... gitHead` 等于标签指向的提交；GitHub Releases 里有同名标签的 Release。
+1. 改版本与文档，提交并推送 `main`。
+2. `main` 上的 `publish.yml` 读 `package.json` 的版本，再用 `npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 查重：不存在就 `npm ci`、`npm test`、`npm publish --provenance`；已存在就跳过发布。
+3. 发布成功后，同一个 workflow 在同一个提交上建 annotated `v<版本>` 标签，再用 `gh release create --verify-tag --generate-notes` 建 GitHub Release；标签或 Release 已存在就复用。手动补发时也可以推送标签，workflow 发现 npm 已有同版本就只补 Release。
+4. 读回四项：Actions 的 publish run 成功；`npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 返回该版本且 `dist.attestations.provenance` 存在；`npm view ... gitHead` 等于标签指向的提交；GitHub Releases 里有同名标签的 Release。
 
 npm 版本不可撤回。任一步失败就停在失败处，不改回版本号、不重复推同一标签；修因后用下一个修订号重来。
 
-`.github/workflows/publish.yml` 只在 `v*` 标签上运行。`publish` job 的权限是 `contents: read` 与 `id-token: write`，不设 GitHub Environment；`release` job 单独申请 `contents: write`，用 `GH_TOKEN` 建 Release。`package.json` 的 `repository.url` 保持 `git+https://github.com/chengzhao-dev/dsh-quarto-book.git`，`publishConfig` 为 `access: public` 与 `provenance: true`。
+`.github/workflows/publish.yml` 在 `main` 推送、`v*` 标签与手动触发时运行。job 的权限是 `contents: write` 与 `id-token: write`，不设 GitHub Environment；用 `GH_TOKEN` 建标签与 Release。`package.json` 的 `repository.url` 保持 `git+https://github.com/chengzhao-dev/dsh-quarto-book.git`，`publishConfig` 为 `access: public` 与 `provenance: true`。
 
 发布后两种安装各钉各的：git 用 `#v<版本>`，npm 用 `@<版本>`。
 
