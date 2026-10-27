@@ -151,7 +151,9 @@ async function collect(page, pageId, scheme) {
       }
       for (const element of scope.querySelectorAll("*")) {
         if (
-          element.closest(".screen-reader-only, .sr-only, [aria-hidden='true']")
+          // `.visually-hidden` 是 Bootstrap 的屏幕阅读器工具类（clip-path 藏在 1px 盒子里），
+          // 与下面 `svg` 同理：它本来就要超出自身 1px 盒宽，不能当版式溢出上报。
+          element.closest(".screen-reader-only, .sr-only, .visually-hidden, [aria-hidden='true']")
           // 内联 SVG（棋盘快照等）没有 CSS 盒模型，<text> 的 clientWidth 恒为 0、
           // scrollWidth 按字形量出，天然「溢出」，不能当版式问题。
           || element.closest("svg")
@@ -232,6 +234,35 @@ async function collect(page, pageId, scheme) {
           };
         })
       : null;
+    // 品牌区：窄屏收起书名只留书标时，链接仍要有可读名称（屏幕阅读器读不到书名
+    // 就等于失去「回到首页」的语义），所以书名只能视觉隐藏、不能 display:none。
+    // 书标随书名一起收掉后需要补一点视觉重量，图标尺寸由断点决定。
+    const brand = document.querySelector(".navbar-brand");
+    const brandTitle = brand ? brand.querySelector(".navbar-title") : null;
+    const navBrand = brand
+      ? {
+          label: (
+            brand.getAttribute("aria-label")
+            || (brandTitle ? brandTitle.textContent : "")
+            || ""
+          ).trim(),
+          titleDisplay: brandTitle ? style(brandTitle).display : null,
+          width: Math.round(brand.getBoundingClientRect().width),
+          iconWidth: px(getComputedStyle(brand, "::before").width),
+        }
+      : null;
+    // 次级导航的面包屑在首页与部首页只有一项（书名或部名），紧挨顶栏品牌重复一遍，
+    // 也说不出「书内位置」，应整条收起；两项及以上（章节页）才显示。
+    const crumbList = document.querySelector(
+      "nav.quarto-secondary-nav .quarto-page-breadcrumbs ol.breadcrumb"
+    );
+    const secondaryBreadcrumb = crumbList
+      ? {
+          items: crumbList.querySelectorAll(":scope > li").length,
+          listDisplay: style(crumbList).display,
+          navDisplay: style(crumbList.closest(".quarto-page-breadcrumbs")).display,
+        }
+      : null;
     const rootStyle = style(root);
     return {
       pageId,
@@ -259,6 +290,8 @@ async function collect(page, pageId, scheme) {
       copyButtonOpacities,
       sidebarOverlay,
       sidebarSections,
+      navBrand,
+      secondaryBreadcrumb,
       headerRule,
       h2Rules,
       contentWidth: px(rootStyle.width),

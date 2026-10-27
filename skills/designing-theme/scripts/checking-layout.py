@@ -518,6 +518,37 @@ def browser_layout(book_dir, verbose):
                         f"{label}: 次级导航底边 "
                         f"{header_rule['secondaryBorderBottomWidth']}px，会和顶栏底边叠成双线"
                     )
+            # 品牌区：窄屏（≤420）只留书标，链接不能因此变成无名链接——
+            # 书名必须留在可访问树里（视觉隐藏即可），图标补回一点尺寸。
+            brand = data.get("navBrand") or {}
+            if brand:
+                if not brand.get("label"):
+                    problems.append(
+                        f"{label}: 顶栏品牌链接没有可读名称，屏幕阅读器读不出书名"
+                    )
+                if brand.get("titleDisplay") == "none":
+                    problems.append(
+                        f"{label}: 书名被 display:none 摘出可访问树，窄屏书标成了无名链接"
+                    )
+                expected_icon = 22 if width <= 420 else 20
+                if abs(brand.get("iconWidth", 0) - expected_icon) > 0.6:
+                    problems.append(
+                        f"{label}: 书标 {brand.get('iconWidth')}px，"
+                        f"应为 {expected_icon}px"
+                    )
+            # 次级导航只有一项面包屑（首页/部首页的书名）时应整条收起：
+            # 它紧挨顶栏品牌重复一遍，也说不出「书内位置」。
+            crumb = data.get("secondaryBreadcrumb") or {}
+            if (
+                crumb
+                and crumb.get("navDisplay") != "none"
+                and crumb.get("listDisplay") != "none"
+                and crumb.get("items", 0) < 2
+            ):
+                problems.append(
+                    f"{label}: 次级导航只有 {crumb.get('items', 0)} 项面包屑"
+                    "（与顶栏书名重复），应整条隐藏"
+                )
             h2_after = data.get("h2Rules") or []
             if h2_after:
                 first = h2_after[0]
