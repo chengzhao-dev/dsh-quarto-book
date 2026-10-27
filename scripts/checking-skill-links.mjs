@@ -1,6 +1,7 @@
 // 技能文件的自检：路径、旧布局残留、已收口的冲突句、标点与树注释的落点。
 // 用法：node scripts/checking-skill-links.mjs
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join, dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,8 +34,9 @@ for (const name of gone) {
   if (existsSync(join(skill, name))) problems.push(`旧路径仍在 skills/writing-quarto/${name}`);
 }
 
-// 技能目录里不留 Python 缓存：package.json 的 files 白名单把技能目录整棵带走，
-// 缓存一旦留在工作树就会进本地 tarball，和 CI 从干净检出打出的包不一致。
+// 技能目录里不留 Python 缓存：只认会被交付的那一份，即 git 已跟踪的文件。
+// 本地跑 py_compile 会在脚本旁留下 __pycache__，它被 .gitignore 挡住，npm pack
+// 也会套用同一条忽略规则，不会进 tarball；拿工作树的临时缓存判失败会误伤。
 function walkAll(dir, out = []) {
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry);
@@ -43,11 +45,25 @@ function walkAll(dir, out = []) {
   }
   return out;
 }
+
+const cacheFiles = [];
 for (const root of [skill, theme, join(repo, 'templates')]) {
   for (const file of walkAll(root)) {
-    if (file.includes(`${sep}__pycache__${sep}`) || file.endsWith('.pyc')) {
-      fail(file, '技能目录不得包含 Python 缓存（__pycache__ / *.pyc）');
-    }
+    if (file.includes(`${sep}__pycache__${sep}`) || file.endsWith('.pyc')) cacheFiles.push(file);
+  }
+}
+
+let tracked = null;
+try {
+  const list = execFileSync('git', ['ls-files', '-z'], { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  tracked = new Set(list.split('\0').filter(Boolean));
+} catch {
+  tracked = null; // 不是 git 工作树：没有交付清单，按工作树判
+}
+for (const file of cacheFiles) {
+  const rel = relative(repo, file).split(sep).join('/');
+  if (tracked === null || tracked.has(rel)) {
+    fail(file, '已跟踪的技能文件里不得包含 Python 缓存（__pycache__ / *.pyc）');
   }
 }
 
