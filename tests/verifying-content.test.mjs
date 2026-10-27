@@ -262,3 +262,35 @@ test('只有声明围栏时正文不能讲实现', { skip: python ? false : '没
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('元叙述与清点句各报一条', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'book:', '  title: "样例"', '  chapters:', '    - 01.qmd', ''].join('\n'),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      [
+        '---',
+        'title: "样例"',
+        '---',
+        '',
+        '本节将介绍棋盘的实现。',
+        '',
+        '落子分三步：首先检查坐标，其次检查格子，最后写入。',
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /元叙述/)
+    assert.match(output, /清点句/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

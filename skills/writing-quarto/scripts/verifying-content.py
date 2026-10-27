@@ -56,6 +56,13 @@ CARRIER_RE = re.compile("承载")
 NEXT_SECTION_RE = re.compile(r"(?:下一节|上一节)")
 CALLOUT_OPEN_RE = re.compile(r"^\s*:::\s*\{?\s*\.callout-")
 OPENING_CLICHE_RE = re.compile(r"^(?:本章|本节|这一章|这一节)(?:将|会|要)|^下面(?:介绍|讲)")
+# 元叙述与清点句：读者不需要作者交代「接下来讲什么」；一句里排到两个序列词，
+# 说明这句话在报清单而不是在讲因果。规则卡见 references/rules-cards.md 的 C06、C02。
+META_NARRATION_RE = re.compile(
+    r"本节将|本章将|这一节将|接下来(?:我们|将|会|介绍|讲)|下面(?:我们)?(?:先|来|看)|"
+    r"值得我们|值得注意的是|需要说明的是|如上所述|如前所述"
+)
+ENUMERATION_RE = re.compile(r"首先|其次|再次|然后|最后|其一|其二|其三|第[一二三四五]是|第[一二三四五]，")
 LADDER_RE = re.compile(r"(?:分别交给|各说一层)")
 SKILL_TONE_RE = re.compile(r"这里不定义|测试也不必|不必为[^。；\n]{0,20}再记|不写双层循环")
 INLINE_NAME_RE = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
@@ -246,6 +253,20 @@ def check_prose_block(
         issues.append(Issue(path, start_line, "第 N 章式编号指称（用章节标题或链接）"))
     if SKILL_TONE_RE.search(compact):
         issues.append(Issue(path, start_line, "技能腔：只约束作者的选择，整句删掉"))
+    if META_NARRATION_RE.search(compact):
+        issues.append(Issue(
+            path, start_line,
+            "元叙述：删掉「本节将 / 下面我们看」这类句子，直接从内容写起",
+        ))
+    if CJK_RE.search(compact):
+        for sentence in re.split(r"(?<=[。！？])", compact):
+            markers = ENUMERATION_RE.findall(sentence)
+            if len(markers) >= 2:
+                issues.append(Issue(
+                    path, start_line,
+                    f"清点句：一句里出现 {len(markers)} 个序列词，改成列表或自然衔接",
+                ))
+                break
     if not is_list and CJK_RE.search(compact):
         names = {
             match.group(1)

@@ -117,3 +117,5 @@
 ## 正反例
 
 通用情况判得准就不打开。判不准时打开 `examples/08-appendix.md`。
+
+定稿前对照 `references/rules-cards.md` 的 C05、C06、C25、C26：删复述句与元叙述，补三句回顾，自测题只用本章内容。
