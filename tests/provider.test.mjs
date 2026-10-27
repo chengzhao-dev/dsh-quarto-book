@@ -211,6 +211,24 @@ test('tool dry run accepts a real book workspace', async () => {
   }
 })
 
+test('tool finds the book from qmd_path when the session cwd is outside it', async () => {
+  const root = await makeRepo()
+  const outside = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-outside-'))
+  try {
+    const { tool } = makeHarness()
+    const result = await tool.execute(
+      { qmd_path: path.join(root, 'chapter.qmd'), dry_run: true },
+      { agent: { session: { header: { cwd: outside } } } },
+    )
+    assert.equal(result.safe_to_render, true)
+    assert.deepEqual(result.warnings, [])
+    assert.equal(result.render_result, null)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+    await rm(outside, { recursive: true, force: true })
+  }
+})
+
 test('tool card reports the dry-run end state and the qmd location', async () => {
   const root = await makeRepo()
   try {

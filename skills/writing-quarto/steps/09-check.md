@@ -14,7 +14,7 @@
 
 ### 渲染与 HTML
 
-内容核对通过后，调 `quarto_render_check`。参数只有两个：
+内容核对通过后，调 `quarto_render_check`。工具先按会话工作目录找书根；会话不在书内时，从 `qmd_path` 所在目录向上找 `_quarto.yml`，两处都找不到才拒绝并返回「当前会话不在 Quarto Book 项目内」。被拒绝时把工作目录切到书根再调用；仍不行就停住并说明，不改用手跑 `quarto render` 顶替。参数只有两个：
 
 - `qmd_path`：正在改的 `.qmd` 路径。
 - `dry_run`：`true` 只做输出目录安全检查，`false` 才启动渲染。

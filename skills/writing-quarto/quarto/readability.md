@@ -43,7 +43,7 @@
 
 ## 混排自查
 
-`python <skill>/scripts/checking-prose.py --root <book>` 检查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。脚本只报高置信项，不替代人工回读。
+`python <skill>/scripts/checking-prose.py --root <book>` 检查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。脚本只报高置信项，不替代人工回读。环境里只有 `python3` 时，把命令里的 `python` 换成 `python3`。
 
 ## 依据
 

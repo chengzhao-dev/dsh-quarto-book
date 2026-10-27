@@ -931,11 +931,12 @@ export function registerRenderCheckTool(tools: ToolRegistry<ToolDefinition>): vo
       if (typeof cwd !== 'string' || cwd.trim() === '') {
         return refusedResult('当前会话没有 cwd；quarto_render_check 只在 Quarto Book 项目的会话 cwd 内工作。')
       }
-      const root = await findBookRoot(cwd)
+      const qmdPath = path.resolve(cwd, args.qmd_path)
+      const root = (await findBookRoot(cwd)) ?? (await findBookRoot(path.dirname(qmdPath)))
       if (!root) {
         return refusedResult('当前会话不在 Quarto Book 项目内：需要 git checkout、_quarto.yml 的 type: book，以及至少一个 .qmd 或 .md 源文件。')
       }
-      return runRenderCheck({ root, qmdPath: path.resolve(cwd, args.qmd_path), dryRun: args.dry_run, signal: exec?.signal })
+      return runRenderCheck({ root, qmdPath, dryRun: args.dry_run, signal: exec?.signal })
     },
     presentCall(args) {
       return {

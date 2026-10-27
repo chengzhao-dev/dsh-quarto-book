@@ -26,7 +26,7 @@
 
 ## 工具
 
-- `quarto_render_check` 与技能共用同一道门禁：非书会话直接返回 `safe_to_render: false`，不启动 `quarto render`。工具在 `apply()` 时注册，所以会出现在工具目录里；DSH 的工具注册没有 `cwd` 参数，无法在注册阶段按目录隐藏。
+- `quarto_render_check` 与技能共用同一道门禁：先按会话 cwd 找书根，找不到再从 `qmd_path` 向上找 `_quarto.yml`；两处都不是书项目时返回 `safe_to_render: false`，不启动 `quarto render`。工具在 `apply()` 时注册，所以会出现在工具目录里；DSH 的工具注册没有 `cwd` 参数，无法在注册阶段按目录隐藏。
 - 技能 provider 的 `get()` 带 `cwd` 时重新过同一道门禁；不带 `cwd` 时只服务已经加载的 candidate。
 - `quarto_pass_report` 只做执行回执，不参与门禁判定。
 
