@@ -37,16 +37,14 @@ docs/research/synthesis*.md  skills/*/references/*.md        + 一份条文
 
 ```
 dsh-quarto-book/
-├── SKILL.md                         # 技能入口（保持现有九步）
-├── steps/                           # 01–09，一步一文件
-├── references/                      # 条文：句法、段落、术语、渲染
-├── examples/                        # 正反例，每个 ≤ 40 行
-├── scripts/                         # verifying-content.py、checking-prose.py
-├── quarto/                          # 渲染、主题、布局
-├── assets/                          # 模板与片段
-└── docs/
-    ├── research/                    # index.md、synthesis.md、synthesis-plugin.md
-    └── plan/central-plan.md         # 本文件
+├── SKILL.md            # 技能入口与九步索引
+├── steps/              # 01–09 步文件
+├── references/         # 规则卡与条文
+├── examples/           # 正反例
+├── scripts/            # 内容校验脚本
+├── quarto/             # 渲染与布局
+├── assets/             # 模板与片段
+└── docs/               # 研究索引与计划
 ```
 
 新增文件：`scripts/checking-shortcuts.py`（清点句、元叙述、重复句三类检查）与对应测试；`references/rules-cards.md`（把 50/100 份研究的结论压成 30 张卡片，供代理按需读取）。
@@ -55,13 +53,10 @@ dsh-quarto-book/
 
 ```
 dsh-cpp-workflow/
-├── src/index.ts                     # provider + Config
-├── src/comment-policy.ts            # 标签策略（两半共用的唯一来源）
-├── src/client/app.cjs.js            # 设置页（构建内联策略）
-├── skills/developing-cpp/           # SKILL.md + steps + references + scripts
-├── skills/configuring-cmake/
-├── skills/building-cpp/
-└── docs/                            # plugin-layout、plugin-flow、versioning
+├── src/                # 入口与标签策略
+├── src/client/         # 设置页前端
+├── skills/             # 三个技能
+└── docs/               # 布局与版本说明
 ```
 
 ## 5. 分轮次与验收
