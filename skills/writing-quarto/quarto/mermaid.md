@@ -12,16 +12,9 @@ Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏
 
 ## 无障碍名称
 
-每个 `{mermaid}` 围栏都带角色与名称，读屏软件把整张图当成一张带替代文本的图片。围栏属性这么写：
+每个 `{mermaid}` 围栏都写角色与名称：`{.mermaid role="img" aria-label="调用链：Server 接收请求，交给 Controller 处理。"}`；`fig-cap` 给视觉读者，`aria-label` 给读屏软件，两处各写一句短名称。
 
-```text
-```{.mermaid role="img" aria-label="调用链：Server 接收请求，交给 Controller 处理，结果写回 Response。" fig-cap="调用链"}
-```
-```
-
-- `aria-label` 给读屏软件，`fig-cap` 给视觉读者。两处各写一句短名称，不把正文整段搬进属性。
-- 名称说清谁和谁、按什么顺序、结果落到哪，不写“流程图”“结构图”这类对象名。
-- 缺名称时 axe 报 `svg-img-alt` 或容器无可访问名称。渲染核对时在 HTML 里搜 `<pre class="mermaid" role="img"`，确认每个图块都有名称。
+名称说清谁和谁、按什么顺序、结果落到哪，不写“流程图”这类对象名。缺名称时 axe 报 `svg-img-alt`；渲染核对在 HTML 里搜 `<pre class="mermaid" role="img"`。
 
 ## 块首固定 init 指令
 

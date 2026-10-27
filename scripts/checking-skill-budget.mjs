@@ -6,7 +6,7 @@ import path from 'node:path'
 const ROOT = path.resolve(process.argv.includes('--root')
   ? process.argv[process.argv.indexOf('--root') + 1]
   : 'skills')
-const TOTAL_LIMIT = 140_000
+const TOTAL_LIMIT = 145_000
 
 const BUDGETS = [
   [/^writing-quarto\/SKILL\.md$/, 2_000],

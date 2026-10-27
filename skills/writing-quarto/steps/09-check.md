@@ -45,7 +45,7 @@
 
 不手跑 `quarto render`，也不手跑 `checking-output.py`、`checking-callouts.py`、`checking-dom.py`。工具已经按当前书配置调用它们。
 
-渲染之外还有一层可访问性核对：书配置的 debug 项里可打开 `axe: true`，Quarto 会在浏览器里加载 axe-core 并报告 `heading-order`、`landmark`、`svg-img-alt` 这类问题（见 quarto.org「Accessibility」页）。报告只作提示，改法是给图补 `aria-label`、把跳过层级的标题补齐、给分区补 `aria-label`；不把行为项当作新步骤。
+渲染之外还有一层可访问性核对：书配置的 debug 项里可打开 `axe: true`，Quarto 会在浏览器里加载 axe-core 报告 `heading-order`、`svg-img-alt` 这类问题。报告只作提示，改法是给图补 `aria-label`、补齐跳过的标题层级，不把行为项当作新步骤。
 
 ### 执行回执
 
