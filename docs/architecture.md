@@ -12,7 +12,7 @@ flowchart TD
     D --> E["项目技能 .agents/skills/quarto-book-project/SKILL.md<br/>书名、读者、术语、章节对照"]
     D --> F["writing-quarto/SKILL.md<br/>九步：1 定任务→2 定结构→3 排列内容块→4 定段落→5 定句子→6 定用词→7 定版式→8 回读→9 检查"]
     F --> G["steps/0N-*.md<br/>每步只开同号一份"]
-    G --> H["quarto/*.md<br/>表格、图、坐标、Mermaid、终端输出"]
+    G --> H["quarto/*.md<br/>表格、图、坐标、交叉引用、Mermaid、终端输出"]
     G --> I["examples/*.md 与 references/*.md<br/>正反例、整书次序、规则优先级、token 预算"]
     I --> J["内容检查 verifying-content.py、<br/>链接检查 checking-links.py"]
     D --> K["designing-theme/SKILL.md<br/>四个定：颜色、字体、间距、组件"]
@@ -57,7 +57,7 @@ flowchart TD
 | `docs/writing-quarto-layout.md` | 写作技能的目录分层 |
 | `docs/versioning.md` | 版本号与发布顺序 |
 
-同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/tables.md`，主题变量在 `theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
+同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/tables.md`，交叉引用的标签、前缀与书内编号在 `quarto/crossrefs.md`，主题变量在 `theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
 
 ## 检查
 

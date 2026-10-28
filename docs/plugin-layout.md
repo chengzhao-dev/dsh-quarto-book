@@ -31,7 +31,7 @@ dsh-quarto-book/
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
-`skills/writing-quarto/quarto/` 下的 `comments.md`、`encoding.md`、`prose.md` 与 `readability.md` 分别管注释写法、编码与行尾、中英混排与润色、新人可读性与任务完整性；`figures.md` 是图注、图前句与原生 HTML/SVG 图的唯一权威，`coords.md` 与 `mermaid.md` 只保留各自图类的生成细节并回指它。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.gitattributes` 与 `.editorconfig` 为准。
+`skills/writing-quarto/quarto/` 下的 `comments.md`、`encoding.md`、`prose.md` 与 `readability.md` 分别管注释写法、编码与行尾、中英混排与润色、新人可读性与任务完整性；`crossrefs.md` 是交叉引用标签、前缀与书内编号的唯一权威，`figures.md` 是图注、图前句与原生 HTML/SVG 图的唯一权威，`coords.md` 与 `mermaid.md` 只保留各自图类的生成细节并回指它们。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.gitattributes` 与 `.editorconfig` 为准。
 
 ## 放置规则
 

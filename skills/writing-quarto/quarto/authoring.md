@@ -63,6 +63,10 @@ README 遵循 GitHub Markdown。根目录 `README.md` 是在线阅读链接的�
 - 图片提供 Alt 文本和说明。图表标注坐标轴与单位。
 - 仓库文件使用可跳转链接。短技术标识使用行内代码。
 
+### 代码注解
+
+Quarto 原生逐行注解：代码行尾写 `# <1>`，紧接一个有序列表解释该行；`code-annotations` 取 `below`（默认）、`hover` 或 `select`，`none` 去掉编号、`false` 关闭处理。本书默认不用注解，逐行解释写在代码块后的正文里；只有读者需要按行对照、且任务明确要求时才启用，启用后块后正文不再重复注解列表的内容。
+
 ### 代码与图的桥接
 
 代码块引出图（`{mermaid}` 流程图或 `{python}` 坐标图）时按固定序列组织，图是可选中段，不能替代结论句：
@@ -99,6 +103,8 @@ README 遵循 GitHub Markdown。根目录 `README.md` 是在线阅读链接的�
 
 参数解释默认使用短无序列表。Callout 不承载必经命令或构建命令，也不把唯一成功判据写成脱离正文的脚注。
 
+可折叠与轻量外观只在读者可能跳过时使用：`collapse="true"` 默认收起、`collapse="false"` 默认展开但仍可折叠；`appearance="simple|minimal"` 去掉彩色标题或图标，`icon="false"` 只关当前块图标，项目级开关是 YAML 的 `callout-appearance` 与 `callout-icon`。需要按编号引用时给块加 `#nte-`/`#wrn-`/`#tip-`/`#imp-`/`#cau-` 标签，正文写 `@nte-...`；不加标签的 Callout 不参与编号。语法与前缀表见 `quarto/crossrefs.md`。
+
 ### Callout 升级判据
 
 何时升级为 Callout、何时留行内括号，只会遇到两种情形：
@@ -127,6 +133,6 @@ Callout 个数见 `steps/02-structure.md`，本段不写数字；`warning` 只�
 
 ### 交叉引用
 
-交叉引用使用真实标题生成的锚点，引用前确认目标页面存在。本项目不手写英文 `{#id}`，标题锚点由中文标题派生；跨章节引用用章节标题链接，不用「第 N 章」。
+图、表、公式或 Callout 需要按编号引用时，标签写法、前缀与书内编号规则见 `quarto/crossrefs.md`。本项目是纯 HTML 中文书，`number-sections: false`，章节标题不写 `{#sec-...}`；跨章节引用用章节标题链接，不写「第 N 章」。引用前确认目标页面存在，改标题后按「重构与事实核对」重新核对。
 
 需要渲染与链接依据时，读 `quarto/render.md` 与 `quarto/mermaid.md`；图注、原生 SVG 与图前句的分工读 `quarto/figures.md`。

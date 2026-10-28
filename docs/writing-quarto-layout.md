@@ -22,7 +22,7 @@ skills/writing-quarto/
 
 **references/** 放跨章与加载成本约定：`book-journey.md` 定整书主线、三遍走与章节接口；`priority.md` 定规则冲突时的五级次序；`token-budget.md` 定每个 Markdown 的 token 上限。只有整书规划、判冲突或超限判断才打开。
 
-**quarto/** 放 Book 结构与渲染层约定：`basics.md` 管项目结构与 front matter，`authoring.md` 管元素写法，`comments.md` 管 qmd、YAML、SCSS 与 CSS 的注释，`encoding.md` 管编码与行尾，`prose.md` 管中英混排、标点与润色底线，`readability.md` 管新人可读性与任务完整性，`mermaid.md` 与 `coords.md` 管图，`terminal.md` 管命令与输出，`tables.md` 管表格的列宽与排版，`render.md` 管 HTML 输出、链接与排错，`refactor.md` 管全仓重构。排图、查渲染错误或做全仓重构才打开。
+**quarto/** 放 Book 结构与渲染层约定：`basics.md` 管项目结构与 front matter，`authoring.md` 管元素写法，`crossrefs.md` 是交叉引用标签、前缀与书内编号的唯一权威，`comments.md` 管 qmd、YAML、SCSS 与 CSS 的注释，`encoding.md` 管编码与行尾，`prose.md` 管中英混排、标点与润色底线，`readability.md` 管新人可读性与任务完整性，`mermaid.md` 与 `coords.md` 管图，`terminal.md` 管命令与输出，`tables.md` 管表格的列宽与排版，`render.md` 管 HTML 输出、链接与排错，`refactor.md` 管全仓重构。排图、查渲染错误或做全仓重构才打开。
 
 **scripts/** 放可机器判定的检查，正文只写调用方式与何时运行。规则能用脚本判定的不再抄进 step。
 

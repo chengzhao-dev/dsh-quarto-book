@@ -17,11 +17,13 @@
 | `filters` | `filters/answering-disclosure.lua`（顶层 `filters:`，书内副本） | 将正文 `.answer` 转为默认收起的原生 `details` |
 | `toc` / `toc-depth` / `toc-location` | `true` / `3` / `right` | 右侧目录最多到 H3，窄屏会折叠，不作唯一定位手段 |
 | `number-sections` | `false` | 因此标题不手填序号，见 `quarto/basics.md` |
-| `code-copy` / `code-overflow` | `true` / `wrap` | 长行换行，不让读者横向拖动 |
+| `code-copy` / `code-overflow` | `true` / `scroll` | 超长行在代码块内横向滚动，不撑破正文列；`wrap` 会注入 `pre-wrap` 盖掉 `theme/css/code.css` 的 `white-space: pre`，打印时才由样式恢复折行 |
 | `grid` | sidebar 300 / body 872 / margin 272 / gutter 1rem | 正文列 840px，约 50 个汉字；四值是最大基准值，窄视口由 Quarto 响应缩放 |
 | `lang` | `zh` | 影响部分 HTML 行为与提示框默认词 |
 
 本书**不开启**代码行号（`code-line-numbers`）与代码折叠（`code-fold`）。站点 QMD 代码块使用 `{.语言 filename="标题"}`；Quarto 会把标题渲染为 `.code-with-filename`，外观与复制按钮位置由主题统一控制。filename 缺失由 `verifying-content.py` 拦截，内容语义与篇幅由 `verifying-content.py` 负责。
+
+站点级项放在 `book:` 下：`site-url`、`repo-url`、`repo-actions: [source]`、`favicon`、`page-navigation: true` 与 `navbar.search: true`。它们只改站壳与导航，不改正文；`repo-actions` 不默认加 `edit`/`issue`，读者侧入口按发布面定。
 
 ### 改动约定
 

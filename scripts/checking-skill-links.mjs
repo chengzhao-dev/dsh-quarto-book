@@ -14,7 +14,7 @@ const expected = [
   'SKILL.md',
   ...['01-task', '02-structure', '03-blocks', '04-paragraphs', '05-sentences', '06-wording', '07-layout', '08-reread', '09-check'].map((n) => `steps/${n}.md`),
   ...['01-language-scope', '02-structure-shape', '03-block-after', '03-excerpt-lead', '03-qmd-elements', '04-paragraph-cases', '04-paragraph-opening', '05-sentence-brevity', '05-sentence-frame', '05-sentence-reference', '06-wording-cases', '07-layout-list', '08-appendix'].map((n) => `examples/${n}.md`),
-  ...['authoring', 'basics', 'comments', 'coords', 'encoding', 'figures', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'tables', 'terminal'].map((n) => `quarto/${n}.md`),
+  ...['authoring', 'basics', 'comments', 'coords', 'crossrefs', 'encoding', 'figures', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'tables', 'terminal'].map((n) => `quarto/${n}.md`),
   ...['book-journey', 'token-budget'].map((n) => `references/${n}.md`),
   ...['answering-disclosure.lua', 'checking-callouts.py', 'checking-dom.py', 'checking-links.py', 'checking-names.py', 'checking-output.py', 'checking-prose.py', 'testing-check-ascii-names.py', 'testing-content.py', 'verifying-content.py'].map((n) => `scripts/${n}`),
 ];
