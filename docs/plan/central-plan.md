@@ -4,7 +4,7 @@
 
 ## 版本目标
 
-`dsh-quarto-book` 发 **0.6.15**，`dsh-cpp-workflow` 发 **0.6.5**：两者各自在上一条发布线（0.6.14 / 0.6.4）上做补丁递增，不再共用版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废。README、`package.json`、`package-lock.json`、`versioning.md` 与部署副本保持一致。
+`dsh-quarto-book` 发 **0.6.16**，`dsh-cpp-workflow` 发 **0.6.6**：两者各自在上一条发布线（0.6.14 / 0.6.4）上做补丁递增，不再共用版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废。README、`package.json`、`package-lock.json`、`versioning.md` 与部署副本保持一致。
 
 ## 架构
 
@@ -42,6 +42,6 @@
 
 1. 两个插件各自完成本轮代码、技能、文档改动并通过 `npm run check` / `npm test`。
 2. 跑 `cpp-board-games` 的 `python .agents/scripts/checking-book.py` 与一次整书渲染，确认书稿正常。
-3. 两个插件分别把版本改为 0.6.15 与 0.6.5，更新锁文件、README 安装示例与 `versioning.md`。
+3. 两个插件分别把版本改为 0.6.16 与 0.6.6，更新锁文件、README 安装示例与 `versioning.md`。
 4. 重新安装到桌面 profile，核对 `lib/` 与安装副本一致。
 5. 两个插件都改完、书稿确认正常后，才推送。
