@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.0.1`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.0.1`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.15`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.15`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
