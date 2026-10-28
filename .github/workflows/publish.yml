@@ -56,7 +56,8 @@ jobs:
           npm test
       - name: Publish to npm
         if: steps.release.outputs.published == 'false'
-        run: npm publish --provenance
+        # 版本线重编后新版本可能低于已发布版本；显式指定 latest，避免 npm 因隐式标签报错。
+        run: npm publish --provenance --tag latest
       - name: Ensure tag and GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

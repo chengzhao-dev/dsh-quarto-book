@@ -233,7 +233,7 @@
 ```text
 不佳（标题数条目，一节混讲坐标表、算法和归谁用）：
 ### 八条线
-八条线的坐标写在 board.cpp 里，存成一张 constexpr 常量表。HasLine 与 IsLineComplete 共用它。
+八条线的坐标写在 board.cpp 里，存成一张 constexpr 常量表。HasLine 与 PreviewWin 的推演共用它。
 Game 和 Ai 调用查询，不读它，所以不放进 Board 类里：
 （kLines 围栏）
 （算法旁白与 HasLine 围栏）
