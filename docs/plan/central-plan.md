@@ -1,87 +1,47 @@
-# 中心计划：两插件与书稿的整体改造
+# 中心方案
 
-## 0. 目标
+这份文档只留两个插件的架构决定、写作规则与交付顺序。开发期的检索记录、逐轮日志和一次性测量数字不入库；结论已经写进技能条文，需要细节时回技能文件查。
 
-1. `dsh-quarto-book`：0.6.13 → **0.6.14**。把写作规则收进步骤与条文，重构研究目录，补清点句检查与 build 忽略。
-2. `dsh-cpp-workflow`：0.6.3 → **0.6.4**。统一 Doxygen 规则与注释示例，压平设置页文案，修 token 与调用链问题。
-3. `cpp-board-games`：按新规则重写 14 个 qmd 与 `board.h` / `board.cpp` 的注释，逐章校验后渲染一次。
-4. 全部本地校验通过后再推送。每轮只做一件事，做完必须校验，不通过不开下一轮。
+## 版本目标
 
-## 1. 现状差距（来源：`docs/research/synthesis.md`、`synthesis-plugin.md`）
+`dsh-quarto-book` 与 `dsh-cpp-workflow` 都发 **0.0.1**。用户 2026-10-27 明确要求两个插件同版，原先 0.6.x 的版本号作废；README、`package.json`、`package-lock.json`、`versioning.md` 与部署副本保持一致。
 
-| 差距 | 位置 | 处理 |
+## 架构
+
+| 层 | 内容 | 放在哪里 |
 | --- | --- | --- |
-| 步骤文件里同一规则写两遍，措辞不一致 | `steps/04-paragraphs.md`、`steps/05-sentences.md` | 合并到一处，另一处留指针 |
-| 缺少「清点句 / 元叙述句」检查 | `scripts/verifying-content.py` | 新增两条规则与测试 |
-| 研究目录无索引、无综合 | `docs/research/` | 已建 `index.md`、`synthesis.md`、`synthesis-plugin.md` |
-| 渲染输出未忽略 | 仓库根 `.gitignore`、`verifying-content.py` | 已修 |
-| `board.h` 文件头注释与正文脱节 | `games/tictactoe/tictactoe/include/board.h` | 按模板重写头注释 |
-| 03 章只给声明也讲实现 | `content/tictactoe/03-board.qmd` | 补定义或删解释，逐段重写 |
-| 设置页只读入口无说明 | `dsh-cpp-workflow/src/client/app.cjs.js` | 文案与禁用态已统一，补文档 |
-| 旧横幅注释残留 | `checking-comments.mjs`、条文 | 0.6.2 已删，补测试守 |
+| 入口 | 何时加载、何时不加载；技能描述与工作区门禁 | 各 `skills/*/SKILL.md`、`docs/triggering.md` |
+| 过程 | 一次只开一步，步骤文件给判据与收尾检查 | `skills/*/steps/` |
+| 条文 | 单一事实：一个文件只回答一类问题 | `skills/*/references/` |
+| 案例 | 正反例与完整章节；只给步骤点名时看 | `skills/*/examples/` |
+| 渲染事实 | Quarto/主题/过滤器行为 | `skills/writing-quarto/quarto/`、`designing-theme/` |
+| 交付 | 插件调用面、目录与版本规则 | `docs/plugin-*.md`、`docs/versioning.md` |
 
-## 2. 架构
+写作技能保持两个：`writing-quarto` 九步、`designing-theme` 五步。九步不拆也不并：一次任务只开一步，只有整章重写才走全流程。C++ 技能保持三个：`developing-cpp` 四步、`configuring-cmake` 三步、`building-cpp` 三步；三者共享的边界条文只写一次，另外两份用一句话指回。
 
-```
-研究层（仅开发期）            规则层（进插件）                执行层（代理读）
-docs/research/index.md   →   skills/*/steps/*.md        →   一次只开一步
-docs/research/synthesis*.md  skills/*/references/*.md        + 一份条文
-                              scripts/checking-*.py/mjs      → 校验后才结束
-```
+## 写作规则
 
-- 研究条目只保留「做法 + 落点」，不复制原文。
-- 规则层每份步骤文件顶部写「本步只解决什么」，末尾写「完成判据 + 检查命令」。
-- 执行层靠两条硬约束压 token：一步一文件、一份条文。
+- 一章一个关键，章首直接给要解决的问题与范围，不写“本章将”“首先其次最后”。
+- 每节先给判断，再给依据；段落按读者任务推进，不按知识分类。
+- 状态结论必须带成立条件（如“一方三连而棋盘未满时，空格仍在”），不写没有前提的绝对句。
+- 数字、命令、失败出口与版本以工程事实为准；书稿不承诺未实现的能力。
+- 术语首用给定义，之后统一；代码标识符保持原文。
+- 中文正文全角标点、中英文之间空格、专名保留原文；标题 2–10 字，不用冒号、括号和元叙述。
 
-## 3. `dsh-quarto-book` 目录树（本计划落地后）
+## 预算
 
-```
-dsh-quarto-book/
-├── SKILL.md            # 技能入口与九步索引
-├── steps/              # 01–09 步文件
-├── references/         # 规则卡与条文
-├── examples/           # 正反例
-├── scripts/            # 内容校验脚本
-├── quarto/             # 渲染与布局
-├── assets/             # 模板与片段
-└── docs/               # 研究索引与计划
-```
+技能正文合计不超过 **140,000** tokens（估算口径：CJK 字符计 1，其他字符 ÷4）。单文件上限：`SKILL.md` 2,000；判断密集步骤 12,000；其余步骤 8,000；条文与案例 5,000。守门脚本 `node scripts/checking-skill-budget.mjs` 与 `checking-skill-links.mjs` 随 `npm run check` 执行。
 
-新增文件：`scripts/checking-shortcuts.py`（清点句、元叙述、重复句三类检查）与对应测试；`references/rules-cards.md`（把 50/100 份研究的结论压成 30 张卡片，供代理按需读取）。
+## 文档纪律
 
-## 4. `dsh-cpp-workflow` 目录树
+- `docs/` 只放规则、边界、调用面与交付约定；不放检索原文、逐轮日志、字体对比过程或一次性统计。
+- 一个判断只有一个权威文件：触发写在 `triggering.md`，调用面写在 `plugin-flow.md`，目录职责写在 `plugin-layout.md`，边界写在 `plugin-boundaries.md`，版本规则写在 `versioning.md`。
+- 计划即本文件；已完成的轮次不追加到文末，直接删去。
 
-```
-dsh-cpp-workflow/
-├── src/                # 入口与标签策略
-├── src/client/         # 设置页前端
-├── skills/             # 三个技能
-└── docs/               # 布局与版本说明
-```
+## 交付顺序
 
-## 5. 分轮次与验收
-
-| 轮 | 内容 | 验收 |
-| --- | --- | --- |
-| P1 | 规则卡 `references/rules-cards.md`（30 张） | `verifying-content.py` 通过；卡片数与来源对得上 |
-| P2 | 合并重复规则、补清点句检查 | `checking-prose.py`、`verifying-content.py` 全绿；新增测试 3 条 |
-| P3 | `board.h` / `board.cpp` 文件头与注释重写 | `checking-comments.mjs` 退出 0；与正文引用一致 |
-| P4 | 03 章逐段重写（声明与定义配对） | `checking-book.py`；章节内代码块与源码逐字一致 |
-| P5 | 其余 13 个 qmd 按规则卡润色 | 每章 `checking-book.py`；`verifying-content.py --strict` |
-| P6 | cpp 插件文案与设置页面文案 | `npm test`；截图核对 |
-| P7 | 版本号、changelog、README、版本钉 | `npm run build`、`pack:check` |
-| P8 | 双插件全量校验 + 书稿构建 + 渲染 | 两插件测试、书 build、`quarto render` 一次 |
-| P9 | 推送 | `git ls-remote` 读回 |
-
-## 6. 研究结果如何交给执行代理
-
-- `docs/research/index.md`：全量索引，开发期查阅，不进包。
-- `references/rules-cards.md`：从索引蒸馏出的 30 张卡，每张「规则 / 正例 / 反例 / 所属步骤」，进包，代理按需读取一张。
-- 步骤文件只写被采纳的结论；卡片编号写进步骤文件末尾，便于追溯。
-- 禁止把 100 份研究的原文或长摘录塞进技能，避免 token 失控。
-
-## 7. 风险
-
-- 规则卡过多会稀释重点：上限 30 张，超过就合并。
-- 03 章重写可能与 04/05 章的叙述重复：以「一章一个关键」为准，重复处改成指针。
-- 设置页文案改动影响测试快照：先改测试再改文案。
+1. 两个插件各自完成本轮代码、技能、文档改动并通过 `npm run check` / `npm test`。
+2. 跑 `cpp-board-games` 的 `python .agents/scripts/checking-book.py` 与一次整书渲染，确认书稿正常。
+3. 两个插件版本统一改为 0.0.1，更新锁文件、README 安装示例与 `versioning.md`。
+4. 重新安装到桌面 profile，核对 `lib/` 与安装副本一致。
+5. 两个插件都改完、书稿确认正常后，才推送。

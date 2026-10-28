@@ -34,7 +34,7 @@
 - 平凡：单次比较、单个 `return`、两行赋值、纯委托（`return Other();`）、只做一次边界检查后返回。
 - 不平凡：含循环或分支组合、更新状态、与别的类型协作、需要解释「为什么不用另一种写法」。
 
-平凡判例：`IsInRange` 的 `return row >= 0 && row < kRows && col >= 0 && col < kCols;`、`IsWin` 的 `return GetWinner().has_value();`。
+平凡判例：`IsInRange` 的 `return row >= 0 && row < kRows && col >= 0 && col < kCols;`、`IsFull` 的 `none_of` 一行。
 
 ## 正反例（棋盘章的真实片段）
 
@@ -42,23 +42,30 @@
 
 ```markdown
 ```{.cpp filename="board.h"}
-  /// @return 是否有任意一枚棋子连成一条线。
-  [[nodiscard]] bool IsWin() const;
+  /// @return 任一方形成三连时该棋子类型；没有赢家时返回空。
+  [[nodiscard]] std::optional<CellType> GetWinner() const;
 ```
 
-`IsWin` 复用 `GetWinner` 的三连判定，不再单独扫描棋盘。
+`GetWinner` 扫描全部整行、整列与两条对角线，命中就返回赢家。
 ```
 
 改后——组合围栏，正文对着代码讲组合：
 
 ```markdown
-```{.cpp filename="board.cpp"}
-bool Board::IsGameOver() const { return IsWin() || IsDraw(); }
-bool Board::IsWin() const { return GetWinner().has_value(); }
-bool Board::IsDraw() const { return IsFull() && !IsWin(); }
+```{.cpp filename="game.cpp"}
+GameResult Game::JudgeAfterPlace(const Board& board, Player player) {
+  const auto winner = board.GetWinner();
+  if (winner.has_value() && *winner == PlayerToCellType(player)) {
+    return PlayerToWinResult(player);
+  }
+  if (board.IsFull()) {
+    return GameResult::kDraw;
+  }
+  return GameResult::kInProgress;
+}
 ```
 
-`IsGameOver` 把两个判断用 `||` 连起来；`IsWin` 与 `IsDraw` 各自只回答一个问题，真正的扫描都在别处。
+`JudgeAfterPlace` 先看赢家再看满盘；`Board` 只回答有没有三连、是否满盘，结束与否由对局层组合。
 ```
 
 ## 与其它规则的关系

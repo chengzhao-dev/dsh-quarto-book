@@ -79,6 +79,7 @@
 - 少用「被」和长「的」链；一句一个动作，主语尽量是领域对象，不用「我们」代替读者。
 - 不写「本文将介绍」「下面我们来看」；直接给读者要做的动作和看得见的结果。
 - 同一事实只留一处：标题、段首、块后不互相复述。
+- 交叉引用写章节标题或链接，不写「上图」「下表」；读者可能先读正文再回看图表，方位词会失效。
 - 英文术语不堆叠；能用中文说清就不夹英文，必须夹时首次给原文。
 
 ## 让句子有信息量
@@ -113,6 +114,10 @@
 
 - W3C《中文排版需求》（CLREQ）：https://www.w3.org/TR/clreq/
 - GB/T 15834—2011《标点符号用法》
+- GB/T 15835—2011《出版物上数字用法》
+- GB/T 10112—2019《术语工作 原则与方法》；规范译名查术语在线：https://www.termonline.cn/
+- Microsoft 写作风格指南：https://learn.microsoft.com/en-us/style-guide/welcome/
+- O'Reilly 风格指南：https://oreillymedia.github.io/production-resources/styleguide/
 - 中文文案排版指北：https://github.com/sparanoid/chinese-copywriting-guidelines
 - 中文技术文档的写作规范：https://github.com/ruanyf/document-style-guide
 - 叶圣陶《评改两篇作文》、朱光潜《谈文学》的修改观

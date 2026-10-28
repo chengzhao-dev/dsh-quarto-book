@@ -37,7 +37,7 @@
 
 ## 字体栈与字形来源（定字体）
 
-正文与标题各一面。**正文**用 `LXGW Bright Medium`（Klee One 中笔画 + Ysabeau Office 西文，登记 `font-weight: 400`，`font-synthesis: none` 下不合成粗体）；**代码**用 `LXGW Bright Code`（Klee + Monaspace Argon）；**标题**（h1–h6、导航书名、首页卡片小标题）用 `--heading-font` 的系统黑体栈（`Noto Sans SC` → 思源黑体 → `PingFang SC` → `Microsoft YaHei` → system-ui），请求 600/700 时由系统字面真正加粗。理由：单字面的楷体在 24px 以上笔画偏细、600 又不合成，标题与正文层级只靠字号，层级弱；对照实测 h2 换黑体后层级立刻清楚，且不新增字体文件、不影响正文观感。中文正文保持霞鹜楷体路线；文楷 Screen 与 Fixel 已移除。候选对比、授权与字面实测（数字等宽、标点宽度、`+` 墨迹 0.23em）见 `docs/research/font-selection.md`。西文来源依据：文楷仓库点名 Ysabeau；Bright 用齐线数字的 Ysabeau Office；文楷 Screen 的 Medium 笔画标 Regular、度量对齐 Roboto，不适合中西文都自托管的站点。
+正文与标题各一面。**正文**用 `LXGW Bright Medium`（Klee One 中笔画 + Ysabeau Office 西文，登记 `font-weight: 400`，`font-synthesis: none` 下不合成粗体）；**代码**用 `LXGW Bright Code`（Klee + Monaspace Argon）；**标题**（h1–h6、导航书名、首页卡片小标题）用 `--heading-font` 的系统黑体栈（`Noto Sans SC` → 思源黑体 → `PingFang SC` → `Microsoft YaHei` → system-ui），请求 600/700 时由系统字面真正加粗。理由：单字面的楷体在 24px 以上笔画偏细、600 又不合成，标题与正文层级只靠字号，层级弱；对照实测 h2 换黑体后层级立刻清楚，且不新增字体文件、不影响正文观感。中文正文保持霞鹜楷体路线；文楷 Screen 与 Fixel 已移除。候选对比、授权与字面实测属于开发期记录，不再入库；这里只留可执行结论。西文来源依据：文楷仓库点名 Ysabeau；Bright 用齐线数字的 Ysabeau Office；文楷 Screen 的 Medium 笔画标 Regular、度量对齐 Roboto，不适合中西文都自托管的站点。
 
 - 文件与预算：`assets/theme/assets/fonts/` 每字体一个 `*-common.woff2`（共 2 个），单页合计 ≤ 1.6 MB、≤ 5 个文件。
 - 子集：沿用常用字表并覆盖全书正文与终端输出；生成方式 `pyftsubset --flavor=woff2 --no-hinting`。改结果文案或新增字符后，用 fontTools 读 woff2 cmap 复核（起因：子集共用字符表漏「胜」，结果行末字落到宋体）；`checking-layout.py` 的覆盖断言在未声明 unicode-range 时直接读 cmap。新增字符时，按同版本上游 TTF（Bright 5.528、Bright Code 2.922）保留现 cmap 并入新码位后重建，输出到插件与书内两份；跑页面矩阵时用 `NODE_PATH` 指向插件的 `node_modules`。
