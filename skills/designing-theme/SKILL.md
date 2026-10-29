@@ -1,6 +1,6 @@
 ---
 name: designing-theme
-description: 维护 Quarto Book 阅读主题：颜色、字体、字号、行距、表格与 Callout 样式、导航；不用于章节正文
+description: 维护 Quarto Book 阅读主题时使用：颜色、字体、字号、行距、表格与 Callout 样式、导航；不用于章节正文。
 metadata:
   short-description: 维护 Quarto 图书主题
 ---

@@ -24,6 +24,7 @@
 - `dry_run: true` 最多 2 次。第 1 次返回 `safe_to_render: false` 时，只改 `output-dir` 一次。第 2 次仍不安全就停住，把 `warnings` 列给用户。
 - `dry_run: false` 最多 1 次。渲染失败就停住，把 `errors` 列给用户，不自动重新运行。
 - 成功时同一次返回里带 `html_report`，不再为同一份文件重新运行。
+- 同一轮改多章时，每章只跑项目的章节检查；全部章改完后 `quarto_render_check` 只跑一轮，`dry_run: true` 最多 2 次，`dry_run: false` 1 次，`quarto_pass_report` 只收尾一次。
 
 报告字段：
 

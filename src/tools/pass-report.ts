@@ -296,7 +296,7 @@ export function registerPassReportTool(tools: PassReportToolRegistry): void {
   tools.register({
     name: 'quarto_pass_report',
     description:
-      '一次写作或主题润色收尾时调用一次，生成短回执卡；卡片即回执，不在回复里重复。参数是闭集：skill、mode、files（每条带 path 与 edits）、steps（各步 edits 合计等于 files 合计）、held、checks、skip_reason。没改动时传空 files、steps 与 0；不适用时 executed:false、mode:skipped，并写 skip_reason。',
+      '把一次写作或主题润色的改动压成一张回执卡，卡片即回执，不写文件。',
     parameters: {
       type: 'object',
       additionalProperties: false,

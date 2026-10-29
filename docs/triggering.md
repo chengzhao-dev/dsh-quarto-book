@@ -8,7 +8,7 @@
 
 | 技能 | 触发信号（出现任意一类） | 不触发（出现任意一类即排除） |
 | --- | --- | --- |
-| `writing-quarto` | 改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml` 的目录或 front matter；新建或重写章节；调整表格、图、列表与代码块的排布；润色句子与用词；中英混排、标点与术语统一；核对链接、`quarto_render_check` 报错、执行回执 | 只改主题颜色、字体、字号、行距、Callout 与导航样式；只改 `.css` / `.scss`；只改仓库 README（走第 5–8 步以外仍算章节写作，按 `SKILL.md` 的说明处理）；只改 Python 脚本或 CI |
+| `writing-quarto` | 改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml` 的目录或 front matter；新建或重写章节；调整表格、图、列表与代码块的排布；润色句子与用词；中英混排、标点与术语统一；核对链接、`quarto_render_check` 报错、执行回执；改书仓库根 `README.md` 的说明句 | 只改主题颜色、字体、字号、行距、Callout 与导航样式；只改 `.css` / `.scss`；只改 Python 脚本或 CI |
 | `designing-theme` | 改 `_quarto.yml` 引用的主题文件；调颜色、字体、字号、行距、页面宽度、表格样式、Callout、导航、页脚；主题与正文的取舍 | 只改章节正文、表格内容或图片；只改 front matter 的章节标题；只改 `_quarto.yml` 的 `book:` 目录 |
 
 两个技能同时出现时先开 `writing-quarto`：正文定稿后才轮到主题承接字号与间距。只改 `theme/` 下的样式时，不开九步。
@@ -40,6 +40,7 @@
 | 10 | 「Callout 的底色和边框不协调」 | `designing-theme` | Callout 样式 |
 | 11 | 「导航栏书名换掉」 | `designing-theme` | 导航与页脚 |
 | 12 | 「表格单元格的内边距调小一点」 | `designing-theme` | 表格样式 |
+| 21 | 「把书根 README 的安装命令更新到 0.6.18」 | `writing-quarto` | 说明页只走第 5–8 步，不套章节骨架 |
 
 ## 反例
 
@@ -47,7 +48,7 @@
 | --- | --- | --- | --- |
 | 13 | 「修一下 CI 里的 Python 检查脚本」 | 都不出现 | 脚本不归写作技能 |
 | 14 | 「解释一下什么是 Quarto Book」 | 都不出现 | 概念问答，不动仓库 |
-| 15 | 「把 README 的安装命令更新到 0.6.11」 | 都不出现 | 仓库说明页，不套九步 |
+| 15 | 「把 LICENSE 的年份改成 2026」 | 都不出现 | 许可证等仓库说明文件不在写作范围 |
 | 16 | 「改一下 `_quarto.yml` 里 book 的章节顺序」 | `writing-quarto` | 目录与结构 |
 | 17 | 「把这个 CSS 变量的颜色换深一点」 | `designing-theme` | 主题变量 |
 | 18 | 「qmd 里 front matter 的 `format` 加个字段」 | `writing-quarto` | 章节 front matter |

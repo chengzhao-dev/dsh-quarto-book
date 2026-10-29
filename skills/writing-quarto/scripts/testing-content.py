@@ -122,7 +122,7 @@ title: 入门
 下面是一张只画类型和边的类图，读者可以对照箭头理解类型之间的依赖。
 
 ::: {.class-diagram}
-```{mermaid}
+```{mermaid role="img" aria-label="类型 A 依赖类型 B"}
 %%| fig-cap: "类型 A 依赖类型 B。实线箭头从使用者指向被使用者。"
 %%{init: {"fontFamily": "LXGW Bright Medium, system-ui, sans-serif", "class": {"hideEmptyMembersBox": true}}}%%
 classDiagram
@@ -178,12 +178,17 @@ def main() -> int:
         needle: str,
         project: bool = False,
         checks_json: str | None = None,
+        files: dict[str, str] | None = None,
     ) -> None:
         nonlocal passed_cases
         passed_cases += 1
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_book(root, chapter)
+            for relative, content in (files or {}).items():
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
             if project:
                 skill_dir = root / ".agents" / "skills" / "quarto-book-project"
                 skill_dir.mkdir(parents=True)
@@ -294,6 +299,18 @@ def main() -> int:
         1, "plain mermaid",
     )
     expect(
+        "mermaid 围栏带前导点",
+        "---\ntitle: 入门\n---\n\n## 目标\n\n"
+        '```{.mermaid role="img" aria-label="流程"}\ngraph LR\n```\n',
+        1, "不会载入图表脚本",
+    )
+    expect(
+        "mermaid 围栏正确写法",
+        "---\ntitle: 入门\n---\n\n## 目标\n\n"
+        '```{mermaid role="img" aria-label="流程"}\ngraph LR\n```\n',
+        0, "OK",
+    )
+    expect(
         "未声明围栏",
         "---\ntitle: 入门\n---\n\n## 目标\n\n```\nprint(1)\n```\n",
         1, "未声明语言",
@@ -314,6 +331,67 @@ def main() -> int:
         "无项目技能时跳过项目词",
         "---\ntitle: 入门\n---\n\n## 目标\n\n棋盘格子按行列编号，程序读取当前状态。\n",
         0, "OK",
+    )
+
+    excerpt_url = "https://github.com/your-org/your-book/blob/main/games/board.h"
+    excerpt_source = (
+        "/// 判断两个坐标是否相同。\n"
+        "///\n"
+        "/// @param lhs 左操作数。\n"
+        "/// @return 相同返回 true。\n"
+        "bool Same(int lhs, int rhs);\n"
+    )
+    excerpt_chapter = VALID_CHAPTER + (
+        f"\n声明见 [board.h]({excerpt_url})。\n\n"
+    )
+    expect(
+        "正文讲解文件头",
+        VALID_CHAPTER + "\n每个源文件开头都有一段 Doxygen 文件头。\n",
+        1, "文件级",
+    )
+    expect(
+        "围栏摘录 @file",
+        excerpt_chapter
+        + "```{.cpp filename=\"board.h\"}\n/// @file board.h\n/// @brief 棋盘。\n```\n",
+        1, "文件级",
+    )
+    expect(
+        "围栏注释截断",
+        excerpt_chapter
+        + "```{.cpp filename=\"board.h\"}\n"
+        "/// 判断两个坐标是否相同。\n"
+        "bool Same(int lhs, int rhs);\n"
+        "```\n",
+        1, "只摘了",
+        files={"games/board.h": excerpt_source},
+    )
+    expect(
+        "围栏注释整段一致",
+        excerpt_chapter
+        + "```{.cpp filename=\"board.h\"}\n"
+        + excerpt_source
+        + "```\n",
+        0, "OK",
+        files={"games/board.h": excerpt_source},
+    )
+    expect(
+        "围栏整段不摘注释",
+        excerpt_chapter
+        + "```{.cpp filename=\"board.h\"}\n"
+        "bool Same(int lhs, int rhs);\n"
+        "```\n",
+        0, "OK",
+        files={"games/board.h": excerpt_source},
+    )
+    expect(
+        "输出围栏不比对注释",
+        VALID_CHAPTER
+        + "\n```text filename=\"运行效果\"\n"
+        "/// 判断两个坐标是否相同。\n"
+        "bool Same(int lhs, int rhs);\n"
+        "```\n",
+        0, "OK",
+        files={"games/board.h": excerpt_source},
     )
 
     expect("目录树合格", TREE_CHAPTER, 0, "OK")
@@ -379,7 +457,10 @@ def main() -> int:
     expect("类图图注写在 init 之后", wrong_order, 1, "init 之前")
     expect(
         "类图缺少页面容器",
-        MERMAID_CHAPTER.replace("::: {.class-diagram}\n```{mermaid}", "```{mermaid}").replace(
+        MERMAID_CHAPTER.replace(
+            '::: {.class-diagram}\n```{mermaid role="img" aria-label="类型 A 依赖类型 B"}',
+            '```{mermaid role="img" aria-label="类型 A 依赖类型 B"}',
+        ).replace(
             "```\n:::", "```"
         ),
         1, ".class-diagram",

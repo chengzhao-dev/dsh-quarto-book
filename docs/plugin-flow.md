@@ -35,7 +35,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 插件没有常驻进程，也不会在会话开始时自动执行技能。`apply()` 注册技能 provider 与两个工具，不写文件。`list({ cwd })` 只在发现候选时做一次有界只读检查：
 
 - 从会话 `cwd` 向上找到 git 根，第一个声明 `type: book` 的 `_quarto.yml` 所在目录就是书根；书根里还要有至少一个 `.qmd` 或 `.md` 章节源文件。说明文件不算章节，生成与依赖目录不参与扫描。
-- 判定实现是 `src/workspace.ts` 的 `findBookRoot` 与 `isQuartoBookWorkspace`；扫描上限是 4000 个目录项、12 层，最多向上 64 层找 git 根。
+- 判定实现是 `src/workspace.ts` 的 `findBookRoot` 与 `isQuartoBookWorkspace`；扫描上限与判定顺序见 `docs/plugin-boundaries.md`，本页不重复。
 - 技能名出现只说明当前会话过了门禁，不代表已经加载；只有调用 `skill` 才读写技能正文。
 - `get()` 带 `cwd` 时重新过同一道门禁；不带 `cwd` 时只服务已经加载的 candidate。
 
@@ -56,7 +56,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 - 项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
 - `dry_run: true` 只判断输出目录，最多 2 次：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。
 - `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重新运行。`html_report.usable` 是最终结论。
-- 工具与技能共用同一道门禁；渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只用来定位卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
+- 工具与技能共用同一道书门禁；工具在 `apply()` 注册、执行前按 `cwd` 拒绝，注册与执行的分工见 `docs/plugin-boundaries.md`。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只用来定位卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
 - 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
 
 成功渲染时的返回形状（`output` 只保留末尾若干行）：

@@ -78,6 +78,12 @@ TEST_RE = re.compile(r"测试|断言|用例|gtest|CTest")
 # 围栏与正文的配对：声明围栏只配契约文字。正文出现实现词而小节里没有定义围栏时
 # 报 decl-without-def，规则与正反例见 references/fence-semantics.md。
 FENCE_FILENAME_RE = re.compile(r'filename="([^"]+)"')
+# 读者正文不摘文件级 Doxygen 头；成员注释的 @param、@return 不受这条限制。
+EXCERPT_HEADER_RE = re.compile(r"@file\b|@brief\b|Doxygen\s*文件头")
+REF_DEFINITION_RE = re.compile(r"^\s*\[([^\]]+)\]:\s*(\S+)\s*$")
+REF_USE_RE = re.compile(r"\]\[([^\]]+)\]")
+BLOB_URL_RE = re.compile(r"^https://github\.com/[^/]+/[^/]+/blob/[^/]+/(.+)$")
+DOC_COMMENT_RE = re.compile(r"^\s*///")
 IMPL_MARKER_RE = re.compile(r"复用|委托给|扫描|遍历|对每个|短路|表达式|状态位|缓存|不再单独|递归")
 FENCE_SKIP_SECTION_RE = re.compile(r"常见错误|自测|回顾|练习|小结")
 DECL_SUFFIXES = (".h", ".hpp", ".hh", ".hxx")
@@ -653,6 +659,159 @@ def check_fence_semantics(path: Path, lines: list[str]) -> list[Issue]:
     return issues
 
 
+def normalize_code(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def collect_excerpt_links(lines: list[str]) -> list[tuple[int, str]]:
+    """Return GitHub blob links in reading order, including reference-style uses."""
+    definitions: dict[str, str] = {}
+    for raw in lines:
+        definition = REF_DEFINITION_RE.match(raw)
+        if definition:
+            definitions.setdefault(definition.group(1), definition.group(2))
+    links: list[tuple[int, str]] = []
+    for number, raw in enumerate(lines, start=1):
+        for match in LINK_RE.finditer(raw):
+            links.append((number, match.group(1).strip()))
+        for match in REF_USE_RE.finditer(raw):
+            target = definitions.get(match.group(1))
+            if target:
+                links.append((number, target))
+    links.sort()
+    return links
+
+
+def excerpt_fence_blocks(lines: list[str]) -> list[tuple[int, str, list[tuple[int, str]]]]:
+    """Return (opening line, filename, body) for every fence with a filename."""
+    blocks: list[tuple[int, str, list[tuple[int, str]]]] = []
+    in_fence = False
+    start = 0
+    filename = ""
+    body: list[tuple[int, str]] = []
+    for number, raw in enumerate(lines, start=1):
+        fence = FENCE_RE.match(raw)
+        if fence:
+            if not in_fence:
+                in_fence = True
+                start = number
+                opening = FENCE_FILENAME_RE.search(raw)
+                filename = opening.group(1) if opening else ""
+                body = []
+            else:
+                in_fence = False
+                if filename:
+                    blocks.append((start, filename, body))
+                filename = ""
+                body = []
+            continue
+        if in_fence:
+            body.append((number, raw))
+    return blocks
+
+
+def source_doc_above(source: list[str], index: int) -> list[str]:
+    """Collect the contiguous `///` block that sits directly above index."""
+    block: list[str] = []
+    cursor = index - 1
+    while cursor >= 0:
+        raw = source[cursor]
+        if not DOC_COMMENT_RE.match(raw) or raw.lstrip().startswith("///<"):
+            break
+        block.append(raw)
+        cursor -= 1
+    block.reverse()
+    return block
+
+
+def check_excerpts(path: Path, root: Path, lines: list[str]) -> list[Issue]:
+    """Reader text carries no file headers; kept doc comments match the source."""
+    issues: list[Issue] = []
+    for number, raw in enumerate(lines, start=1):
+        if EXCERPT_HEADER_RE.search(raw):
+            issues.append(Issue(
+                path, number,
+                "读者正文不摘文件级 Doxygen 头（@file、@brief、文件范围段）；"
+                "删掉这段，围栏从它之后开始",
+            ))
+
+    links = collect_excerpt_links(lines)
+    for start, filename, body in excerpt_fence_blocks(lines):
+        candidates = [
+            (number, target)
+            for number, target in links
+            if number < start and target.rsplit("/", 1)[-1] == filename
+        ]
+        if not candidates:
+            continue
+        target = candidates[-1][1]
+        blob = BLOB_URL_RE.match(target)
+        if not blob:
+            continue
+        relative = blob.group(1)
+        source_path = (root / relative).resolve()
+        if root not in source_path.parents or not source_path.is_file():
+            continue
+        source = read_text(source_path).splitlines()
+
+        pending: list[tuple[int, str]] = []
+        pending_start = start
+        for number, raw in body:
+            stripped = raw.strip()
+            if DOC_COMMENT_RE.match(raw) and not stripped.startswith("///<"):
+                if not pending:
+                    pending_start = number
+                pending.append((number, raw))
+                continue
+            if not pending:
+                continue
+            if not stripped:
+                pending = []
+                continue
+            declaration = normalize_code(raw)
+            fence_block = [item.strip() for _, item in pending]
+            pending = []
+            if not declaration or declaration.startswith(("#", "}", "{", "...")):
+                continue
+            matches = [
+                index for index, item in enumerate(source)
+                if normalize_code(item) == declaration
+            ]
+            if not matches:
+                continue
+            # 同一行声明可能在多个类里重复（如各实现类的 override）；任一处注释
+            # 与围栏整段一致即通过，避免把第一个同名声明当成唯一出处。
+            source_blocks = [
+                [item.strip() for item in source_doc_above(source, index)]
+                for index in matches
+            ]
+            if any(block == fence_block for block in source_blocks):
+                continue
+            if not fence_block:
+                continue
+            prefixes = [
+                block for block in source_blocks
+                if len(block) > len(fence_block) and block[: len(fence_block)] == fence_block
+            ]
+            if prefixes:
+                issues.append(Issue(
+                    path, pending_start,
+                    f"围栏只摘了 {filename} 注释的前 {len(fence_block)} 行；"
+                    "整段补上 @param、@return 与空 /// 行，或整段不摘",
+                ))
+            elif all(not block for block in source_blocks):
+                issues.append(Issue(
+                    path, pending_start,
+                    f"围栏带有注释，但 {filename} 对应声明上方没有 /// 注释；整段删掉",
+                ))
+            else:
+                issues.append(Issue(
+                    path, pending_start,
+                    f"围栏注释与 {filename} 对应声明上方的不一致；整段照抄或整段不摘",
+                ))
+    return issues
+
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
     issues: list[Issue] = []
     text = read_text(path)
@@ -712,7 +871,12 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                 elif fence_lang.startswith("{"):
                     inner = fence_lang.strip("{}").strip()
                     fence_is_html = inner == "=html"
-                    if inner and not inner.startswith((".", "=")) and "mermaid" not in inner:
+                    if inner.startswith(".") and "mermaid" in inner:
+                        issues.append(Issue(
+                            path, number,
+                            "Mermaid 围栏写成 `{.mermaid}`，Quarto 不会载入图表脚本，图会退化成代码块；改成 `{mermaid ...}`",
+                        ))
+                    elif inner and not inner.startswith((".", "=")) and "mermaid" not in inner:
                         # ```{python} style attribute fences are valid.
                         pass
             else:
@@ -780,6 +944,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
         issues.append(Issue(path, fence_start, "代码围栏未闭合"))
 
     issues.extend(check_fence_semantics(path, lines))
+    issues.extend(check_excerpts(path, root, lines))
 
     for block in fence_blocks:
         issues.extend(check_tree_block(path, block))

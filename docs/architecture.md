@@ -1,6 +1,6 @@
 # 插件架构
 
-这个包有两个技能、两个工具、一份工作区门禁。没有共享层：通用写法留在 `writing-quarto`，主题规则留在 `designing-theme`，两侧都需要的只有「章节路径由 `_quarto.yml` 决定」这一条事实，由写作技能引用一次。
+这个包有两个技能、两个工具、一份工作区门禁。没有共享层：通用写法留在 `writing-quarto`，主题规则留在 `designing-theme`，两侧都需要的只有「章节路径由 `_quarto.yml` 决定」这一条事实，由写作技能引用一次。写作技能的九步与主题技能的六步是固定切分，不拆也不并；新增规则进已有步骤文件。
 
 ## 数据流
 
@@ -15,14 +15,14 @@ flowchart TD
     G --> H["quarto/*.md<br/>表格、图、坐标、交叉引用、Mermaid、终端输出"]
     G --> I["examples/*.md 与 references/*.md<br/>正反例、整书次序、规则优先级、token 预算"]
     I --> J["内容检查 verifying-content.py、<br/>链接检查 checking-links.py"]
-    D --> K["designing-theme/SKILL.md<br/>四个定：颜色、字体、间距、组件"]
+    D --> K["designing-theme/SKILL.md<br/>六步：定表面、定字体、定尺度、定颜色、定组件、通过检查"]
     K --> L["assets/theme/<br/>content.css、过滤后的 SCSS"]
     J --> M["quarto_render_check 工具"]
     L --> M
     M --> N["quarto_pass_report 回执"]
 ```
 
-门禁只认 git 根上的 `_quarto.yml`，所以这个插件在 C++ 仓库里完全静默；两个技能在门禁之后并列，一次改动同时碰到正文与主题时先改主题再改正文，最后统一走渲染检查。
+门禁只认 git 根上的 `_quarto.yml`；没有 `type: book` 的检出不出现这两个技能。两个技能在门禁之后并列，一次改动同时碰到正文与主题时先开 `writing-quarto`，正文定稿后再改主题，最后统一走渲染检查。
 
 ## 四个写作域
 
@@ -45,7 +45,7 @@ flowchart TD
 | --- | --- |
 | `skills/writing-quarto/SKILL.md` | 触发描述、适用边界、九步路由、跨步不变量 |
 | `skills/writing-quarto/` 的 `steps/`、`quarto/`、`examples/`、`references/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/writing-quarto-layout.md`，本表不重复 |
-| `skills/designing-theme/SKILL.md` | 触发描述、四个定、主题文件入口 |
+| `skills/designing-theme/SKILL.md` | 触发描述、六步、主题文件入口 |
 | `skills/designing-theme/references/theme-system.md`、`knowledge/` | 主题变量、层级与源码知识 |
 | `skills/designing-theme/assets/theme/` | `content.css` 与 SCSS 层 |
 | `templates/quarto-book-project/` | 项目技能模板：书名、读者、术语、章节对照 |
@@ -53,6 +53,7 @@ flowchart TD
 | `docs/architecture.md` | 本页：分层、数据流与文件职责 |
 | `docs/plugin-flow.md` | 从安装到回执的五层结构 |
 | `docs/plugin-boundaries.md` | 工作区检查的六类情形 |
+| `docs/plugin-layout.md` | 仓库目录、运行环境与发布边界 |
 | `docs/triggering.md` | 触发矩阵与描述维护规则 |
 | `docs/writing-quarto-layout.md` | 写作技能的目录分层 |
 | `docs/versioning.md` | 版本号与发布顺序 |

@@ -36,4 +36,4 @@ skills/writing-quarto/
 
 ## 自检
 
-`npm run check` 跑 `scripts/checking-skill-links.mjs` 与 `scripts/checking-skill-budget.mjs`：前者检查九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，每个 step 的第 3 行是 `产出：` 且三节齐全，同一文件里的标题文字不重复，反引号里的路径能解析，`` `steps/…md`「节」 `` 的节名真实存在，技能目录不留 `__pycache__` 或 `.pyc`，旧目录与 `kb_id` 不再出现，README、docs 与案例「改写」围栏里的树满足目录 `#/` 在左、文件 `#` 右移一列、节点与注释至少留四个空格、注释文字对齐、目录斜杠、目录注释不超过 16 列且不带冒号或顿号清单、文件注释 1–2 项、行数不超过 20 与注释不超过 28 个显示列的规则。目录树的写法只在 `steps/03-blocks.md`「情况：目录树」一处成文，列表项格式只在 `steps/07-layout.md`，别处提到时指过去。后者按 `references/token-budget.md` 的单文件与总量上限检查技能 Markdown。
+`npm run check` 跑 `scripts/checking-skill-links.mjs` 与 `scripts/checking-skill-budget.mjs`：前者检查九步、案例、渲染文件与脚本齐全，每一步 H1 编号与 `SKILL.md` 的清单对齐，每个 step 的第 3 行是 `产出：` 且三节齐全，反引号路径与 `` `steps/…md`「节」 `` 可解析，技能目录不留 `__pycache__` 或 `.pyc`；目录树与列表项格式只在 `steps/03-blocks.md` 与 `steps/07-layout.md` 成文，本页不复述。后者按 `references/token-budget.md` 的单文件与总量上限检查技能 Markdown。

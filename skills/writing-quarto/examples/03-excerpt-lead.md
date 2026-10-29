@@ -174,3 +174,22 @@ constexpr bool IsInRange(Position position) {
 ```
 
 判定信号：章引言（第一个 `##` 之前）出现两个及以上 `.qmd` 链接；除承接上一章的那一个之外，其余都在正文有对应的「首次真正用到」的句子可以迁入。`verifying-content.py` 对引言多余章节链接直接报错。
+
+## 声明注释摘一半
+
+围栏只留概述行，把 `@param`、`@return` 与空 `///` 行删掉。
+
+```text
+不佳（围栏只剩第一行）：
+/// 检查两个坐标是否相同。
+[[nodiscard]] constexpr bool operator==(CellPosition lhs, CellPosition rhs) noexcept {
+
+改写（整段照抄）：
+/// 检查两个坐标是否相同。
+///
+/// @param lhs 左操作数。
+/// @return 相同返回 true。
+[[nodiscard]] constexpr bool operator==(CellPosition lhs, CellPosition rhs) noexcept {
+```
+
+围栏注释是源文件的前缀。条文见 `steps/03-blocks.md`「摘录与源文件注释」。
