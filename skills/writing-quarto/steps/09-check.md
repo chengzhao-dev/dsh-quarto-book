@@ -52,7 +52,7 @@
 
 检查结论确定后，调用一次 `quarto_pass_report`，把这次执行的结论压成一张卡片：
 
-- `skill` 填 `writing-quarto`，`mode` 填 `polish` 或 `rewrite`。
+- `skill` 填 `writing-quarto`，`mode` 填 `write`、`rewrite` 或 `polish`。
 - `files` 写这次动过的章节路径和改动次数（最多 8 个）；`steps` 只列有改动的步骤编号（1–9）与次数，两者合计必须一致。
 - `held` 写围栏、事实这类明确没有改动的地方；没改就传 0。
 - `checks` 抄内容与渲染的结论，名字只取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
@@ -62,9 +62,9 @@
 
 ## 情况
 
-### 情况：全仓重构
+### 情况：全仓改写
 
-任务是全仓重构时，打开 `quarto/refactor.md` 取范围和排除，并加跑 `checking-links.py` 与 `checking-names.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
+任务是全仓改写时，打开 `quarto/refactor.md` 取范围和排除，并加跑 `checking-links.py` 与 `checking-names.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
 
 ### 情况：没有 DSH 工具
 

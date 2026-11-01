@@ -1,11 +1,11 @@
-// `quarto_pass_report`：把一次写作或主题润色的结果压成固定行数的卡片。
+// `quarto_pass_report`：把一次写作、改写、润色或主题调整的结果压成固定行数的卡片。
 //
 // 入参是闭集：模式、文件、步骤、未改项、检查状态都只能取登记过的值。
 // 卡片由工具自己拼接，返回的文本就是卡片本身，不附章节原文，也不贴改写后的句子。
 // 没改也要出卡，这样「插件没跑」和「跑了但没改」在会话里分得开。
 
 export const PASS_SKILLS = ['writing-quarto', 'designing-theme'] as const
-export const PASS_MODES = ['polish', 'rewrite', 'theme', 'skipped'] as const
+export const PASS_MODES = ['write', 'rewrite', 'polish', 'theme', 'skipped'] as const
 export const HELD_ITEMS = ['fences', 'facts', 'css', 'prose'] as const
 export const CHECK_NAMES = ['content', 'html', 'layout'] as const
 export const CHECK_STATUSES = ['pass', 'fail', 'skip'] as const
@@ -29,8 +29,9 @@ export const WRITING_STEPS: Readonly<Record<string, string>> = {
 export const THEME_STEPS = ['定表面', '定字体', '定尺度', '定颜色', '定组件', '通过检查'] as const
 
 const MODE_LABELS: Readonly<Record<string, string>> = {
-  polish: '增量润色',
-  rewrite: '全章重构',
+  write: '写作',
+  rewrite: '改写',
+  polish: '润色',
   theme: '主题',
   skipped: '未执行',
 }
@@ -296,7 +297,7 @@ export function registerPassReportTool(tools: PassReportToolRegistry): void {
   tools.register({
     name: 'quarto_pass_report',
     description:
-      '把一次写作或主题润色的改动压成一张回执卡，卡片即回执，不写文件。',
+      '把一次写作、改写、润色或主题调整的改动压成一张回执卡，卡片即回执，不写文件。',
     parameters: {
       type: 'object',
       additionalProperties: false,

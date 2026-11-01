@@ -5,21 +5,32 @@ metadata:
   short-description: 维护 Quarto 图书主题
 ---
 
-# Skill: designing-theme
+# designing-theme
 
-维护本技能自带的 Quarto Book 主题资产，入口是 `assets/theme/`。这套主题属于本插件，不与其他仓库共享同一套文件；项目若另有权威副本，以项目 `_quarto.yml` 实际引用的路径为准。
+本技能维护插件自带的 Quarto Book 主题资产，入口是 `assets/theme/`。这套资产属于本插件，不与其他仓库共享同一套文件；项目若另有权威副本，以项目 `_quarto.yml` 实际引用的路径为准。
 
 ## 适用场景
 
 - 调整颜色、字体、间距、导航、Callout 或落地页样式。
 - 新增 palette 或页面组件样式。
-- **不适用**：`.qmd` 正文写法（转 `writing-quarto`）；书里项目的业务领域内容（由项目自己的技能负责）。
-- 项目带有 `.agents/skills/quarto-book-project/SKILL.md` 时，先读它的「主题与过滤器路径」，只改 `_quarto.yml` 实际引用的书内副本；没有就跳过。书内副本默认在 `theme/`，过滤器在 `filters/`。
-- 编码与行尾跟 `writing-quarto` 的 `quarto/encoding.md`：UTF-8 无 BOM、样式文件用 LF；`.bat`/`.cmd` 才用 CRLF。
+- 不适用：`.qmd` 正文写法（转 `writing-quarto`）；书里项目的业务领域内容（由项目自己的技能负责）。
+
+项目有 `.agents/skills/quarto-book-project/SKILL.md` 时，先读它的「主题与过滤器路径」，只改 `_quarto.yml` 实际引用的书内副本；没有就跳过。书内副本默认在 `theme/`，过滤器在 `filters/`。
+
+编码与行尾跟 `writing-quarto` 的 `quarto/encoding.md`：UTF-8 无 BOM、样式文件用 LF；`.bat`/`.cmd` 才用 CRLF。
 
 ## 任务路由
 
 任何主题任务先读 `references/theme-spine.md`（步骤唯一入口）。增量任务只走被改组件所在的那一步，再加第 6 步「通过检查」；从定表面到通过检查依次走完只用于新主题或用户明确要求整体调整。
+
+| 步 | 名称 | 产出 | 文件 |
+| --- | --- | --- | --- |
+| 1 | 定表面 | 这次动的是正文、代码、Callout 还是导航 | `references/theme-spine.md` |
+| 2 | 定字体 | 字体栈与字形来源 | `references/theme-spine.md` |
+| 3 | 定尺度 | 字号台阶、行长与间距 | `references/theme-spine.md` |
+| 4 | 定颜色 | 语义色、明暗分层与对比度 | `references/theme-spine.md` |
+| 5 | 定组件 | 表格、Callout、代码块与导航 | `references/theme-spine.md` |
+| 6 | 通过检查 | 布局、对比度与整本渲染 | `references/theme-spine.md` |
 
 ## 加载与结束
 
@@ -29,12 +40,13 @@ metadata:
 - `scripts/checking-layout.py` 通过并完成一次整本渲染后，在同一轮结束 goal，不把没失败的步骤留到下一轮。
 - 不探测同 profile 的其他插件，也不把它们写成依赖；子会话按自己的 cwd 重新判定门禁。
 
-| 任务 | 读取 |
-| --- | --- |
-| 主题的分层、令牌与组件边界 | `references/theme-system.md` |
-| 色板接线与暗色分层 | `assets/theme/palettes/flexoki/meta.md` |
-| 结构尺度令牌 | `assets/theme/css/tokens.css` 头注释 |
-| 字体、栏宽与阅读表面的取舍理由 | `knowledge/reading-surface.md` |
+## 文件职责
+
+- `references/theme-spine.md`：主题步骤的唯一入口与每步的检查点。
+- `references/theme-system.md`：令牌、组件边界与分层规则。
+- `knowledge/reading-surface.md`：字体、栏宽与阅读表面的取舍理由。
+- `assets/theme/`：palette、CSS 与可被 `_quarto.yml` 直接消费的资产。
+- `scripts/`：布局测量与检查。
 
 ## P0 硬约束
 

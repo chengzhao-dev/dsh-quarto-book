@@ -22,7 +22,7 @@ test('完整回执：文件、步骤、未改与检查各占一行', () => {
   assert.equal(
     receipt,
     [
-      '已执行 writing-quarto · 增量润色',
+      '已执行 writing-quarto · 润色',
       'content/ch.qmd',
       '改了 5 处：定句子 3，定用词 1，定版式 1',
       '未改：围栏、事实',
@@ -38,7 +38,21 @@ test('没改也出卡：0 处，不写未改与检查行', () => {
     mode: 'polish',
     files: [{ path: 'index.qmd', edits: 0 }],
   })
-  assert.equal(receipt, ['已执行 writing-quarto · 增量润色', 'index.qmd', '改了 0 处'].join('\n'))
+  assert.equal(receipt, ['已执行 writing-quarto · 润色', 'index.qmd', '改了 0 处'].join('\n'))
+})
+
+test('写作回执：mode write 用写作标签', () => {
+  const { receipt } = buildPassReport({
+    skill: 'writing-quarto',
+    executed: true,
+    mode: 'write',
+    files: [{ path: 'content/ch.qmd', edits: 2 }],
+    steps: [{ name: '1', edits: 2 }],
+  })
+  assert.equal(
+    receipt,
+    ['已执行 writing-quarto · 写作', 'content/ch.qmd', '改了 2 处：定任务 2'].join('\n'),
+  )
 })
 
 test('未执行：一行说明技能与原因', () => {
@@ -202,6 +216,6 @@ test('工具注册：卡片文本就是返回值', async () => {
     checks: [{ name: 'layout', status: 'fail' }],
   }
   const value = await definition.execute(args, {})
-  assert.equal(value.receipt, ['已执行 writing-quarto · 全章重构', 'content/ch.qmd', '改了 1 处：定结构 1', '检查：版式未通过'].join('\n'))
+  assert.equal(value.receipt, ['已执行 writing-quarto · 改写', 'content/ch.qmd', '改了 1 处：定结构 1', '检查：版式未通过'].join('\n'))
   assert.deepEqual(definition.output.render(args, value), [{ type: 'text', text: value.receipt }])
 })

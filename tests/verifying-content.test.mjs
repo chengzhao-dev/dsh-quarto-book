@@ -294,3 +294,48 @@ test('元叙述与清点句各报一条', { skip: python ? false : '没有可用
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('列表句式、字数带与过简断裂各报一条', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'quarto-verify-'))
+  try {
+    await writeFile(
+      path.join(root, '_quarto.yml'),
+      ['project:', '  type: book', 'book:', '  title: "样例"', '  chapters:', '    - 01.qmd', ''].join('\n'),
+      'utf8',
+    )
+    await writeFile(
+      path.join(root, '01.qmd'),
+      [
+        '---',
+        'title: "样例"',
+        '---',
+        '',
+        '## 句式',
+        '',
+        '- **检查**：先看坐标。',
+        '- 然后写入棋盘格子。',
+        '',
+        '## 字数',
+        '',
+        '- 先看坐标。',
+        '- 坐标合法时写入棋盘格子，随后判定胜负并显示结果，再根据结果决定是否继续。',
+        '',
+        '## 衔接',
+        '',
+        '`Board` 保存九个棋盘格子。它直接写入这些格子。',
+        '',
+        '棋盘由 `Board` 保存。`Panel` 负责绘制棋盘。',
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+    const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
+    const output = `${result.stdout}${result.stderr}`
+    assert.equal(result.status, 1)
+    assert.match(output, /同一列表混用/)
+    assert.match(output, /列表项字数失衡/)
+    assert.equal((output.match(/过简断裂/g) ?? []).length, 2)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

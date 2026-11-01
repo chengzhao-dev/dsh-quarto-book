@@ -43,11 +43,11 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 ## 3 按文件分流
 
-入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`两种走法` 写增量润色与全章重构的分岔和不变量，`九步` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开同号的一个文件；判不准才打开 `examples/` 里同号的案例；要排图、查渲染或全仓重构才打开 `quarto/`。
+入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`三种操作` 写写作、改写、润色的入口和不变量，`九步` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开同号的一个文件；判不准才打开 `examples/` 里同号的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
 
-- 章节（`content/**/*.qmd`、`index.qmd`）：走完整九步。每一步的「情况：」标题下是只在特定场景才生效的追加判定，正文里的反引号引用要能在目标文件里找到同名标题。
+- 章节（`content/**/*.qmd`、`index.qmd`）：按操作走对应步骤；新章从第 1 步走到通过检查。每一步的「情况：」标题下是只在特定场景才生效的追加判定，正文里的反引号引用要能在目标文件里找到同名标题。
 - 书仓库根目录的 `README.md`：仓库说明页，不是章节。只走第 5–8 步，不套第 1–4 步的任务与结构骨架，不写「常见错误」「自测问题」，不调 `quarto_render_check`；`README.en.md` 同样处理，`CHANGELOG.md`、`LICENSE`、`AGENTS.md` 不在写作范围。
-- 事实与确定性的不变量写在 `SKILL.md`「两种走法」，不复制进各步。改主题文件（CSS、SCSS、字体、palette）转 `designing-theme`；其余文件不归本插件。
+- 事实与确定性的不变量写在 `SKILL.md`「三种操作」，不复制进各步。改主题文件（CSS、SCSS、字体、palette）转 `designing-theme`；其余文件不归本插件。
 
 ## 4 检查与渲染
 
@@ -81,7 +81,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 第 9 步的「完成判据」要求收尾调用一次 `quarto_pass_report`，写作与主题共用：
 
-- 入参是闭集：`skill`、`executed`、`mode`、`files`、`steps`、`held`、`checks`。`executed: false` 时 `mode` 必须是 `skipped` 并给 `skip_reason`；`mode` 取 `polish`、`rewrite`、`theme`、`skipped`，`files` 最多 8 个 `{ path, edits }`，`held` 取 `fences`、`facts`、`css`、`prose`，`checks` 取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
+- 入参是闭集：`skill`、`executed`、`mode`、`files`、`steps`、`held`、`checks`。`executed: false` 时 `mode` 必须是 `skipped` 并给 `skip_reason`；`mode` 取 `write`、`rewrite`、`polish`、`theme`、`skipped`，`files` 最多 8 个 `{ path, edits }`，`held` 取 `fences`、`facts`、`css`、`prose`，`checks` 取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
 - 卡片就是回执：技能与模式、改过的文件、改了哪些步骤、未改项、检查结论。回复里不再复述；工具不保存到磁盘。
 - `steps` 的 `edits` 合计必须等于 `files` 的合计；主题只认六个步骤名。当前文件不是章节时输出一行 `未执行 writing-quarto：…`；没改也会出卡。
 

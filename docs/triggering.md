@@ -15,32 +15,25 @@
 
 ## 四个写作域
 
-九步按「先定内容、再定形式」排。四个域是读者提问时的分诊入口，不是第二套流程：
-
-| 域 | 回答什么 | 落在哪几步 | 主要文件 |
-| --- | --- | --- | --- |
-| 写作 | 这一章给谁、要他做完什么、先说什么后说什么 | 1 定任务、2 定结构 | `steps/01-task.md`、`steps/02-structure.md` |
-| 布局 | 一块内容怎么排：导语、围栏、表格、图、列表与收束的次序 | 3 排块、4 定段落、7 定版式 | `steps/03-blocks.md`、`quarto/tables.md`、`quarto/figures.md`、`steps/07-layout.md` |
-| 润色 | 句子怎么改短、用词怎么统一、改完怎么回读 | 5 定句子、6 定用词、8 回读 | `steps/05-sentences.md`、`steps/06-wording.md`、`steps/08-reread.md` |
-| 排版 | 主题怎样把版式落到页面上：字体、字号、行距、表格与 Callout 样式 | 主题技能，不在九步内 | `skills/designing-theme/SKILL.md`、`assets/theme/css/` |
+四个域只是读者提问时的分诊词，不另立步骤映射。分步只以 `SKILL.md` 的九步地图为准：写作 1–2，布局 3–4 与 7，润色 5–8，排版归主题技能。一步只属一个域；同一章跨域时按写作→布局→润色推进，前一步落定再进。
 
 ## 触发矩阵
 
 | # | 用户请求 | 应出现 | 判定要点 |
 | --- | --- | --- | --- |
-| 1 | 「给 03 章补一节落子校验」 | `writing-quarto` | 章节正文与结构 |
+| 1 | 「给某一章补一节落子校验」 | `writing-quarto` | 章节正文与结构 |
 | 2 | 「这一章标题太长，重排二级标题」 | `writing-quarto` | 第 2 步定结构 |
 | 3 | 「这段代码块后面的解释在重复注释」 | `writing-quarto` | 第 3 步块后分工 |
 | 4 | 「把这张表改成三列并加表题」 | `writing-quarto` | 表格写法在 `quarto/tables.md` |
 | 5 | 「这几句话太绕，帮我改短」 | `writing-quarto` | 第 5 步定句子 |
 | 6 | 「全书中英之间空格不统一」 | `writing-quarto` | 第 7 步与 `quarto/prose.md` |
-| 7 | 「按九步重写整章」 | `writing-quarto` | 全章重构走法 |
+| 7 | 「按九步重写整章」 | `writing-quarto` | 改写操作，整章范围 |
 | 8 | 「渲染后表格表头没有加粗」 | 先 `designing-theme`，再 `writing-quarto` 核正文 | 样式归主题，表头文字归正文 |
 | 9 | 「正文字号太大，行距也松」 | `designing-theme` | 字号与行距 |
 | 10 | 「Callout 的底色和边框不协调」 | `designing-theme` | Callout 样式 |
 | 11 | 「导航栏书名换掉」 | `designing-theme` | 导航与页脚 |
 | 12 | 「表格单元格的内边距调小一点」 | `designing-theme` | 表格样式 |
-| 21 | 「把书根 README 的安装命令更新到 0.6.18」 | `writing-quarto` | 说明页只走第 5–8 步，不套章节骨架 |
+| 13 | 「把书根 README 的安装命令更新到当前版本」 | `writing-quarto` | 说明页只走第 5–8 步，不套章节骨架 |
 
 ## 反例
 
@@ -57,6 +50,6 @@
 
 ## 验证与维护
 
-- 结构检查：`scripts/checking-skill-links.mjs` 要求本页存在，两个技能的 description 关键词（`写作`、`布局`、`排版`、`润色`、`表格`、`颜色`、`字体`、`行距`、`Callout`）都能在本页找到，触发矩阵至少 12 行、反例至少 8 行，四个写作域各有一行。
+- 结构检查：`scripts/checking-skill-links.mjs` 要求本页存在，两个技能的 description 关键词（`写作`、`布局`、`排版`、`润色`、`表格`、`颜色`、`字体`、`行距`、`Callout`）都能在本页找到，触发矩阵至少 12 行、反例至少 8 行。
 - 人工抽样：改 description 或步骤表后，用 8–10 条正例、8–10 条反例各跑 3 次，触发率低于一半就改 description 的信号词，不改正文。
 - 改 `SKILL.md` 的 `description` 必须同改本页的判据表与矩阵；只改矩阵不改 description，等于没改。

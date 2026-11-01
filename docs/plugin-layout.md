@@ -39,7 +39,7 @@ dsh-quarto-book/
 | --- | --- | --- |
 | 写作规则 | `skills/writing-quarto/steps/` | 技能加载时按步读，一步一个文件 |
 | 正反例 | `skills/writing-quarto/examples/` | 判不准时才打开，与 step 同号 |
-| 渲染层约定 | `skills/writing-quarto/quarto/` | 排图、查渲染错误、全仓重构时 |
+| 渲染层约定 | `skills/writing-quarto/quarto/` | 排图、查渲染错误、全仓改写时 |
 | 整书次序与 token 预算 | `skills/writing-quarto/references/` | 整书规划或判断文件超限时 |
 | 可机器判定的规则 | `skills/writing-quarto/scripts/` 与同目录测试 | 检查命令与回归用例 |
 | 主题资产 | `skills/designing-theme/assets/theme/` | 主题技能与书内副本 |

@@ -111,6 +111,8 @@ HEADING_PERSONAL_RE = re.compile(r"自己|咱们|我们|你|您|跟我|试试|�
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)\s*(\{[^}]*\}|[^\s`]*)?")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 LINK_LABEL_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+LIST_LINE_RE = re.compile(r"^\s*(?:[-*+]|\d+\.)\s+")
+GUIDED_ITEM_RE = re.compile(r"^\*\*[^*\n]{1,30}\*\*：")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
 TITLE_RE = re.compile(r"^title:\s*(.+?)\s*$", re.MULTILINE)
 
@@ -300,6 +302,70 @@ def check_prose_block(
                     f"句子 {len(sentence)} 字符，超过 {MAX_SENTENCE_CHARS}；先拆主谓再补条件",
                 ))
                 break
+
+    if not is_list and CJK_RE.search(compact):
+        sentences = [
+            sentence.strip()
+            for sentence in re.split(r"(?<=[。！？])", compact)
+            if sentence.strip()
+        ]
+        seen_names: set[str] = set()
+        for index, sentence in enumerate(sentences):
+            if index > 0:
+                if sentence.startswith("它") and len(sentence) > 1 and sentence[1] != "们":
+                    issues.append(Issue(
+                        path, start_line,
+                        "过简断裂：「它」开头的句子没有接住前句句末的对象；写回原对象名",
+                    ))
+                    break
+                lead = INLINE_NAME_RE.match(sentence)
+                if lead and lead.group(1) not in seen_names:
+                    issues.append(Issue(
+                        path, start_line,
+                        f"过简断裂：后句以新标识符「{lead.group(1)}」开头，前句没有承接；先用回指词接住",
+                    ))
+                    break
+            for match in INLINE_NAME_RE.finditer(sentence):
+                seen_names.add(match.group(1))
+
+
+def visible_length(text: str) -> int:
+    visible = LINK_LABEL_RE.sub(r"\1", text)
+    visible = re.sub(r"[*`]", "", visible)
+    return len(re.sub(r"\s+", "", visible))
+
+
+def check_list_block(
+    path: Path, items: list[tuple[int, str]], issues: list[Issue], landing: bool = False
+) -> None:
+    if len(items) < 2:
+        return
+    guided = [bool(GUIDED_ITEM_RE.match(text)) for _, text in items]
+    if any(guided) and not all(guided):
+        issues.append(Issue(
+            path, items[0][0],
+            "同一列表混用普通句子和「**引导词**：」句式；统一成多数项使用的那一种",
+        ))
+        return
+    lengths = [
+        (line, visible_length(text))
+        for line, text in items
+        if text.strip()
+    ]
+    lengths = [(line, length) for line, length in lengths if length > 0]
+    if len(lengths) < 2 or landing:
+        return
+    joined = "".join(text for _, text in items)
+    if "出错的原因" in joined and "正确的做法" in joined:
+        return
+    longest = max(lengths, key=lambda pair: pair[1])
+    shortest = min(lengths, key=lambda pair: pair[1])
+    if longest[1] < 2 * shortest[1]:
+        return
+    issues.append(Issue(
+        path, longest[0],
+        f"列表项字数失衡：最长 {longest[1]} 字，最短 {shortest[1]} 字；删长项多余中心或把长项收成一句",
+    ))
 
 
 def display_width(text: str) -> int:
@@ -841,7 +907,9 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     fence_is_html = False
     paragraph: list[str] = []
     paragraph_start = 0
+    list_items: list[tuple[int, str]] = []
     last_fence_end: int | None = None
+    landing = path.resolve() == (root / "index.qmd").resolve()
 
     def flush_paragraph() -> None:
         nonlocal paragraph
@@ -849,10 +917,17 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             check_prose_block(path, paragraph_start, " ".join(paragraph), issues)
             paragraph = []
 
+    def flush_list() -> None:
+        nonlocal list_items
+        if len(list_items) >= 2:
+            check_list_block(path, list_items, issues, landing=landing)
+        list_items = []
+
     for number, raw in enumerate(lines, start=1):
         fence = FENCE_RE.match(raw)
         if fence:
             flush_paragraph()
+            flush_list()
             if not in_fence:
                 in_fence = True
                 fence_start = number
@@ -906,6 +981,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
         heading = HEADING_RE.match(raw)
         if heading:
             flush_paragraph()
+            flush_list()
             level = len(heading.group(1))
             heading_text = heading.group(2)
             if level == 1:
@@ -924,21 +1000,27 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
         if raw.lstrip().startswith("|"):
             flush_paragraph()
+            flush_list()
             # 表格行按列组织，不套散文句长阈值；列数与表头一致性由表格检查负责。
             continue
 
         if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
             flush_paragraph()
-            check_prose_block(
-                path, number, re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw), issues, is_list=True
-            )
+            item_text = re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw)
+            if LIST_LINE_RE.match(raw):
+                list_items.append((number, item_text))
+            else:
+                flush_list()
+            check_prose_block(path, number, item_text, issues, is_list=True)
             continue
 
+        flush_list()
         if not paragraph:
             paragraph_start = number
         paragraph.append(raw.strip())
 
     flush_paragraph()
+    flush_list()
 
     if in_fence:
         issues.append(Issue(path, fence_start, "代码围栏未闭合"))
