@@ -24,9 +24,9 @@
 | 1 | 「给某一章补一节落子校验」 | `writing-quarto` | 章节正文与结构 |
 | 2 | 「这一章标题太长，重排二级标题」 | `writing-quarto` | 第 2 步定结构 |
 | 3 | 「这段代码块后面的解释在重复注释」 | `writing-quarto` | 第 3 步块后分工 |
-| 4 | 「把这张表改成三列并加表题」 | `writing-quarto` | 表格写法在 `quarto/tables.md` |
+| 4 | 「把这张表改成三列并加表题」 | `writing-quarto` | 表格写法在 `quarto/08-tables.md` |
 | 5 | 「这几句话太绕，帮我改短」 | `writing-quarto` | 第 5 步定句子 |
-| 6 | 「全书中英之间空格不统一」 | `writing-quarto` | 第 7 步与 `quarto/prose.md` |
+| 6 | 「全书中英之间空格不统一」 | `writing-quarto` | 第 7 步与 `writing/06-prose.md` |
 | 7 | 「按九步重写整章」 | `writing-quarto` | 改写操作，整章范围 |
 | 8 | 「渲染后表格表头没有加粗」 | 先 `designing-theme`，再 `writing-quarto` 核正文 | 样式归主题，表头文字归正文 |
 | 9 | 「正文字号太大，行距也松」 | `designing-theme` | 字号与行距 |

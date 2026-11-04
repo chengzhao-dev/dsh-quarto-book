@@ -1,6 +1,6 @@
 # Quarto 基础（Book 项目）
 
-本文件是 Quarto Book 项目结构、YAML front matter、章节标题约定的**规范唯一出处**。其他文件提到这些约定时一律引用本文件，不重复陈述。`format: html` 的选项语义与失效边界归 `quarto/render.md`，本文件不复制。
+本文件是 Quarto Book 项目结构、YAML front matter、章节标题约定的**规范唯一出处**。其他文件提到这些约定时一律引用本文件，不重复陈述。`format: html` 的选项语义与失效边界归 `quarto/12-quarto-render.md`，本文件不复制。
 
 > 速查：`.qmd` = YAML front matter + Markdown 正文 · `title:` 与 `# H1` 二选一 · `index.qmd` 必须存在 · Book 输出 `_book/` · `part:` 分组章节 · `appendices:` 收附录
 
@@ -31,7 +31,7 @@ format: html
 | `description` | 站点元数据：仅根 `index.qmd` 保留，只进 `<meta>`，不渲染为可见文字；其余章节与 part 落地页一律不写，定位信息并入开篇说明 |
 | `format` | 输出格式（本书统一 `html`），可写对象形式配置子选项 |
 | `lang` | 语言，本书在 `_quarto.yml` 统一设 `zh` |
-| `toc` | 目录（本书统一在 `format: html` 下设置，见 `quarto/render.md`） |
+| `toc` | 目录（本书统一在 `format: html` 下设置，见 `quarto/12-quarto-render.md`） |
 
 ## 常用命令
 
@@ -117,15 +117,15 @@ title: "章节标题"
 - **标题层级**：`##` 表示阅读阶段、范围或一个可验收任务，`###` 表示该阶段中可独立完成或观察的子任务。正文最多到 `###`，禁止 `####` 及更深标题。
 - `###` 只用于源码阅读、验证、可选分支、排错症状等拥有独立动作或观察结果的内容。只有一两句话的解释并入相邻段落，不为目录对称强行拆分。
 - 根首页、part 落地页的卡片标题可以保留 `###`，那是导航组件的视觉层级，不改变正文最多三级的约束。
-- 归并或改名标题前先检索 `@sec-` 与 `#anchor`，避免破坏交叉引用；标签前缀、书内编号与不编号章的限制见 `quarto/crossrefs.md`。标题字数与形式见 `steps/02-structure.md`「标题分层」与「形式规则」，章题与正文的对齐见同文件「纵向承诺链」第 9 条。
+- 归并或改名标题前先检索 `@sec-` 与 `#anchor`，避免破坏交叉引用；标签前缀、书内编号与不编号章的限制见 `quarto/06-crossrefs.md`。标题字数与形式见 `steps/02-structure.md`「标题分层」与「形式规则」，章题与正文的对齐见同文件「纵向承诺链」第 9 条。
 
 ## 输出结构
 
-单个文档渲染后产生 `.html` 与 `_files/` 伴随目录；Book 项目统一输出到 `_book/`。如希望单文件自包含 HTML，用 `embed-resources: true`（见 `quarto/render.md`）。
+单个文档渲染后产生 `.html` 与 `_files/` 伴随目录；Book 项目统一输出到 `_book/`。如希望单文件自包含 HTML，用 `embed-resources: true`（见 `quarto/12-quarto-render.md`）。
 
 ## 延伸
 
-- 正文结构、代码块/终端约定与文档元素：`quarto/authoring.md`
-- 图、图注与图前句的分工：`quarto/figures.md`
-- 外观配置与渲染排错：`quarto/render.md`
+- 正文结构、代码块/终端约定与文档元素：`quarto/03-authoring.md`
+- 图、图注与图前句的分工：`quarto/09-figures.md`
+- 外观配置与渲染排错：`quarto/12-quarto-render.md`
 - 页面宽度与视觉依据：`steps/02-structure.md`

@@ -10,7 +10,7 @@
 
 ```text
 不佳：kRows 与 kCols 是 inline constexpr 常量：编译期确定，inline 让包含公共头的各翻译单元共享同一份定义，调用方不必重复定义尺寸。Position 是纯数据聚合，不加行为。
-改写（工程旁白：每句只点名一个对象与使用方；常量与类型分块、各配一句导语，见 `examples/03-excerpt-lead.md` 的「递进片段合并」）：
+改写（工程旁白：每句只点名一个对象与使用方；常量与类型分块、各配一句导语，见 `writing/examples/03-excerpt-lead.md` 的「递进片段合并」）：
 状态面板固定为 3 行 3 列，终端程序打印状态面板和测试遍历数据项都读 state.h 里这对常量，调整规模只改这一处：
 
 Position 携带从 0 起算的行列坐标，越界由 IsInRange 判为非法：

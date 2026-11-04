@@ -4,7 +4,7 @@
 静态阶段用单次字面匹配（子串查找）与计数。压缩后的大 CSS 不做宽模式扫描。
 Node、Playwright 与 Edge 可用时，measuring-pages.mjs 验证真实几何。工具不可用时
 输出明确 SKIP。静态断言不冒充布局验收。
-规范出处：本技能 `references/theme-system.md`。
+规范出处：本技能 `theme/03-theme-system.md`。
 
 用法：python checking-layout.py [--root .] [--book-dir _book] [--browser]
 退出码：0 = 关键令牌全部存在，1 = 有缺失，2 = 渲染产物目录缺失，3 = 请求了 --browser 但运行时不可用。
@@ -500,7 +500,7 @@ def browser_layout(book_dir, verbose):
                     )
             # 栏间分隔只留顶栏下那一条通栏横线：桌面左栏不得有右边框，
             # 顶栏底边恰好 1px 且次级导航不再自己画一条，正文 h2 不带伪元素短线。
-            # 依据见 references/theme-system.md「定尺度」与「组件约定·章节线」。
+            # 依据见 theme/03-theme-system.md「定尺度」与「组件约定·章节线」。
             if overlay and width > 991.98 and overlay.get("borderRightWidth", 0) != 0:
                 problems.append(
                     f"{label}: 桌面左栏 border-right="
@@ -572,7 +572,7 @@ def browser_layout(book_dir, verbose):
                         f"{label}: 侧栏展开的不是当前页所在分组 "
                         f"（展开={expanded[0]['text']}）"
                     )
-            # Callout 按 theme-system.md「组件约定」是薄条：2px 左色条、无填充、无圆角，
+            # Callout 按 theme/03-theme-system.md「组件约定」是薄条：2px 左色条、无填充、无圆角，
             # 标题 13px、正文 16px，上下内边距各 0.1rem（根字号 16px 时 1.6px）。
             # 不跟正文 17px 比——Callout 是附注层，比正文低一档是有意为之。
             for index, callout in enumerate(data.get("callouts", []), 1):
@@ -799,7 +799,7 @@ def check_palette_contrast():
 
     只读 tokens.css 的顶层定义块，跳过 prefers-contrast 的增强段：
     那里本来就该更高。Solarized 的语法彩色 token 由官方配色决定，
-    不在本断言范围内（见 theme-system.md 的对比度说明）。
+    不在本断言范围内（见 theme/03-theme-system.md 的对比度说明）。
     """
 
     palette_dir = THEME_DIR / "assets" / "theme" / "palettes"

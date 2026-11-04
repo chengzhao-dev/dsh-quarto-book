@@ -2,9 +2,11 @@
 
 产出：内容核对结果、一次渲染检查和 HTML 可用性报告。这一步只跑命令，不按报告改写法。
 
-内容与链接检查需要 Python 3；`dry_run: false` 的渲染还需要 Quarto CLI。缺少依赖时停住并报告，不改回手跑 `quarto render`。跨层失败先按 `quarto/render.md`「排查顺序」定位，再回到对应步骤。
+内容与链接检查需要 Python 3；`dry_run: false` 的渲染还需要 Quarto CLI。缺少依赖时停住并报告，不改回手跑 `quarto render`。跨层失败先按 `quarto/12-quarto-render.md`「排查顺序」定位，再回到对应步骤。
 
 ## 通用情况
+
+- 报告失败时排障写成可跟做步骤：失败现象、检查项、修法各一行，命令可直接复制。
 
 ### 内容与链接
 
@@ -64,7 +66,7 @@
 
 ### 情况：全仓改写
 
-任务是全仓改写时，打开 `quarto/refactor.md` 取范围和排除，并加跑 `checking-links.py` 与 `checking-names.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
+任务是全仓改写时，打开 `writing/07-refactor.md` 取范围和排除，并加跑 `checking-links.py` 与 `checking-names.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
 
 ### 情况：没有 DSH 工具
 
@@ -78,4 +80,4 @@
 
 第 9 步不设例子文件。检查结果本身就是判据。
 
-自查时按 `references/rules-cards.md` 逐条对照，只打开当前段落涉及的卡片；卡片编号写在动手记录里，便于回溯。
+自查时按当前步骤与本文件逐条对照，只打开当前段落涉及的一份条文。

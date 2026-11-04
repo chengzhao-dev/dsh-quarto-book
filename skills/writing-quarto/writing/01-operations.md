@@ -53,7 +53,7 @@
 
 ## 关系
 
-入口与 `mode` 见 `SKILL.md`「三种操作」；冲突按 `references/priority.md`；回读按 `steps/08-reread.md`「回读流程：按操作走」。
+入口与 `mode` 见 `SKILL.md`「三种操作」；冲突按 `writing/02-priority.md`；回读按 `steps/08-reread.md`「回读流程：按操作走」。
 
 ## 依据
 

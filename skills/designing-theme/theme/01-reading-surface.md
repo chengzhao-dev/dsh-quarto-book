@@ -13,7 +13,7 @@ estimated_tokens: 1500
 
 # 阅读表面：字体、栏宽与强调
 
-本文件回答这本书的阅读表面为什么这样定：正文字体、正文栏宽、窄屏行为与加粗/链接颜色。怎么做（改哪一步、动哪个文件）见 `designing-theme` 技能的 `references/theme-spine.md`，数值与实现见 `references/theme-system.md`。本文件只放理由。这套主题由本插件维护，不与其他仓库共享；项目若复制了资产，以项目 `_quarto.yml` 实际引用的副本为准。
+本文件回答这本书的阅读表面为什么这样定：正文字体、正文栏宽、窄屏行为与加粗/链接颜色。怎么做（改哪一步、动哪个文件）见 `designing-theme` 技能的 `theme/02-theme-spine.md`，数值与实现见 `theme/03-theme-system.md`。本文件只放理由。这套主题由本插件维护，不与其他仓库共享；项目若复制了资产，以项目 `_quarto.yml` 实际引用的副本为准。
 
 ## 正文为什么是 LXGW，标题为什么用系统无衬线
 

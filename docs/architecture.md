@@ -33,11 +33,11 @@ flowchart TD
 | 层 | 文件 | 何时进上下文 | 预算 |
 | --- | --- | --- | --- |
 | 常驻元数据 | 两个 `SKILL.md` 的 frontmatter | 每次技能列表查询 | 每个约 100 token |
-| 技能正文 | `SKILL.md` 的 H2 各节 | 技能被选中后整篇载入 | 见 `references/token-budget.md` |
-| 步骤 | `steps/0N-*.md` | 走到第 N 步时只开同号一份 | 见 `references/token-budget.md` |
-| 条文与案例 | `quarto/`、`examples/`、`references/` | 判不准、排错或步骤明确指向时 | 见 `references/token-budget.md` |
+| 技能正文 | `SKILL.md` 的 H2 各节 | 技能被选中后整篇载入 | 见 `token-budget.md` |
+| 步骤 | `steps/0N-*.md` | 走到第 N 步时只开同号一份 | 见 `token-budget.md` |
+| 条文与案例 | `writing/`、`writing/examples/`、`quarto/` | 判不准、排错或步骤明确指向时 | 见 `token-budget.md` |
 
-`SKILL.md` 的九步表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `references/token-budget.md`。
+`SKILL.md` 的九步表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `writing/examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/08-tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `token-budget.md`。
 
 ## 调用与常驻开销
 
@@ -50,7 +50,7 @@ flowchart TD
 | `skills/writing-quarto/SKILL.md` | 触发描述、适用边界、九步路由、跨步不变量 |
 | `skills/writing-quarto/` 的 `steps/`、`quarto/`、`examples/`、`references/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/writing-quarto-layout.md`，本表不重复 |
 | `skills/designing-theme/SKILL.md` | 触发描述、六步、主题文件入口 |
-| `skills/designing-theme/references/theme-system.md`、`knowledge/` | 主题变量、层级与源码知识 |
+| `skills/designing-theme/theme/` | 阅读表面理由、主题步骤与主题系统 |
 | `skills/designing-theme/assets/theme/` | `content.css` 与 SCSS 层 |
 | `templates/quarto-book-project/` | 项目技能模板：书名、读者、术语、章节对照 |
 | `src/tools/render-check.ts`、`pass-report.ts` | 工具源码，编译到 `lib/tools/` |
@@ -62,7 +62,7 @@ flowchart TD
 | `docs/writing-quarto-layout.md` | 写作技能的目录分层 |
 | `docs/versioning.md` | 版本号与发布顺序 |
 
-同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/tables.md`，交叉引用的标签、前缀与书内编号在 `quarto/crossrefs.md`，主题变量在 `theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
+同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/08-tables.md`，交叉引用的标签、前缀与书内编号在 `quarto/06-crossrefs.md`，主题变量在 `theme/03-theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
 
 ## 检查
 

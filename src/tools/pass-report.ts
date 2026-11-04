@@ -25,7 +25,7 @@ export const WRITING_STEPS: Readonly<Record<string, string>> = {
   '9': '检查与渲染',
 }
 
-/** 主题步骤表的名字，与 `skills/designing-theme/references/theme-spine.md` 逐字对应。 */
+/** 主题步骤表的名字，与 `skills/designing-theme/theme/02-theme-spine.md` 逐字对应。 */
 export const THEME_STEPS = ['定表面', '定字体', '定尺度', '定颜色', '定组件', '通过检查'] as const
 
 const MODE_LABELS: Readonly<Record<string, string>> = {

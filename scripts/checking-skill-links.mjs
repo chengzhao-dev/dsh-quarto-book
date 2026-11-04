@@ -13,16 +13,18 @@ const fail = (file, message) => problems.push(`${relative(repo, file)}: ${messag
 const expected = [
   'SKILL.md',
   ...['01-task', '02-structure', '03-blocks', '04-paragraphs', '05-sentences', '06-wording', '07-layout', '08-reread', '09-check'].map((n) => `steps/${n}.md`),
-  ...['01-language-scope', '02-structure-shape', '03-block-after', '03-excerpt-lead', '03-qmd-elements', '04-paragraph-cases', '04-paragraph-opening', '05-sentence-brevity', '05-sentence-frame', '05-sentence-reference', '06-wording-cases', '07-layout-list', '08-appendix'].map((n) => `examples/${n}.md`),
-  ...['authoring', 'basics', 'comments', 'coords', 'crossrefs', 'encoding', 'figures', 'mermaid', 'prose', 'readability', 'refactor', 'render', 'tables', 'terminal'].map((n) => `quarto/${n}.md`),
-  ...['book-journey', 'operations', 'token-budget'].map((n) => `references/${n}.md`),
+  ...['01-language-scope', '02-structure-shape', '03-excerpt-lead', '04-paragraph-opening', '05-block-after', '06-paragraph-cases', '07-sentence-frame', '08-sentence-reference', '09-sentence-brevity', '10-wording-cases', '11-layout-list', '12-appendix'].map((n) => `writing/examples/${n}.md`),
+  ...['01-basics', '02-encoding', '03-authoring', '04-comments', '05-fence-semantics', '06-crossrefs', '07-terminal', '08-tables', '09-figures', '10-coords', '11-mermaid', '12-quarto-render'].map((n) => `quarto/${n}.md`),
+  'quarto/examples/01-qmd-elements.md',
+  ...['01-operations', '02-priority', '03-book-journey', '04-personas', '05-readability', '06-prose', '07-refactor'].map((n) => `writing/${n}.md`),
+  'token-budget.md',
   ...['answering-disclosure.lua', 'checking-callouts.py', 'checking-dom.py', 'checking-links.py', 'checking-names.py', 'checking-output.py', 'checking-prose.py', 'testing-check-ascii-names.py', 'testing-content.py', 'verifying-content.py'].map((n) => `scripts/${n}`),
 ];
 
 const theme = join(repo, 'skills', 'designing-theme');
-const themeExpected = ['SKILL.md', 'scripts/checking-layout.py', 'scripts/measuring-pages.mjs', 'references/theme-system.md', 'knowledge/reading-surface.md'];
+const themeExpected = ['SKILL.md', 'scripts/checking-layout.py', 'scripts/measuring-pages.mjs', 'theme/03-theme-system.md', 'theme/01-reading-surface.md'];
 
-const gone = ['conventions', 'knowledge', 'writer-spine.md', 'writing-spine.md', 'task-routes.md', 'INDEX.md'];
+const gone = ['conventions', 'knowledge', 'references', 'examples', 'writer-spine.md', 'writing-spine.md', 'task-routes.md', 'INDEX.md'];
 
 for (const file of expected) {
   if (!existsSync(join(skill, file))) problems.push(`缺少 skills/writing-quarto/${file}`);
@@ -69,11 +71,13 @@ for (const file of cacheFiles) {
 
 // 案例只能经由引用出现：examples 下每个文件至少被一个技能文件点名，否则加了也没人打开。
 const skillMarkdown = walk(skill).filter((path) => path.endsWith('.md'));
-for (const example of readdirSync(join(skill, 'examples'))) {
-  if (!example.endsWith('.md')) continue;
-  const needle = `examples/${example}`;
-  if (!skillMarkdown.some((path) => readFileSync(path, 'utf8').includes(needle))) {
-    fail(join(skill, 'examples', example), '案例没有被任何技能文件引用');
+for (const dir of ['writing/examples', 'quarto/examples']) {
+  for (const example of readdirSync(join(skill, dir))) {
+    if (!example.endsWith('.md')) continue;
+    const needle = `${dir}/${example}`;
+    if (!skillMarkdown.some((path) => readFileSync(path, 'utf8').includes(needle))) {
+      fail(join(skill, dir, example), '案例没有被任何技能文件引用');
+    }
   }
 }
 
@@ -90,7 +94,7 @@ function walk(dir, out = []) {
 const watched = [...walk(skill), ...walk(join(repo, 'templates')), ...walk(join(repo, 'scripts')).filter((p) => p.endsWith('.ps1'))].filter((p) => !p.includes(`${join('scripts', 'diagrams')}`) || p.endsWith('.md'));
 
 const conflicts = ['不另立第二套', '标记方式统一见', '全角冒号判失败', '注释是名词', '不用全角冒号挂解释'];
-const oldTrees = [/\bconventions\//, /\breferences\/zh\//, /\bknowledge\/cases\//, /\bkb_id\b/, /\bwriting-quarto[/\\](?:conventions|knowledge)\b/];
+const oldTrees = [/\bconventions\//, /\breferences\/zh\//, /\bknowledge\/cases\//, /\bkb_id\b/, /\bwriting-quarto[/\\](?:conventions|knowledge)\b/, /\bwriting-quarto[/\\]references[/\\]/];
 // 检出的工作树可能是 CRLF（Windows + autocrlf），先归一化再解析，
 // 否则行尾的 \r 会让注释匹配和标题匹配静默失配。
 const read = (file) => readFileSync(file, 'utf8').split('\r\n').join('\n');
@@ -121,14 +125,14 @@ for (const file of watched) {
 }
 
 // 反引号里指向技能或仓库的路径必须存在；书仓库自己的路径不在这里核对。
-const own = /^(steps|examples|quarto|references|scripts|templates|docs|lib|locale)\//;
+const own = /^(steps|writing|quarto|scripts|templates|docs|lib|locale)\//;
 for (const file of watched) {
   if (!file.endsWith('.md')) continue;
   const text = read(file);
   for (const match of text.matchAll(/`([^`\n]+)`/g)) {
     const token = match[1].trim();
     if (!own.test(token) || /[\s*{}<>]/.test(token)) continue;
-    if (!existsSync(resolve(skill, token)) && !existsSync(resolve(repo, token))) {
+    if (!existsSync(resolve(dirname(file), token)) && !existsSync(resolve(skill, token)) && !existsSync(resolve(repo, token))) {
       fail(file, `路径不存在：${token}`);
     }
   }
@@ -163,7 +167,7 @@ for (const file of watched) {
   if (!file.endsWith('.md')) continue;
   const text = read(file);
   // 节名本身可能带引号（如「结构助词「的」」），所以内层要允许一对嵌套引号。
-  for (const match of text.matchAll(/`((?:steps|examples|quarto)\/[^`\s]+\.md|SKILL\.md)`「([^「」]*(?:「[^「」]*」[^「」]*)*)」/g)) {
+  for (const match of text.matchAll(/`((?:steps|writing|quarto)\/[^`\s]+\.md|SKILL\.md)`「([^「」]*(?:「[^「」]*」[^「」]*)*)」/g)) {
     const [, target, section] = match;
     const targetFile = resolve(skill, target);
     if (!existsSync(targetFile)) continue;
@@ -289,7 +293,8 @@ for (const file of [
   join(repo, 'README.md'),
   join(repo, 'README.en.md'),
   ...walk(join(repo, 'docs')).filter((p) => p.endsWith('.md')),
-  ...walk(join(skill, 'examples')),
+  ...walk(join(skill, 'writing', 'examples')),
+  ...walk(join(skill, 'quarto', 'examples')),
 ]) {
   for (const { lines } of columnFences(file, read(file))) {
     const tree = [];

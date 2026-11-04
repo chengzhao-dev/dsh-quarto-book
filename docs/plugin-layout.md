@@ -31,16 +31,17 @@ dsh-quarto-book/
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
-`skills/writing-quarto/` 各文件的分工见 `docs/writing-quarto-layout.md`，本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.gitattributes` 与 `.editorconfig` 为准。
+`skills/writing-quarto/` 各文件的分工见 `docs/module-layout.md`，本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.gitattributes` 与 `.editorconfig` 为准。
 
 ## 放置规则
 
 | 要放的东西 | 位置 | 谁读它 |
 | --- | --- | --- |
 | 写作规则 | `skills/writing-quarto/steps/` | 技能加载时按步读，一步一个文件 |
-| 正反例 | `skills/writing-quarto/examples/` | 判不准时才打开，与 step 同号 |
+| 正反例 | `skills/writing-quarto/writing/examples/` | 判不准时才打开，与 step 同号 |
 | 渲染层约定 | `skills/writing-quarto/quarto/` | 排图、查渲染错误、全仓改写时 |
-| 整书次序与 token 预算 | `skills/writing-quarto/references/` | 整书规划或判断文件超限时 |
+| 跨步条文与整书次序 | `skills/writing-quarto/writing/` | 整书规划、判操作或冲突时 |
+| 篇幅预算 | `skills/writing-quarto/token-budget.md` | 判断单文件或总量超限时 |
 | 可机器判定的规则 | `skills/writing-quarto/scripts/` 与同目录测试 | 检查命令与回归用例 |
 | 主题资产 | `skills/designing-theme/assets/theme/` | 主题技能与书内副本 |
 | 工具源码与产物 | `src/`、`lib/` | 构建与宿主加载 |
@@ -48,6 +49,6 @@ dsh-quarto-book/
 | 项目技能模板 | `templates/quarto-book-project/` | 新书复制后填写 |
 | 发布边界 | `package.json` 的 `files` | npm 打包 |
 
-发布只带 `files` 白名单，`docs/`、`src/`、`tests/` 与 `scripts/` 不随包安装。`docs/` 只放规则、边界、调用面与交付约定，不放检索原文、逐轮日志或一次性统计；一条规则只在一个 step 成文，放置规则与单文件上限见 `docs/writing-quarto-layout.md` 与 `references/token-budget.md`。
+发布只带 `files` 白名单，`docs/`、`src/`、`tests/` 与 `scripts/` 不随包安装。`docs/` 只放规则、边界、调用面与交付约定，不放检索原文、逐轮日志或一次性统计；一条规则只在一个 step 成文，放置规则与单文件上限见 `docs/module-layout.md` 与 `skills/writing-quarto/token-budget.md`。
 
-技能的目录分层见 `writing-quarto-layout.md`，版本与发布规则见 `versioning.md`。
+目录分层见 `module-layout.md`，版本与发布规则见 `versioning.md`。

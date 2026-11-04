@@ -64,7 +64,7 @@
 
 - Anthropic《Equipping agents…》<https://www.anthropic.com/research/equipping-agents-for-the-real-world-with-agent-skills>：启动只预载名称与描述，正文按相关性读取，脚本可直接执行而不读入上下文；原文「If certain contexts are mutually exclusive or rarely used together, keeping the paths separate will reduce the token usage.」
 - [dsh-skill-tier](https://dsh-plugin.org/plugins/pandarayc/dsh-skill-tier)：把 28 个成员的目录从 2,901 token 折成 119 token（约 96%），Tier 0 索引约 +78 至 +121 token，`rank` 默认 350，零依赖、单文件、未配置时零候选；其 FAQ 明确成员目录不能再作扫描根、同层重复 provider 不激活、超过 500 字符的描述会被截断。
-- 采用：`references/token-budget.md` 的「单次激活上限」与步骤文件只点名一份案例，和三层披露同向；不引入索引插件，技能目录本身已经只有名称与描述。
+- 采用：`token-budget.md` 的「单次激活上限」与步骤文件只点名一份案例，和三层披露同向；不引入索引插件，技能目录本身已经只有名称与描述。
 - 不采用：把九步再折成按需生成的索引技能；本仓技能数量少，生成层会多一次发现与失效。
 
 ### 头部插件的边界与联动

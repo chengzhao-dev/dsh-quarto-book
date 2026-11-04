@@ -11,7 +11,7 @@
 
 ## 图注写法
 
-图注是一句完整的读者句，至少包含“这张图画的是什么”和“读图要看的那条关系”。不手写“图 1：”，Quarto 按 `lang: zh` 自动编号。需要正文按编号引用时，给图加英文标签（围栏 `#| label: fig-...`、图片 `{#fig-...}`、Mermaid `label: fig-...`），语法见 `quarto/crossrefs.md`；不引用就不加标签。
+图注是一句完整的读者句，至少包含“这张图画的是什么”和“读图要看的那条关系”。不手写“图 1：”，Quarto 按 `lang: zh` 自动编号。需要正文按编号引用时，给图加英文标签（围栏 `#| label: fig-...`、图片 `{#fig-...}`、Mermaid `label: fig-...`），语法见 `quarto/06-crossrefs.md`；不引用就不加标签。
 
 - 不佳：下图标出这块棋盘上可用的 `(row, col)`。
 - 改写（图下）：`棋盘坐标图：3 行 3 列，每格标出 (row, col)；行向下、列向右，左上角是 (0, 0)。`
@@ -47,9 +47,9 @@
 
 ## 与其他图类的关系
 
-- Mermaid 的方向、节点预算与线型约定见 `quarto/mermaid.md`；它的 `fig-cap` 同样遵守本文件。
-- 坐标图优先用 `quarto/coords.md` 的 `{python}` 助手；没有执行环境时，允许静态 HTML/SVG，但必须按本文件包 `<figure>` 与 `<figcaption>`，不能把图注留在图前。
-- 代码到图的固定序列见 `quarto/authoring.md`「代码与图的桥接」与 `steps/03-blocks.md`；桥接句讲关系，图注解图面，两者分工不同。
+- Mermaid 的方向、节点预算与线型约定见 `quarto/11-mermaid.md`；它的 `fig-cap` 同样遵守本文件。
+- 坐标图优先用 `quarto/10-coords.md` 的 `{python}` 助手；没有执行环境时，允许静态 HTML/SVG，但必须按本文件包 `<figure>` 与 `<figcaption>`，不能把图注留在图前。
+- 代码到图的固定序列见 `quarto/03-authoring.md`「代码与图的桥接」与 `steps/03-blocks.md`；桥接句讲关系，图注解图面，两者分工不同。
 
 ## 自检
 

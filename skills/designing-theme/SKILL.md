@@ -17,34 +17,34 @@ metadata:
 
 项目有 `.agents/skills/quarto-book-project/SKILL.md` 时，先读它的「主题与过滤器路径」，只改 `_quarto.yml` 实际引用的书内副本；没有就跳过。书内副本默认在 `theme/`，过滤器在 `filters/`。
 
-编码与行尾跟 `writing-quarto` 的 `quarto/encoding.md`：UTF-8 无 BOM、样式文件用 LF；`.bat`/`.cmd` 才用 CRLF。
+编码与行尾跟 `writing-quarto` 的 `quarto/02-encoding.md`：UTF-8 无 BOM、样式文件用 LF；`.bat`/`.cmd` 才用 CRLF。
 
 ## 任务路由
 
-任何主题任务先读 `references/theme-spine.md`（步骤唯一入口）。增量任务只走被改组件所在的那一步，再加第 6 步「通过检查」；从定表面到通过检查依次走完只用于新主题或用户明确要求整体调整。
+任何主题任务先读 `theme/02-theme-spine.md`（步骤唯一入口）。增量任务只走被改组件所在的那一步，再加第 6 步「通过检查」；从定表面到通过检查依次走完只用于新主题或用户明确要求整体调整。
 
 | 步 | 名称 | 产出 | 文件 |
 | --- | --- | --- | --- |
-| 1 | 定表面 | 这次动的是正文、代码、Callout 还是导航 | `references/theme-spine.md` |
-| 2 | 定字体 | 字体栈与字形来源 | `references/theme-spine.md` |
-| 3 | 定尺度 | 字号台阶、行长与间距 | `references/theme-spine.md` |
-| 4 | 定颜色 | 语义色、明暗分层与对比度 | `references/theme-spine.md` |
-| 5 | 定组件 | 表格、Callout、代码块与导航 | `references/theme-spine.md` |
-| 6 | 通过检查 | 布局、对比度与整本渲染 | `references/theme-spine.md` |
+| 1 | 定表面 | 这次动的是正文、代码、Callout 还是导航 | `theme/02-theme-spine.md` |
+| 2 | 定字体 | 字体栈与字形来源 | `theme/02-theme-spine.md` |
+| 3 | 定尺度 | 字号台阶、行长与间距 | `theme/02-theme-spine.md` |
+| 4 | 定颜色 | 语义色、明暗分层与对比度 | `theme/02-theme-spine.md` |
+| 5 | 定组件 | 表格、Callout、代码块与导航 | `theme/02-theme-spine.md` |
+| 6 | 通过检查 | 布局、对比度与整本渲染 | `theme/02-theme-spine.md` |
 
 ## 加载与结束
 
 - 只改 `_quarto.yml` 实际引用的主题文件；不打开章节正文，也不打开章节以外的实现文件。
-- 一次激活只开本文件、`theme-spine.md`、被改组件对应的那一节与那一份 CSS；同轮不把其余组件 CSS 和知识文件一起打开。
+- 一次激活只开本文件、`theme/02-theme-spine.md`、被改组件对应的那一节与那一份 CSS；同轮不把其余组件 CSS 和知识文件一起打开。
 - 同一文件最多退回上一步一次；第二次仍失败就停在检查输出上，不重走整段。
 - `scripts/checking-layout.py` 通过并完成一次整本渲染后，在同一轮结束 goal，不把没失败的步骤留到下一轮。
 - 不探测同 profile 的其他插件，也不把它们写成依赖；子会话按自己的 cwd 重新判定门禁。
 
 ## 文件职责
 
-- `references/theme-spine.md`：主题步骤的唯一入口与每步的检查点。
-- `references/theme-system.md`：令牌、组件边界与分层规则。
-- `knowledge/reading-surface.md`：字体、栏宽与阅读表面的取舍理由。
+- `theme/02-theme-spine.md`：主题步骤的唯一入口与每步的检查点。
+- `theme/03-theme-system.md`：令牌、组件边界与分层规则。
+- `theme/01-reading-surface.md`：字体、栏宽与阅读表面的取舍理由。
 - `assets/theme/`：palette、CSS 与可被 `_quarto.yml` 直接消费的资产。
 - `scripts/`：布局测量与检查。
 
@@ -54,7 +54,7 @@ metadata:
 2. `css/` 组件规则不写色值，语义颜色只来自 `palettes/<name>/tokens.css`（默认 Flexoki；Solarized 为运行时覆盖层）；`css/tokens.css` 只放结构尺度令牌，明暗共用。
 3. 这套资产是本插件主题的唯一来源。项目内若存在副本，先确认哪一份被 `_quarto.yml` 引用，再只改被引用的那一份，不假定两处自动同步。
 4. 修改主题或 `_quarto.yml` 后用 `quarto_render_check` 做整本渲染，验证明暗两套主题；布局调整优先修改 grid 与共享节奏，不用页面局部样式堆叠间距。
-5. 不新增字体文件、不引入新颜色来源：字体与颜色决定的理由在 `knowledge/reading-surface.md`，改决定先改知识再动资产。
+5. 不新增字体文件、不引入新颜色来源：字体与颜色决定的理由在 `theme/01-reading-surface.md`，改决定先改知识再动资产。
 
 ## 完成判据
 

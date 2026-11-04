@@ -106,7 +106,7 @@ body {
 }
 
 /* ---------- 类图：预算优先，容器只做兜底 ----------
-   类图先按 writing-quarto 技能 quarto/mermaid.md 的内容预算删到栏宽以内；
+   类图先按 writing-quarto 技能 quarto/11-mermaid.md 的内容预算删到栏宽以内；
    这里只保证高度自适应并居中，内容超宽时由容器兜底。 */
 #quarto-document-content .class-diagram .cell-output-display figure.figure {
   overflow-x: auto;

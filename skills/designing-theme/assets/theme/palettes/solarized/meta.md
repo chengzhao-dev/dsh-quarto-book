@@ -56,7 +56,7 @@ Solarized 官方正文与注释在各自底色上低于 4.5:1；这里只抬正�
 | 亮色代码标题字 `#4C6166` / `#E7E0CB` | 4.96:1 |
 | 暗色代码标题字 `#A9B7B7` / `#0A3F4C` | 5.55:1 |
 
-注释以官方 base01（亮）/ base1（暗）为起点：亮色 base1 `#93A1A1` 在 base2 上只有 2.18:1，不可用；暗色 base01 `#586E75` 在 base02 上只有 2.42:1，也不可用。亮色注释取更深的 `#556C73`（代码底 4.54:1），暗色注释保持官方 base1 `#93A1A1`（代码底 4.86:1）。强调色仍是 base01 `#586E75`（亮，4.99:1）；callout 左条用官方语义色（note base01/base1、warning orange `#CB4B16`、tip green `#859900`）。取舍见 `knowledge/reading-surface.md`。
+注释以官方 base01（亮）/ base1（暗）为起点：亮色 base1 `#93A1A1` 在 base2 上只有 2.18:1，不可用；暗色 base01 `#586E75` 在 base02 上只有 2.42:1，也不可用。亮色注释取更深的 `#556C73`（代码底 4.54:1），暗色注释保持官方 base1 `#93A1A1`（代码底 4.86:1）。强调色仍是 base01 `#586E75`（亮，4.99:1）；callout 左条用官方语义色（note base01/base1、warning orange `#CB4B16`、tip green `#859900`）。取舍见 `theme/01-reading-surface.md`。
 
 ## 来源
 

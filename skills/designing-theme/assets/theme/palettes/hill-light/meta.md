@@ -65,7 +65,7 @@ callout 五型条色由山光的低饱和色相派生：note 用次要文字灰�
 | 项 | 山光原站 | 本插件 | 理由 |
 | --- | --- | --- | --- |
 | 栏宽 | `--measure: 680px` | `--content-width: 840px` | 本插件面向 C++ 书籍：代码块、方向表、终端输出在 680px 下折行严重 |
-| 字体 | 思源宋体 / 思源黑体 / JetBrains Mono（系统栈） | 自托管 LXGW Bright Medium / Code | 多数 Windows 用户没有思源宋体，会落到 SimSun；1.25MB 字体的取舍见 `knowledge/reading-surface.md` |
+| 字体 | 思源宋体 / 思源黑体 / JetBrains Mono（系统栈） | 自托管 LXGW Bright Medium / Code | 多数 Windows 用户没有思源宋体，会落到 SimSun；1.25MB 字体的取舍见 `theme/01-reading-surface.md` |
 | callout | 五型同色，只靠图标形状区分 | 五型各一条 2px 色条 | 技术书里「这是注意还是危险」必须一眼可辨；只靠色相区分又违反 WCAG 1.4.1，所以色条 + 图标 + 标题词三重编码 |
 | 语法高亮 | 单色（正文色 + 淡注释） | 四色克制版（关键字/字符串/数字/注释） | 代码是本书主体，单色会让长代码块难扫读；色相仍取山光的低饱和色 |
 | 组件语言 | 3px 强调条、卡片式抬升面 | 2px 强调条、无卡片、发丝线 | 本插件全站统一的设计语言，三套色板共享，不随色板变化 |

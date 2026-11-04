@@ -57,7 +57,7 @@ NEXT_SECTION_RE = re.compile(r"(?:下一节|上一节)")
 CALLOUT_OPEN_RE = re.compile(r"^\s*:::\s*\{?\s*\.callout-")
 OPENING_CLICHE_RE = re.compile(r"^(?:本章|本节|这一章|这一节)(?:将|会|要)|^下面(?:介绍|讲)")
 # 元叙述与清点句：读者不需要作者交代「接下来讲什么」；一句里排到两个序列词，
-# 说明这句话在报清单而不是在讲因果。规则卡见 references/rules-cards.md 的 C06、C02。
+# 说明这句话在报清单而不是在讲因果。规则见 steps/04-paragraphs.md 与 steps/05-sentences.md。
 META_NARRATION_RE = re.compile(
     r"本节将|本章将|这一节将|接下来(?:我们|将|会|介绍|讲)|下面(?:我们)?(?:先|来|看)|"
     r"值得我们|值得注意的是|需要说明的是|如上所述|如前所述"
@@ -76,7 +76,7 @@ TERMINAL_RE = re.compile(r"终端|打印|显示|输入|读入|命令行")
 TEST_RE = re.compile(r"测试|断言|用例|gtest|CTest")
 
 # 围栏与正文的配对：声明围栏只配契约文字。正文出现实现词而小节里没有定义围栏时
-# 报 decl-without-def，规则与正反例见 references/fence-semantics.md。
+# 报 decl-without-def，规则与正反例见 quarto/05-fence-semantics.md。
 FENCE_FILENAME_RE = re.compile(r'filename="([^"]+)"')
 # 读者正文不摘文件级 Doxygen 头；成员注释的 @param、@return 不受这条限制。
 EXCERPT_HEADER_RE = re.compile(r"@file\b|@brief\b|Doxygen\s*文件头")
@@ -683,7 +683,7 @@ def check_fence_semantics(path: Path, lines: list[str]) -> list[Issue]:
                     issues.append(Issue(
                         path, section_line,
                         f"小节「{section_title}」只有声明围栏，正文却讲实现（{marker.group(0)}）；"
-                        "按 references/fence-semantics.md 改成契约文字，或补定义围栏",
+                        "按 quarto/05-fence-semantics.md 改成契约文字，或补定义围栏",
                     ))
         fences = []
         prose = []

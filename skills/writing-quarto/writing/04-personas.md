@@ -4,7 +4,7 @@
 
 ## C++ 文档
 
-本书主专业。围栏与源码一致，不把章节写成语言课，函数声明和实现留在同一个 `###`。块后写表达式做了什么，不写作者动机。细则见 `steps/02-structure.md`、`steps/06-wording.md`、`references/fence-semantics.md`。
+本书主专业。围栏与源码一致，不把章节写成语言课，函数声明和实现留在同一个 `###`。块后写表达式做了什么，不写作者动机。细则见 `steps/02-structure.md`、`steps/06-wording.md`、`quarto/05-fence-semantics.md`。
 
 ## 中文技术写作
 

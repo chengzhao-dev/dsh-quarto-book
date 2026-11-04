@@ -42,7 +42,7 @@
 | 技能目录类（`dsh-skills-manager`、skills deck） | 技能名保持 `writing-quarto` 与 `designing-theme`，可以由目录类关闭；关闭后书仍能用 Quarto 渲染，只是代理不再读这些步骤。 |
 | 写作类（`lunheng-article-pipeline`、`dsh-simplify`、`dsh-prompt`、`dsh-ppt`、`dsh-univer-office`） | 只借「一层技能目录」的形状，不接多角色流水线；去 AI 腔与 pptx/docx 转换不并入本插件，也不调用它们的工具。 |
 | 评审与代理团队（`dsh-code-review`、`dsh-agent-teams`） | 子会话按自己的 cwd 重新 `list()`；父会话不把技能正文写进子代理提示。本插件不注册评审工具，也不抄它们的检查单。 |
-| 看图类（`modlens`、`modsearch`） | 图仍走 `quarto/figures.md`、`quarto/mermaid.md`、`quarto/coords.md`，不靠 OCR 改章节。 |
+| 看图类（`modlens`、`modsearch`） | 图仍走 `quarto/09-figures.md`、`quarto/11-mermaid.md`、`quarto/10-coords.md`，不靠 OCR 改章节。 |
 
 ## 已知边界
 

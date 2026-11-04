@@ -13,10 +13,12 @@ const BUDGETS = [
   [/^designing-theme\/SKILL\.md$/, 2_000],
   [/^writing-quarto\/steps\/(02-structure|03-blocks|05-sentences)\.md$/, 12_000],
   [/^writing-quarto\/steps\/.*\.md$/, 8_000],
-  [/^writing-quarto\/examples\/.*\.md$/, 5_000],
+  [/^writing-quarto\/writing\/examples\/.*\.md$/, 5_000],
+  [/^writing-quarto\/writing\/.*\.md$/, 6_000],
+  [/^writing-quarto\/token-budget\.md$/, 2_000],
   [/^writing-quarto\/quarto\/.*\.md$/, 5_000],
-  [/^designing-theme\/references\/theme-system\.md$/, 8_000],
-  [/^designing-theme\/(references|knowledge)\/.*\.md$/, 6_000],
+  [/^designing-theme\/theme\/03-theme-system\.md$/, 8_000],
+  [/^designing-theme\/theme\/.*\.md$/, 6_000],
   [/^designing-theme\/assets\/.*\/meta\.md$/, 2_000],
 ]
 

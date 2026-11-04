@@ -1,6 +1,6 @@
 # 技能文件的 token 预算
 
-本文件约束技能 Markdown 的体量。它只管加载成本，不替代 `docs/writing-quarto-layout.md` 的分层规则。
+本文件约束技能 Markdown 的体量。它只管加载成本，不替代 `docs/module-layout.md` 的分层规则。
 
 ## 预算
 
@@ -11,10 +11,10 @@
 | `writing-quarto/SKILL.md`、`designing-theme/SKILL.md` | 2000 |
 | `steps/02-structure.md`、`steps/03-blocks.md`、`steps/05-sentences.md` | 12000 |
 | 其余 `steps/*.md` | 8000 |
-| `examples/*.md` | 5000 |
+| `writing/examples/*.md` | 5000 |
 | `quarto/*.md` | 5000 |
-| `designing-theme/references/theme-system.md` | 8000 |
-| 其余 `references/*.md`、`knowledge/*.md` | 6000 |
+| `designing-theme/theme/03-theme-system.md` | 8000 |
+| 其余 `writing/*.md`、`theme/*.md` | 6000 |
 | `assets/**/meta.md` | 2000 |
 | 全部技能 Markdown 合计 | 140000 |
 

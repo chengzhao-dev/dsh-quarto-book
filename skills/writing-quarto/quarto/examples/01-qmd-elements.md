@@ -76,7 +76,7 @@ constexpr bool IsInRange(Position position) { … }
 终端程序打印的三行对应图中每个数据项的 CellState::kEmpty。
 ````
 
-判定信号：图后句删掉任一分句中心仍成立；图注或桥接句已写明的信息在图后再讲一遍。图后正文只给图注讲不完的新结论，图后对照与句段侧的冒号分号堆叠见 `examples/04-paragraph-opening.md`「冒号后堆叠分号解释」。
+判定信号：图后句删掉任一分句中心仍成立；图注或桥接句已写明的信息在图后再讲一遍。图后正文只给图注讲不完的新结论，图后对照与句段侧的冒号分号堆叠见 `writing/examples/04-paragraph-opening.md`「冒号后堆叠分号解释」。
 
 ## 原生 SVG 图注对照
 
@@ -139,7 +139,7 @@ struct Move { … };
 图中加粗描边的格子是下一步操作目标。
 ````
 
-判定信号：代码项的解释出现在图之后；或图后正文复述代码注释。固定序列见 `writing-quarto` 技能 `quarto/authoring.md`「代码与图的桥接」。
+判定信号：代码项的解释出现在图之后；或图后正文复述代码注释。固定序列见 `writing-quarto` 技能 `quarto/03-authoring.md`「代码与图的桥接」。
 
 ## 摘录导语只报出处
 
@@ -158,7 +158,7 @@ struct Move { … };
 
 ## 递进片段拆围栏对照
 
-同源围栏的合并已收窄：只有紧邻常量与其直接使用行才放在同一个围栏；类型定义和后一步使用它的函数是两步，分成两块，每块各配一句完整导语。判定与豁免见 `steps/03-blocks.md`「内容块前后的闭环」；句段对照见 `examples/03-excerpt-lead.md`「递进片段合并」。
+同源围栏的合并已收窄：只有紧邻常量与其直接使用行才放在同一个围栏；类型定义和后一步使用它的函数是两步，分成两块，每块各配一句完整导语。判定与豁免见 `steps/03-blocks.md`「内容块前后的闭环」；句段对照见 `writing/examples/03-excerpt-lead.md`「递进片段合并」。
 
 ````text
 不佳（拆成三个同源围栏，各配半句导语，首句点名了后块符号）：
@@ -215,7 +215,7 @@ constexpr bool IsInRange(Position position) { … }
 
 ## Callout 升级与行内括号对照
 
-升级判据见 `writing-quarto` 技能 `quarto/authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「元素边界」。
+升级判据见 `writing-quarto` 技能 `quarto/03-authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「元素边界」。
 
 ```text
 正确（升级：交代超过一句同位短语，术语卡含业界叫法与通过条件）：

@@ -32,4 +32,4 @@
 | `bash: ...: /usr/bin/env: bad interpreter` | `.sh` 是否为 CRLF | 转成 LF 后重新提交 |
 | `git diff` 整文件重写 | 行尾或 BOM 被批量改动 | 先恢复，再只改目标段落 |
 
-渲染侧的中文乱码排查见 `quarto/render.md`「5. 中文乱码/编码」。
+渲染侧的中文乱码排查见 `quarto/12-quarto-render.md`「5. 中文乱码/编码」。

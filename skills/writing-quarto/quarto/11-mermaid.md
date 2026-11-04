@@ -2,7 +2,7 @@
 
 本文件记录 `content/**/*.qmd` 中 Mermaid 图表的渲染层约定；是否使用图表的门槛见 `writing-quarto` 技能的 P0 硬约束，主题侧取色与排版守卫见 `designing-theme` 技能的 `../designing-theme/assets/theme/css/mermaid.css`。
 
-Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见 `quarto/coords.md`，禁止用 Mermaid 硬画网格。
+Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见 `quarto/10-coords.md`，禁止用 Mermaid 硬画网格。
 
 ## 只使用 {mermaid} 围栏
 
@@ -70,4 +70,4 @@ mermaid 用 init 指令中的字体测量标签宽度，页面 CSS 按 `--ui-fon
 
 每个 `{mermaid}` 图块在围栏开头、init 之前写一行 `%%| fig-cap: "程序结构总览。实线箭头表示调用或依赖，……"`。`fig-cap` 只写图意和读图约定，不手写“图 1：”这类编号；Quarto 按 `lang: zh` 自动在正文中排成“图 1：”。图注紧跟图块开头、落在图下。线型、箭头方向、读图范围这类说明只写进该图的图注，图后正文不再复述；图后只补图外的新信息或从图带走的结论，不点名被省略的成员，也不写“其余成员见某章”。`fig-cap` 是 Quarto 对 Mermaid 的单元选项语法，`%%|` 必须直接写在围栏开头、init 之前（Quarto 只解析块首选项；写在 init 之后会被当成 Mermaid 注释原样渲染），不能改成 `#|` 或图后引用块。
 
-图注文字概括图意，不与图后正文逐句重复；需要交叉引用时同时写 `label: fig-...`，正文用 `@fig-...` 引用。图注与图前句的统一分工、原生 HTML/SVG 的图注写法见 `quarto/figures.md`。
+图注文字概括图意，不与图后正文逐句重复；需要交叉引用时同时写 `label: fig-...`，正文用 `@fig-...` 引用。图注与图前句的统一分工、原生 HTML/SVG 的图注写法见 `quarto/09-figures.md`。

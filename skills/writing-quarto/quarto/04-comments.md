@@ -46,4 +46,4 @@
 
 ## 编码与行尾
 
-所有文本文件按 `quarto/encoding.md` 保存为 UTF-8 无 BOM、LF；`.bat` 与 `.cmd` 例外，用 CRLF。
+所有文本文件按 `quarto/02-encoding.md` 保存为 UTF-8 无 BOM、LF；`.bat` 与 `.cmd` 例外，用 CRLF。
