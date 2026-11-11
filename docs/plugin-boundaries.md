@@ -20,7 +20,7 @@
 1. `cwd` 为空、或不在 git 检出里，返回空。
 2. 从 `cwd` 向上走，找到第一个含 `_quarto.yml` 的目录；该文件必须有一行独立的 `type: book`，`# type: book` 不算。它若不是书，直接判否，不再向上找。
 3. 在这个目录里找章节源文件：至少一个 `.qmd` 或 `.md`；根目录的 README、CHANGELOG、LICENSE、CONTRIBUTING、AGENTS 等说明文件（含 `README.en.md` 这类语言变体）不算章节。
-4. 扫描跳过 `_book`、`node_modules`、`vendor`、`third_party`、`templates`、`.git`、`.quarto`、`.cache`、`.venv`、`renv`、`packrat`、`temp` 等生成或依赖目录；最多 4000 个目录项、12 层。
+4. 扫描跳过 `_book`、`node_modules`、`vendor`、`third_party`、`templates`、`.git`、`.agents`、`.quarto`、`.cache`、`.venv`、`renv`、`packrat`、`temp` 等生成或依赖目录；最多 4000 个目录项、12 层。
 5. 最近的 `_quarto.yml` 不是书、或没有章节源文件时直接判否，不再向上找；避免把父项目的书当成本仓库的书。
 6. 命中后返回两个技能；搜索不越过 git 根，也不看兄弟目录。
 

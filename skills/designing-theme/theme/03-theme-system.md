@@ -97,7 +97,7 @@
 - **公式**：MathJax 会把 `font-size: 94%` 写进 `mjx-container` 行内 style，主题用 `#quarto-document-content mjx-container { font-size: 1em !important }` 拉回与正文同档（17px），display 公式上下各留 1.3rem；行内公式与中文同基线，无需额外对齐。
 - **代码标注**：`.code-annotation-gutter` 底色透明；行内编号与注释列表编号统一成 11px 描边圆圈，描边与数字用 `--accent`，注释正文 14px `--text-secondary`。Quarto 自带的 `code.sourceCode .code-annotation-anchor` 特异性高于主题同名单类选择器，覆盖必须写 `#quarto-document-content code.sourceCode .code-annotation-anchor`。
 - **代码工具**：`.btn.code-tools-button` 是引导性小按钮（13px、`--text-secondary`、透明底、hover `--surface-raised`）；它打开的是 Bootstrap 模态 `#quarto-code-tools-source`，模态面板用 `--surface-raised` 底 + `--card-border` 边 + `--radius-lg`，标题用黑体，内容区用 `--code-bg`（里面展示的是源文件），遮罩用 `--overlay-scrim`。Quarto 1.10.19 下 `code-fold` 不生成折叠加壳（只有 JS 残留），折叠样式无为而治，不要为它写选择器。
-- **`.code-caption`**：次要说明色，紧贴对象；写作见 writing-quarto `authoring.md`。
+- **`.code-caption`**：次要说明色，紧贴对象；写作见 `../../writing-quarto/quarto/03-authoring.md`。
 - **可折叠答案**：`details.answer-disclosure` 默认收起，用上下发丝线、无圆角、无底色，像书页里的自测折页。
 - **图**：Mermaid 与坐标图用令牌着色、字体随 `--ui-font`；围栏 `%%{init}%%` 用同栈短版；暗色不为白底图加滤镜。
 - **令牌纪律**：样式里每个 `var(--…)` 都必须是色板 `tokens.css` 定义过的令牌。检查器新增断言 `css tokens all defined`，扫主题全部 `.css`/`.scss` 的 `var(--x)` 并减去所有 `--x:` 定义，不允许发明不存在的令牌（曾出现 `--text-primary`、`--surface`、`--text-tertiary` 这类「看着像有、实际透明」的引用，控件失去颜色还不报错）。

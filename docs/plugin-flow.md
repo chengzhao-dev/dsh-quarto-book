@@ -43,7 +43,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 ## 3 按文件分流
 
-入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`三种操作` 写写作、改写、润色的入口和不变量，`九步` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开同号的一个文件；判不准才打开 `examples/` 里同号的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
+入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`三种操作` 写写作、改写、润色的入口和不变量，`九步地图` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开该步对应的一个文件；判不准才打开 `writing/examples/` 里对应的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
 
 - 章节（`content/**/*.qmd`、`index.qmd`）：按操作走对应步骤；新章从第 1 步走到通过检查。每一步的「情况：」标题下是只在特定场景才生效的追加判定，正文里的反引号引用要能在目标文件里找到同名标题。
 - 书仓库根目录的 `README.md`：仓库说明页，不是章节。只走第 5–8 步，不套第 1–4 步的任务与结构骨架，不写「常见错误」「自测问题」，不调 `quarto_render_check`；`README.en.md` 同样处理，`CHANGELOG.md`、`LICENSE`、`AGENTS.md` 不在写作范围。
@@ -56,7 +56,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 - 项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
 - `dry_run: true` 只判断输出目录，最多 2 次：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。
 - `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重新运行。`html_report.usable` 是最终结论。
-- 工具与技能共用同一道书门禁；工具在 `apply()` 注册、执行前按 `cwd` 拒绝，注册与执行的分工见 `docs/plugin-boundaries.md`。渲染根取 `cwd` 向上最近的合法书根，`qmd_path` 只用来定位卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
+- 工具与技能共用同一道书门禁；工具在 `apply()` 注册、执行前按 `cwd` 拒绝，注册与执行的分工见 `docs/plugin-boundaries.md`。渲染根优先取 `cwd` 向上最近的合法书根；`cwd` 不在书里时，再按 `qmd_path` 所在目录向上找。`qmd_path` 同时用于定位回执卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
 - 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
 
 成功渲染时的返回形状（`output` 只保留末尾若干行）：
@@ -81,7 +81,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 第 9 步的「完成判据」要求收尾调用一次 `quarto_pass_report`，写作与主题共用：
 
-- 入参是闭集：`skill`、`executed`、`mode`、`files`、`steps`、`held`、`checks`。`executed: false` 时 `mode` 必须是 `skipped` 并给 `skip_reason`；`mode` 取 `write`、`rewrite`、`polish`、`theme`、`skipped`，`files` 最多 8 个 `{ path, edits }`，`held` 取 `fences`、`facts`、`css`、`prose`，`checks` 取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
+- 入参是闭集：`skill`、`executed`、`mode`、`skip_reason`、`files`、`steps`、`held`、`checks`。`executed: false` 时 `mode` 必须是 `skipped` 并给 `skip_reason`；`mode` 取 `write`、`rewrite`、`polish`、`theme`、`skipped`，`files` 最多 8 个 `{ path, edits }`，`held` 取 `fences`、`facts`、`css`、`prose`，`checks` 取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
 - 卡片就是回执：技能与模式、改过的文件、改了哪些步骤、未改项、检查结论。回复里不再复述；工具不保存到磁盘。
 - `steps` 的 `edits` 合计必须等于 `files` 的合计；主题只认六个步骤名。当前文件不是章节时输出一行 `未执行 writing-quarto：…`；没改也会出卡。
 

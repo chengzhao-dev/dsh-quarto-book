@@ -195,7 +195,7 @@ test('mermaid 图必须带角色与无障碍名称', { skip: python ? false : '�
     )
     await writeFile(
       path.join(root, '02.qmd'),
-      ['---', 'title: "有名称"', '---', '', '正文。', '', '```{.mermaid role="img" aria-label="调用链：A 调用 B。"}', 'flowchart LR', '  A --> B', '```', ''].join(nl),
+      ['---', 'title: "有名称"', '---', '', '正文。', '', '```{mermaid}', 'flowchart LR', '  accTitle: 调用链：A 调用 B。', '  A --> B', '```', ''].join(nl),
       'utf8',
     )
     const result = spawnSync(python, [script, '--root', root], { encoding: 'utf8' })
@@ -203,6 +203,8 @@ test('mermaid 图必须带角色与无障碍名称', { skip: python ? false : '�
     assert.equal(result.status, 1)
     assert.match(output, /mermaid 图缺少无障碍名称/)
     assert.equal((output.match(/mermaid 图缺少无障碍名称/g) ?? []).length, 1)
+    // 02 在图源里写了 accTitle，不应出现在报告里。
+    assert.doesNotMatch(output, /02\.qmd/)
   } finally {
     await rm(root, { recursive: true, force: true })
   }

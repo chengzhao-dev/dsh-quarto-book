@@ -83,4 +83,4 @@
 
 ## 正反例
 
-同号案例见 `writing/examples/11-layout-list.md`；标点和加粗的短对照就是本文件通用情况里的条目。
+该步点名的案例见 `writing/examples/11-layout-list.md`；标点和加粗的短对照就是本文件通用情况里的条目。

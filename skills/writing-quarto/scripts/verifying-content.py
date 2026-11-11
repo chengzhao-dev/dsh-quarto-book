@@ -961,10 +961,28 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                     fence_blocks.append(fence_lines)
                     if "mermaid" in fence_lang:
                         mermaid_blocks.append(fence_lines)
-                        if "aria-label=" not in fence_lang or "role=" not in fence_lang:
+                        has_name = any(
+                            re.match(r"\s*acc(?:Title|Descr):", raw)
+                            for _, raw in fence_lines
+                        )
+                        has_container_label = any(
+                            raw.lstrip().startswith("%%| aria-label:")
+                            for _, raw in fence_lines
+                        )
+                        if "aria-label=" in fence_lang or "role=" in fence_lang:
                             issues.append(Issue(
                                 path, number,
-                                'mermaid 图缺少无障碍名称：围栏写 role="img" 与 aria-label="…"',
+                                'mermaid 围栏头属性不会写入 HTML；把无障碍名称写进图源 `accTitle: …`',
+                            ))
+                        elif has_container_label:
+                            issues.append(Issue(
+                                path, number,
+                                "mermaid 的 `%%| aria-label` 只标记外层 div，SVG 没有可访问名称；改用图源 `accTitle: …`（长描述用 `accDescr:`）",
+                            ))
+                        elif not has_name:
+                            issues.append(Issue(
+                                path, number,
+                                "mermaid 图缺少无障碍名称：在图源里写 `accTitle: …`（长描述用 `accDescr:`）",
                             ))
                     if fence_is_html:
                         html_blocks.append(fence_lines)

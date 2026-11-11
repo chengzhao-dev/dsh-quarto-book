@@ -41,7 +41,7 @@ quarto preview 文档.qmd     # 本地预览（实时刷新）
 quarto render               # 渲染当前项目全部内容
 ```
 
-`quarto render` 必须在仓库根目录执行，在其他目录执行会静默不渲染。书里若有 `{python}` 可执行单元，先按项目约定设置 `QUARTO_PYTHON`，再运行 `quarto render`；不要依赖系统 PATH 里的 `python3`（Windows 上可能是 Store 占位符）。
+渲染整本书时，`quarto render` 在书根执行；在子目录裸跑会静默返回、不生成内容。渲染单章用 `quarto render 文档.qmd`，可以从子目录执行，输出仍进 `_book/`。书里若有 `{python}` 可执行单元，先按项目约定设置 `QUARTO_PYTHON`，再运行 `quarto render`；不要依赖系统 PATH 里的 `python3`（Windows 上可能是 Store 占位符）。
 
 ## Quarto Book 项目
 
@@ -70,8 +70,9 @@ project:
 
 book:
   title: "<书名>"
+  search: true
   sidebar:
-    collapse-level: 1
+    collapse-level: 2
   chapters:
     - index.qmd
     - part: content/<part>/index.qmd
@@ -86,6 +87,8 @@ book:
 - **`index.qmd` 必须存在**，作为 Book 首页/入口；根首页只承担这一层导航。
 - **`part:` 指向该部分的落地页**（如 `content/<part>/index.qmd`），产生分组标题；新增部分时先建落地页，再加 part。
 - 章节可放子目录，在 `chapters` 写相对路径；`_quarto.yml` 的章节顺序与落地页的阅读顺序保持一致。
+- `search: true` 写在 `book:` 下，不写进 `navbar`；书复用 website 组件，但书级选项归 `book`。
+- `collapse-level` 按章节深度设：只有一个 part、章在第二层时用 `2`（默认值）；用 `1` 会把章全部折叠，侧栏只剩 part 标题。
 - **`appendices:` 只放附录页**，排在 `chapters` 之后；附录标题默认由 Quarto 加前缀，想改中文名在 `crossref.appendix-title` 设「附录」。
 - 用 `#refs` 生成的书目页留在 `chapters`，不要放进 `appendices`，否则书目会被当成附录。
 - 渲染：`quarto render`，Book 默认输出到 `_book/`。

@@ -9,6 +9,7 @@
 | 目录或文件 | 单文件上限 |
 | --- | --- |
 | `writing-quarto/SKILL.md`、`designing-theme/SKILL.md` | 2000 |
+| `writing-quarto/token-budget.md` | 2000 |
 | `steps/02-structure.md`、`steps/03-blocks.md`、`steps/05-sentences.md` | 12000 |
 | 其余 `steps/*.md` | 8000 |
 | `writing/examples/*.md` | 5000 |
@@ -18,7 +19,7 @@
 | `assets/**/meta.md` | 2000 |
 | 全部技能 Markdown 合计 | 140000 |
 
-单次激活上限：`SKILL.md` + 1 个步骤 + 1 个被点名文件（案例、条文或脚本路径）。**九步同走**只用于新章、整章改写或用户明确要求全章处理；同轮不把同号案例与条文一起打开。
+单次激活上限：`SKILL.md` + 1 个步骤 + 1 个被点名文件（案例、条文或脚本路径）。**九步同走**只用于新章、整章改写或用户明确要求全章处理；同轮不把该步点名的案例与条文一起打开。
 
 ## 怎么用
 

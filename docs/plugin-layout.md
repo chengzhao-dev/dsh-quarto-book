@@ -25,9 +25,9 @@ dsh-quarto-book/
 └── tests/                  #/ 工具测试
 ```
 
-安装与加载需要 Node.js 22 与 DSH 0.2.x；`src/`、`tests/`、`scripts/` 和 `docs/` 都不进 npm 包，发布包加载编译后的 `lib/`。
+安装与加载需要 Node.js 22 与 DSH 0.2.1 及以上（<0.3.0）；`src/`、`tests/`、`scripts/` 和 `docs/` 都不进 npm 包，发布包加载编译后的 `lib/`。
 
-发布包内容由 `package.json` 的 `files` 白名单决定，根 `.npmignore` 对白名单里的目录不生效：白名单列出 `skills` 后，技能目录下的文件会整棵进包。Python 缓存因此要在白名单里显式排除（`!**/__pycache__`、`!**/*.pyc`），`scripts/checking-skill-links.mjs` 也会在技能目录出现 `__pycache__` 或 `.pyc` 时报错。
+发布包内容由 `package.json` 的 `files` 白名单决定，根 `.npmignore` 对白名单里的目录不生效：白名单列出 `skills` 后，技能目录下的文件会整棵进包。Python 缓存因此要在白名单里显式排除（`!**/__pycache__`、`!**/*.pyc`），`scripts/checking-skill-links.mjs` 也会在技能目录出现已跟踪的 `__pycache__` 或 `.pyc` 时报错。
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
@@ -38,7 +38,7 @@ dsh-quarto-book/
 | 要放的东西 | 位置 | 谁读它 |
 | --- | --- | --- |
 | 写作规则 | `skills/writing-quarto/steps/` | 技能加载时按步读，一步一个文件 |
-| 正反例 | `skills/writing-quarto/writing/examples/` | 判不准时才打开，与 step 同号 |
+| 正反例 | `skills/writing-quarto/writing/examples/` | 判不准时才打开，按该步点名 |
 | 渲染层约定 | `skills/writing-quarto/quarto/` | 排图、查渲染错误、全仓改写时 |
 | 跨步条文与整书次序 | `skills/writing-quarto/writing/` | 整书规划、判操作或冲突时 |
 | 篇幅预算 | `skills/writing-quarto/token-budget.md` | 判断单文件或总量超限时 |

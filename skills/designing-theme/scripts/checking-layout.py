@@ -376,7 +376,6 @@ def full_layout_required():
             "HEAD",
             "--",
             "theme",
-            ".agents/skills/designing-theme/assets/theme",
             "_quarto.yml",
         ],
         cwd=str(ROOT),

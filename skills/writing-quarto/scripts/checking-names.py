@@ -8,7 +8,9 @@ directories.
 
 Rules:
   * Every character is ASCII.
-  * Directory and file names use lower-case words separated by one hyphen.
+  * Directory and Quarto/asset file names use lower-case words separated by one hyphen.
+  * Code and tool file names follow their language convention; underscores are allowed,
+    but they must stay ASCII and contain no spaces.
   * Dots are allowed for extensions and version-like names.
   * Tool-owned names in TOOL_FIXED_NAMES pass unchanged.
 
@@ -35,6 +37,12 @@ EXCLUDE_DIR_SUFFIXES = ("_files",)
 # 不该参与命名检查，否则每次构建后都报一堆假阳性。
 EXCLUDE_DIR_PREFIXES = ("build-", "_build")
 
+CODE_SUFFIXES = {
+    ".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx",
+    ".inl", ".ipp", ".tpp", ".py", ".mjs", ".js", ".ts", ".sh",
+    ".ps1", ".lua",
+}
+
 TOOL_FIXED_NAMES = {
     "CMakeLists.txt", "_quarto.yml", "_quarto.yaml", "SKILL.md", "AGENTS.md",
     "README.md", "README.en.md", "LICENSE", "OFL.txt", "CONTRIBUTING.md",
@@ -52,6 +60,8 @@ def first_non_ascii(name: str) -> str | None:
 
 def name_form_error(name: str) -> str | None:
     if name in TOOL_FIXED_NAMES:
+        return None
+    if Path(name).suffix.lower() in CODE_SUFFIXES:
         return None
     # CMake 模块名按社区习惯写 CamelCase（CompileSettings.cmake），由
     # include() / find_package() 按名查找，改名会直接断掉构建，故与
@@ -124,14 +134,14 @@ def main() -> int:
     print()
 
     if not bad:
-        print("OK：所有路径均为纯 ASCII 且符合连字符形式。")
+        print("OK：所有路径均为纯 ASCII，Quarto 路径符合连字符形式，代码文件按语言命名。")
         return 0
 
     print(f"发现 {len(bad)} 个不合规路径：")
     for code, path in bad:
         print(f"  [{code}] {path}")
     print()
-    print('建议：非 ASCII 字符改为普通 "-"；多词名改为小写连字符式。')
+    print('建议：非 ASCII 字符改为普通 "-"；Quarto 路径改为小写连字符式，代码文件保持 ASCII。')
     return 1
 
 

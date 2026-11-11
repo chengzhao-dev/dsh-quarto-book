@@ -28,8 +28,8 @@
 ### 改动约定
 
 1. 改 `format: html:` 任何取值都属于主题级改动，会触发整本渲染，先确认代价，再用 `quarto_render_check` 渲染。
-2. 新增或删减主题样式表（`.agents/skills/designing-theme/assets/theme/css/**` 或书内 `theme/css/**`）时，同步修改配置里的样式表清单，否则新样式不参与渲染。
-3. 页面视觉问题（提示符配色、文件名条、术语色）改 `.agents/skills/designing-theme/assets/theme/**` 或书内 `theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../designing-theme/theme/03-theme-system.md`。
+2. 新增或删减主题样式表（插件 `designing-theme` 的 `assets/theme/css/**` 或书内 `theme/css/**`）时，同步修改配置里的样式表清单，否则新样式不参与渲染。
+3. 页面视觉问题（提示符配色、文件名条、术语色）改插件 `designing-theme` 的 `assets/theme/**` 或书内 `theme/**` 与设计令牌，不在文档里内联样式，也不改高亮配置。主题系统详见 `../../designing-theme/theme/03-theme-system.md`。
 4. 流程图使用 `{mermaid}` 属性围栏，配色由主题样式控制。配置里不指定图表主题名；围栏与 init 指令细则见 `quarto/11-mermaid.md`。
 5. 拿不准选项名、默认值或嵌套层级时查官方参考页，不凭记忆写 YAML（入口见本文件 #8）。
 
@@ -93,7 +93,7 @@
 1. 看完整报错，先判断失败阶段：YAML 解析、Lua 过滤器，还是代码执行。
 2. YAML 阶段：核对缩进/冒号与选项嵌套层级。
 3. 代码执行阶段：检查依赖是否安装、缓存是否过期。
-4. 找不到单文件：确认在仓库根目录执行，`quarto render` 默认作用于整个项目。
+4. 找不到单文件：整本书在书根用 `quarto render`（子目录裸跑会静默不渲染）；单章用 `quarto render 文档.qmd`，并检查文件名与相对路径。
 
 ### 7. 发布到 GitHub 但页面没更新 / 打不开 / 乱码
 
@@ -112,7 +112,7 @@
 ### 9. 路径/名称含特殊字符导致渲染失败
 
 - **症状**：`quarto render` 报 `recoverEncode: invalid argument` 类错误。
-- **处置**：项目、目录、文件名一律纯 ASCII，连字符一律用普通 `-`（U+002D）。用 `scripts/checking-names.py` 校验整个仓库。
+- **处置**：项目、目录、Quarto 内容与资源文件名一律纯 ASCII，多词用普通 `-`（U+002D）；C++ 与脚本源文件保持各自语言的命名（可含 `_`），同样必须纯 ASCII、无空格。用 `scripts/checking-names.py` 校验整个仓库。
 
 ### 10. YAML `title:` 与同文本 `# H1` 重复 → 页面出现两个标题
 

@@ -29,7 +29,7 @@
 2. 在书仓库里打开会话。`_quarto.yml` 要有独立一行的 `type: book`，书根至少有一个 `.qmd` 或 `.md` 章节源文件；两个技能名这时才会出现。
 3. 调用技能：写正文用 `writing-quarto`，改主题用 `designing-theme`。
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.23`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.23`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.25`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.25`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile）：先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book`，再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -50,7 +50,7 @@
 
 ### 写章节
 
-在 `type: book` 的仓库里加载 `writing-quarto`，按 `SKILL.md` 判操作并走九步。每一步只打开同号的一个 `steps/` 文件；判不准才读 `examples/` 里同号的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
+在 `type: book` 的仓库里加载 `writing-quarto`，按 `SKILL.md` 判操作并走九步。每一步只打开该步对应的一个 `steps/` 文件；判不准才读 `writing/examples/` 里对应的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
 
 书仓库根目录的 `README.md` 是说明页，不是章节：只走第 5–8 步，不套第 1–4 步的任务与结构骨架，不写「常见错误」「自测问题」，不调 `quarto_render_check`。`README.en.md` 同样处理。
 
@@ -88,10 +88,10 @@ python scripts/checking-names.py --root <book>
 | 文档 | 内容 |
 | --- | --- |
 | [docs/architecture.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/architecture.md) | 两个技能与两个工具的分层、四个域（内容、结构、版式、措辞）与文件职责 |
+| [docs/module-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/module-layout.md) | 仓库目录树与文件位置的唯一清单 |
 | [docs/plugin-flow.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-flow.md) | 从安装到回执的五层结构、文件分流与渲染顺序 |
 | [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) | 工作区检查的六类情形与判定顺序 |
 | [docs/plugin-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-layout.md) | 仓库目录、发布包内容与 Python/Quarto 分工 |
-| [docs/writing-quarto-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/writing-quarto-layout.md) | 写作技能的目录分层 |
 | [docs/triggering.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/triggering.md) | 两个技能的触发判据、四个域与正反例 |
 | [docs/versioning.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/versioning.md) | 版本号与发布顺序 |
 
@@ -119,10 +119,10 @@ npm run ci
 开发安装：
 
 ```bash
-dsh plugin --profile web add D:\\Github\\dsh-quarto-book
+dsh plugin --profile web add D:\\path\\to\\dsh-quarto-book
 ```
 
-`SKILL.md`、`steps/`、`examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根运行 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
+`SKILL.md`、`steps/`、`writing/`、`writing/examples/`、`quarto/` 在下一次 `skill` 工具调用时重读，改完不用发 npm。包内主题改动不会自动进书的 HTML；要看页面效果，把改过的文件同步到书的 `theme/`，再在书根运行 `quarto render`。不要把 `_quarto.yml` 指到插件检出目录，那条路径换机器就不存在。
 
 插件以 bundle 形式发布：`package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，补丁只插入 `id: quarto-book`、`name: '@chengzhao-dev/dsh-quarto-book'` 一行。入口不 import 宿主实现，因此在 pnpm 的严格依赖布局下也能加载。
 

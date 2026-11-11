@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.23`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.23`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.25`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.25`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -50,7 +50,7 @@ The published package already contains compiled `lib/`, so installation needs no
 
 ### Writing chapters
 
-Load `writing-quarto` in a `type: book` repository and follow the nine steps in `SKILL.md`. Each step opens one same-numbered file in `steps/`; read the same-numbered case in `examples/` only when a signal is unclear; open `quarto/` only for figures, render checks or repository-wide refactors.
+Load `writing-quarto` in a `type: book` repository and follow the nine steps in `SKILL.md`. Each step opens one same-numbered file in `steps/`; read the matching case in `writing/examples/` only when a signal is unclear; open `quarto/` only for figures, render checks or repository-wide refactors.
 
 The repository's root `README.md` is a description page, not a chapter: it takes only steps 5–8, skips the task skeleton and structure of steps 1–4, has no "common errors" or "self-test questions", and never calls `quarto_render_check`. `README.en.md` is treated the same way.
 
@@ -87,10 +87,12 @@ A project keeps its own conventions in one skill: `<book>/.agents/skills/quarto-
 
 | Document | Contents |
 | --- | --- |
+| [docs/architecture.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/architecture.md) | The two skills and two tools, the four domains, and file responsibilities |
+| [docs/module-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/module-layout.md) | The repository tree and the single list of file locations |
 | [docs/plugin-flow.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-flow.md) | The five layers from install to receipt, file routing and render order |
 | [docs/plugin-boundaries.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-boundaries.md) | The six workspace-check cases and their order |
 | [docs/plugin-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/plugin-layout.md) | Repository layout, package contents, and the Python/Quarto split |
-| [docs/writing-quarto-layout.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/writing-quarto-layout.md) | The writing skill's directory layers |
+| [docs/triggering.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/triggering.md) | Trigger criteria, the four domains, and positive/negative examples |
 | [docs/versioning.md](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/docs/versioning.md) | Version numbers and release order |
 
 ## Development
@@ -117,10 +119,10 @@ It runs `npm ci`, `npm test`, `npm run check:lib`, `npm run check`, and `npm run
 Development install:
 
 ```bash
-dsh plugin --profile web add D:\\Github\\dsh-quarto-book
+dsh plugin --profile web add D:\\path\\to\\dsh-quarto-book
 ```
 
-`SKILL.md`, `steps/`, `examples/` and `quarto/` are re-read on the next `skill` call, so rule changes need no npm publish. Theme changes in the package do not reach a book's HTML by themselves: copy the changed files into the book's `theme/` and run `quarto render` in the book root. Do not point `_quarto.yml` at the checkout; that path does not exist on another machine.
+`SKILL.md`, `steps/`, `writing/`, `writing/examples/` and `quarto/` are re-read on the next `skill` call, so rule changes need no npm publish. Theme changes in the package do not reach a book's HTML by themselves: copy the changed files into the book's `theme/` and run `quarto render` in the book root. Do not point `_quarto.yml` at the checkout; that path does not exist on another machine.
 
 The plugin ships as a bundle: `package.json` has `dsh.bundle.patch` pointing at `cordis.patch.yml`, and the patch inserts only the `id: quarto-book`, `name: '@chengzhao-dev/dsh-quarto-book'` line. The entry does not import host internals, so it also loads under pnpm's strict dependency layout.
 

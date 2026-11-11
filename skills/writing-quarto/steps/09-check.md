@@ -37,7 +37,7 @@
 - `render_result`：`ok`、`exit_code`、`duration_ms` 与末尾输出；`dry_run: true` 时为 `null`。
 - `html_report`：`usable`、`checks`、`output_files`、`output_files_total`；`dry_run: true` 时为 `null`。
 
-`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`。固定项有 `index_html`、`utf8`、`charset`、`no_file_uri`；条件项有 `sitemap`、`search_index`、`callouts`、`dom`。`usable` 在没有 `fail` 时为 true。
+`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`。固定项有 `index_html`、`html_files`、`utf8`、`charset`、`no_file_uri`；条件项有 `sitemap`、`search_index`、`callouts`、`dom`。`usable` 在没有 `fail` 时为 true。
 
 `fail` 按项退回：
 
@@ -48,7 +48,7 @@
 
 不手跑 `quarto render`，也不手跑 `checking-output.py`、`checking-callouts.py`、`checking-dom.py`。工具已经按当前书配置调用它们。
 
-渲染之外还有一层可访问性核对：书配置的 debug 项里可打开 `axe: true`，Quarto 会在浏览器里加载 axe-core 报告 `heading-order`、`svg-img-alt` 这类问题。报告只作提示，改法是给图补 `aria-label`、补齐跳过的标题层级，不把行为项当作新步骤。
+渲染之外还有一层可访问性核对：书配置的 debug 项里可打开 `axe: true`，Quarto 会在浏览器里加载 axe-core 报告 `heading-order`、`svg-img-alt` 这类问题。报告只作提示，改法是给 mermaid 图补图源 `accTitle:`、给 HTML/SVG 图补 `aria-label`、补齐跳过的标题层级，不把行为项当作新步骤。
 
 ### 执行回执
 
@@ -56,7 +56,7 @@
 
 - `skill` 填 `writing-quarto`，`mode` 填 `write`、`rewrite` 或 `polish`。
 - `files` 写这次动过的章节路径和改动次数（最多 8 个）；`steps` 只列有改动的步骤编号（1–9）与次数，两者合计必须一致。
-- `held` 写围栏、事实这类明确没有改动的地方；没改就传 0。
+- `held` 写围栏、事实这类明确没有改动的地方；没改就省略或传 `[]`。
 - `checks` 抄内容与渲染的结论，名字只取 `content`、`html`、`layout`，状态只取 `pass`、`fail`、`skip`。
 - 当前文件不是章节时传 `executed: false`、`mode: skipped`，并给一句 `skip_reason`。
 

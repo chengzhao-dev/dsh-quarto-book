@@ -122,10 +122,11 @@ title: 入门
 下面是一张只画类型和边的类图，读者可以对照箭头理解类型之间的依赖。
 
 ::: {.class-diagram}
-```{mermaid role="img" aria-label="类型 A 依赖类型 B"}
+```{mermaid}
 %%| fig-cap: "类型 A 依赖类型 B。实线箭头从使用者指向被使用者。"
 %%{init: {"fontFamily": "LXGW Bright Medium, system-ui, sans-serif", "class": {"hideEmptyMembersBox": true}}}%%
 classDiagram
+  accTitle: 类型 A 依赖类型 B
   direction LR
   class A
   class B
@@ -307,8 +308,20 @@ def main() -> int:
     expect(
         "mermaid 围栏正确写法",
         "---\ntitle: 入门\n---\n\n## 目标\n\n"
-        '```{mermaid role="img" aria-label="流程"}\ngraph LR\n```\n',
+        '```{mermaid}\nflowchart LR\n  accTitle: 流程\n  A --> B\n```\n',
         0, "OK",
+    )
+    expect(
+        "mermaid 块首 aria-label",
+        "---\ntitle: 入门\n---\n\n## 目标\n\n"
+        '```{mermaid}\n%%| aria-label: "流程"\nflowchart LR\n```\n',
+        1, "只标记外层",
+    )
+    expect(
+        "mermaid 围栏头属性",
+        "---\ntitle: 入门\n---\n\n## 目标\n\n"
+        '```{mermaid role="img" aria-label="流程"}\ngraph LR\n```\n',
+        1, "围栏头属性",
     )
     expect(
         "未声明围栏",
@@ -458,8 +471,8 @@ def main() -> int:
     expect(
         "类图缺少页面容器",
         MERMAID_CHAPTER.replace(
-            '::: {.class-diagram}\n```{mermaid role="img" aria-label="类型 A 依赖类型 B"}',
-            '```{mermaid role="img" aria-label="类型 A 依赖类型 B"}',
+            '::: {.class-diagram}\n```{mermaid}',
+            '```{mermaid}',
         ).replace(
             "```\n:::", "```"
         ),

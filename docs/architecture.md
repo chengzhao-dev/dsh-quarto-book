@@ -11,9 +11,9 @@ flowchart TD
     B -- 有 --> D["注册 writing-quarto 与 designing-theme"]
     D --> E["项目技能 .agents/skills/quarto-book-project/SKILL.md<br/>书名、读者、术语、章节对照"]
     D --> F["writing-quarto/SKILL.md<br/>九步：1 定任务→2 定结构→3 排列内容块→4 定段落→5 定句子→6 定用词→7 定版式→8 回读→9 检查"]
-    F --> G["steps/0N-*.md<br/>每步只开同号一份"]
+    F --> G["steps/0N-*.md<br/>每步只开对应一份"]
     G --> H["quarto/*.md<br/>表格、图、坐标、交叉引用、Mermaid、终端输出"]
-    G --> I["examples/*.md 与 references/*.md<br/>正反例、整书次序、操作判据、规则优先级、token 预算"]
+    G --> I["writing/*.md 与 writing/examples/*.md<br/>正反例、整书次序、操作判据、规则优先级、token 预算"]
     I --> J["内容检查 verifying-content.py、<br/>链接检查 checking-links.py"]
     D --> K["designing-theme/SKILL.md<br/>六步：定表面、定字体、定尺度、定颜色、定组件、通过检查"]
     K --> L["assets/theme/<br/>content.css、过滤后的 SCSS"]
@@ -22,11 +22,11 @@ flowchart TD
     M --> N["quarto_pass_report 回执"]
 ```
 
-门禁只认 git 根上的 `_quarto.yml`；没有 `type: book` 的检出不出现这两个技能。两个技能在门禁之后并列，一次改动同时碰到正文与主题时先开 `writing-quarto`，正文定稿后再改主题，最后统一走渲染检查。
+门禁认 `cwd` 向上、git 根以内最近的 `_quarto.yml`；这份不是 `type: book`，或目录里没有章节源文件时，不出现这两个技能，也不再向上找。两个技能在门禁之后并列，一次改动同时碰到正文与主题时先开 `writing-quarto`，正文定稿后再改主题，最后统一走渲染检查。
 
 ## 四个域：内容、结构、版式、措辞
 
-域是内容、结构、版式、措辞：内容管任务、行为与页面骨架（第 1–2 步），结构管块序与段落划分（第 3–4 步），措辞管句子与用词（第 5–6 步与第 8 步），版式管标点、混排、列表与加粗（第 7 步）；整书字体、间距与页面样式归主题技能。域与九步的对应表只在 `skills/writing-quarto/SKILL.md` 的「九步」小节，本页不复制。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
+域是内容、结构、版式、措辞：内容管任务、行为与页面骨架（第 1–2 步），结构管块序与段落划分（第 3–4 步），措辞管句子与用词（第 5–6 步），版式管标点、混排、列表与加粗（第 7 步），第 8–9 步做回读与检查；整书字体、间距与页面样式归主题技能。域与九步的对应表只在 `skills/writing-quarto/SKILL.md` 的「九步」小节，本页不复制。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
 
 ## 四层加载
 
@@ -34,21 +34,21 @@ flowchart TD
 | --- | --- | --- | --- |
 | 常驻元数据 | 两个 `SKILL.md` 的 frontmatter | 每次技能列表查询 | 每个约 100 token |
 | 技能正文 | `SKILL.md` 的 H2 各节 | 技能被选中后整篇载入 | 见 `token-budget.md` |
-| 步骤 | `steps/0N-*.md` | 走到第 N 步时只开同号一份 | 见 `token-budget.md` |
+| 步骤 | `steps/0N-*.md` | 走到第 N 步时只开对应一份 | 见 `token-budget.md` |
 | 条文与案例 | `writing/`、`writing/examples/`、`quarto/` | 判不准、排错或步骤明确指向时 | 见 `token-budget.md` |
 
-`SKILL.md` 的九步表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `writing/examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/08-tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `token-budget.md`。
+`SKILL.md` 的九步表与入口表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `writing/examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/08-tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `token-budget.md`。
 
 ## 调用与常驻开销
 
-技能列表每次会话调用一次 `list()`；`findBookRoot` 不通过时返回空数组，两个技能的名字与正文都不进上下文。两个工具则在插件加载时注册，不随工作区门禁出现或消失：`quarto_render_check` 在执行时再查书根，非书项目直接拒绝；`quarto_pass_report` 只组装回执，不读工作区，任何会话都能调用。工具 schema 因此是常驻开销，门禁只约束技能列表。单次技能激活的上限见上一节；整章写作打开 `steps/03-blocks.md` 时不再叠加同号案例与条文。
+技能列表每次会话调用一次 `list()`；`findBookRoot` 不通过时返回空数组，两个技能的名字与正文都不进上下文。两个工具则在插件加载时注册，不随工作区门禁出现或消失：`quarto_render_check` 在执行时再查书根，非书项目直接拒绝；`quarto_pass_report` 只组装回执，不读工作区，任何会话都能调用。工具 schema 因此是常驻开销，门禁只约束技能列表。单次技能激活的上限见上一节；整章写作打开 `steps/03-blocks.md` 时不再叠加该步点名的案例与条文。
 
 ## 文件职责
 
 | 路径 | 唯一职责 |
 | --- | --- |
 | `skills/writing-quarto/SKILL.md` | 触发描述、适用边界、九步路由、跨步不变量 |
-| `skills/writing-quarto/` 的 `steps/`、`quarto/`、`examples/`、`references/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/writing-quarto-layout.md`，本表不重复 |
+| `skills/writing-quarto/` 的 `steps/`、`writing/`、`quarto/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/module-layout.md`，本表不重复 |
 | `skills/designing-theme/SKILL.md` | 触发描述、六步、主题文件入口 |
 | `skills/designing-theme/theme/` | 阅读表面理由、主题步骤与主题系统 |
 | `skills/designing-theme/assets/theme/` | `content.css` 与 SCSS 层 |
@@ -59,11 +59,10 @@ flowchart TD
 | `docs/plugin-boundaries.md` | 工作区检查的六类情形 |
 | `docs/plugin-layout.md` | 仓库目录、运行环境与发布边界 |
 | `docs/triggering.md` | 触发矩阵与描述维护规则 |
-| `docs/writing-quarto-layout.md` | 写作技能的目录分层 |
 | `docs/versioning.md` | 版本号与发布顺序 |
 
 同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/08-tables.md`，交叉引用的标签、前缀与书内编号在 `quarto/06-crossrefs.md`，主题变量在 `theme/03-theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
 
 ## 检查
 
-`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs` 与 `scripts/checking-package.mjs`；`npm test` 先构建再跑 `tests/*.test.mjs`，两者都要过。结构检查覆盖本图里的每一层：`SKILL.md` 的 H2 与九步表、步骤文件号与 H1、`quarto/` 与 `examples/` 非空、Markdown 链接可解析、本页存在且被 README 的文档表引用。新增或改名文件时先改本页的文件职责表，再改结构检查，最后改 `docs/plugin-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建再跑 `tests/*.test.mjs`，两者都要过。结构检查覆盖本图里的每一层：`SKILL.md` 的 H2 与九步表、步骤文件号与 H1、`quarto/` 与 `writing/examples/` 非空、反引号路径与节名、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。

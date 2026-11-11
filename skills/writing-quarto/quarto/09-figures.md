@@ -41,6 +41,7 @@
 图注给视觉读者，替代文本给读屏软件；两者不互相复制：
 
 - Markdown 图片用 `fig-alt` 写替代文本，一句话说明图的用途与读图结论，不重复图注原文：`![…](board.png){fig-alt="棋盘坐标：3 行 3 列，左上角为 (0, 0)"}`。
+- `{mermaid}` 的替代文本写进图源的 `accTitle:`（长描述用 `accDescr:`），不要写 `fig-alt`：Quarto 的 Mermaid 单元不解析 `fig-alt`，块首 `%%| aria-label` 也只标记外层 div；写法与核对见 `quarto/11-mermaid.md`。
 - 只有装饰作用、正文已完整说明的图才留空替代文本：`{fig-alt=""}`；不要省略属性后让文件名充当替代文本。
 - 原生 SVG 已用 `role="img"` 与 `aria-label` 承担替代文本，`aria-label` 与 `figcaption` 各写各的，不要求逐字相同。
 - 替代文本里不写“图片”“下图”这类载体词，直接写图承载的信息。

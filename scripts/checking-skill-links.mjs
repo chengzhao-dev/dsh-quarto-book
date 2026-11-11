@@ -22,7 +22,7 @@ const expected = [
 ];
 
 const theme = join(repo, 'skills', 'designing-theme');
-const themeExpected = ['SKILL.md', 'scripts/checking-layout.py', 'scripts/measuring-pages.mjs', 'theme/03-theme-system.md', 'theme/01-reading-surface.md'];
+const themeExpected = ['SKILL.md', 'scripts/checking-layout.py', 'scripts/measuring-pages.mjs', 'theme/02-theme-spine.md', 'theme/03-theme-system.md', 'theme/01-reading-surface.md'];
 
 const gone = ['conventions', 'knowledge', 'references', 'examples', 'writer-spine.md', 'writing-spine.md', 'task-routes.md', 'INDEX.md'];
 

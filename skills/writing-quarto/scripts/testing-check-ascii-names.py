@@ -37,8 +37,11 @@ def main() -> int:
     module = load_module()
     failures: list[str] = []
 
-    accepted = ("designing-theme", "01-rules.qmd", "theme-light.scss", "v1.2.md")
-    rejected = ("board_test.cpp", "test support.md", "Designing-theme", "a--b.md")
+    accepted = (
+        "designing-theme", "01-rules.qmd", "theme-light.scss", "v1.2.md",
+        "board_test.cpp", "checking-book.py", "cli_test.cpp",
+    )
+    rejected = ("test support.md", "Designing-theme", "a--b.md")
 
     for name in accepted:
         error = module.name_form_error(name)

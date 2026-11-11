@@ -1,6 +1,6 @@
 # Mermaid 图表渲染约定
 
-本文件记录 `content/**/*.qmd` 中 Mermaid 图表的渲染层约定；是否使用图表的门槛见 `writing-quarto` 技能的 P0 硬约束，主题侧取色与排版守卫见 `designing-theme` 技能的 `../designing-theme/assets/theme/css/mermaid.css`。
+本文件记录 `content/**/*.qmd` 中 Mermaid 图表的渲染层约定；是否使用图表的门槛见 `writing-quarto` 技能的 P0 硬约束，主题侧取色与排版守卫见 `designing-theme` 技能的 `../../designing-theme/assets/theme/css/mermaid.css`。
 
 Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见 `quarto/10-coords.md`，禁止用 Mermaid 硬画网格。
 
@@ -12,9 +12,9 @@ Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏
 
 ## 无障碍名称
 
-每个 `{mermaid}` 围栏都写角色与名称：`{.mermaid role="img" aria-label="调用链：Server 接收请求，交给 Controller 处理。"}`；`fig-cap` 给视觉读者，`aria-label` 给读屏软件，两处各写一句短名称。
+每个 `{mermaid}` 图在图表类型行之后写 `  accTitle: 调用链：Server 接收请求，交给 Controller 处理。`；`fig-cap` 给视觉读者，`accTitle` 进入生成的 SVG，作为读屏软件的可访问名称，两处各写一句短名称。名称较长时改用 `accDescr:`。
 
-名称说清谁和谁、按什么顺序、结果落到哪，不写“流程图”这类对象名。缺名称时 axe 报 `svg-img-alt`；渲染核对在 HTML 里搜 `<pre class="mermaid" role="img"`。
+`role`/`aria-label` 写在围栏头（如 `{mermaid role=...}`）会被 Quarto 丢掉，不要用；块首 `%%| aria-label` 只落在外层 `<div class="cell">` 上，SVG 自身仍没有名称，也不算合格。渲染核对在 HTML 里搜 `mermaid-js` 容器与图源里的 `accTitle`，不搜 `<div>` 的 `aria-label`。
 
 ## 块首固定 init 指令
 

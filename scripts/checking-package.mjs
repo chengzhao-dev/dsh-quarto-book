@@ -18,6 +18,7 @@ for (const readme of ['README.md', 'README.en.md']) {
   requireText(readme, `@${version}`, '当前版本安装命令')
   requireText(readme, `#v${version}`, '当前版本 tag')
 }
+requireText('docs/versioning.md', `**${version}**`, '当前版本号')
 
 const patch = readFileSync(path.join(root, 'cordis.patch.yml'), 'utf8')
 const patchName = /name:\s*['"]?([^'"\s]+)['"]?/.exec(patch)?.[1]

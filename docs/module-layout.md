@@ -4,10 +4,10 @@
 
 命名规则：
 
-- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；有先后的文件加两位数字前缀，按种类并列的案例不加数字。
+- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；有先后的文件加两位数字前缀，案例统一用两位数字前缀并按章内阅读顺序编号。
 - 同一事实只在一处成文；旧路径不留转述页。
-- `examples/` 与 `glossary/` 下不再建子目录。
-- 篇幅上限见技能根的 `token-budget.md`。
+- `examples/` 下不再建子目录。
+- 篇幅上限见 `skills/writing-quarto/token-budget.md`。
 
 ```text
 ├── .editorconfig                                                 # 文件
@@ -30,8 +30,7 @@
 │   ├── plugin-flow.md                                            # 文件
 │   ├── plugin-layout.md                                          # 文件
 │   ├── triggering.md                                             # 文件
-│   ├── versioning.md                                             # 文件
-│   └── writing-quarto-layout.md                                  # 文件
+│   └── versioning.md                                             # 文件
 ├── icon.svg                                                      # 文件
 ├── lib/                                                         #/ 目录
 │   ├── index.js                                                  # 文件

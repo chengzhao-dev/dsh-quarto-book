@@ -358,6 +358,38 @@ test('search.json 为顶层数组时也算索引可用', async () => {
   }
 })
 
+test('Python 缺失时环境跳过使 HTML 不可用', async () => {
+  const root = await bookFixture({
+    indexHtml:
+      '<!doctype html><html><head><meta charset="utf-8"><title>书</title></head><body><div class="code-copy-outer-scaffold">代码</div></body></html>',
+  })
+  try {
+    const spawn = (command, args, options) => {
+      if (command === 'quarto') return fakeSpawn({ code: 0 })(command, args, options)
+      const error = new Error('spawn python ENOENT')
+      error.code = 'ENOENT'
+      throw error
+    }
+    const result = await runRenderCheck({
+      root,
+      qmdPath: 'chapter.qmd',
+      dryRun: false,
+      spawn,
+    })
+    const callouts = result.html_report.checks.find((check) => check.id === 'callouts')
+    const dom = result.html_report.checks.find((check) => check.id === 'dom')
+    assert.equal(callouts.status, 'skip')
+    assert.equal(callouts.environment_failure, true)
+    assert.equal(dom.status, 'skip')
+    assert.equal(dom.environment_failure, true)
+    assert.equal(result.html_report.usable, false)
+    assert.match(result.errors.join('\n'), /checking-callouts\.py 未运行/)
+    assert.match(result.errors.join('\n'), /checking-dom\.py 未运行/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('单个 HTML 超过上限时给出明确失败原因', async () => {
   const root = await bookFixture()
   try {
