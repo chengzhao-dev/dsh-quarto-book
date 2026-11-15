@@ -92,6 +92,6 @@ metadata:
 - [ ] 检查命令退出码为 0；项目有检查命令就按它跑，没有就跑本技能 `scripts/` 下的检查。
 - [ ] 新人能按正文独立完成任务：前置、动作、结果与失败出口齐全，术语首用有解释；清单见 `writing/05-readability.md`。
 - [ ] 混排自查通过：`scripts/checking-prose.py --root <book>` 无高置信问题。
-- [ ] 改动章节正文或需要确认整书 HTML 时调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。只改 README、说明页时跳过渲染。优先用工具检查，不用手跑 `quarto render` 代替检查；只有工具报产物缺失或需要人工复现排版时才在书根手跑一次，并说明原因。不截图。
+- [ ] 改动章节正文或需要确认整书 HTML 时调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。只改 README、说明页时跳过渲染。渲染优先交给 `quarto_render_check`。
 - [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `writing-quarto`，`mode` 填 `write`、`rewrite` 或 `polish`，改动次数、未改项与检查结论照实填。卡片就是回执，回复里不再复述；未改项传 `[]`，当前文件不是章节时传 `executed: false`。
 - [ ] 只读审查：不改文件，不调 `quarto_render_check`、`quarto_pass_report`，报告写清行号、规则出处与改法。
