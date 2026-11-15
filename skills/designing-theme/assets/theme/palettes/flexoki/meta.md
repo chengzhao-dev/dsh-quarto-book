@@ -17,7 +17,7 @@
 | favicon light | `palettes/flexoki/favicon-light.svg` |
 | favicon dark | `palettes/flexoki/favicon-dark.svg` |
 
-`_quarto.yml` 的 `theme` 与 `highlight-style` 指向本目录；`css` 里本目录 tokens 必须排在 `palettes/solarized/tokens.css` 之前。
+`_quarto.yml` 的 `theme` 与 `syntax-highlighting` 指向本目录；`css` 里本目录 tokens 必须排在 `palettes/solarized/tokens.css` 之前。
 
 ## 书标与标签图标
 
@@ -42,7 +42,7 @@ Callout 是编辑注：2px 左条、`-bg: transparent`、无圆角；note 用中
 
 ## 切换
 
-Flexoki 是编译默认：`_quarto.yml` 的 `theme`、`highlight-style` 都指向本目录。读者切到 Solarized 只改 `html[data-palette="solarized"]`，由 `palettes/solarized/tokens.css` 与 `syntax.css` 覆盖；选择器与首屏恢复在 `includes/palette.html`。
+Flexoki 是编译默认：`_quarto.yml` 的 `theme`、`syntax-highlighting` 都指向本目录。读者切到 Solarized 只改 `html[data-palette="solarized"]`，由 `palettes/solarized/tokens.css` 与 `syntax.css` 覆盖；选择器与首屏恢复在 `includes/palette.html`。
 
 ## 来源
 

@@ -4,7 +4,7 @@
 
 令牌语义与流程见本文件。**颜色**只写在 `palettes/<name>/tokens.css` 与同目录的品牌标/标签图标（`brand-mark.svg`、`favicon-light.svg`、`favicon-dark.svg`）；Solarized 与山光的语法色是仅有的 CSS 例外，写在各自的 `palettes/<name>/syntax.css`。**结构尺度**（字号、半径、字体栈、`--content-width`）写在 `css/tokens.css`。本文件不维护数值副本。
 
-编译默认色板是 `palettes/flexoki`（Flexoki Light / Dark）；`palettes/solarized` 与 `palettes/hill-light`（山光四时：晓雾/午荫/暮烟/夜月）是运行时可选覆盖层，不参与编译。每个色板目录带同一枚「打开的书」品牌标与明暗两份标签图标；书标外形全站一份，颜色随色板。换默认色板时只改 `_quarto.yml` 的 pack SCSS、`palettes/<name>/tokens.css` 与 `highlight-style`，共享组件 CSS 不动。
+编译默认色板是 `palettes/flexoki`（Flexoki Light / Dark）；`palettes/solarized` 与 `palettes/hill-light`（山光四时：晓雾/午荫/暮烟/夜月）是运行时可选覆盖层，不参与编译。每个色板目录带同一枚「打开的书」品牌标与明暗两份标签图标；书标外形全站一份，颜色随色板。换默认色板时只改 `_quarto.yml` 的 pack SCSS、`palettes/<name>/tokens.css` 与 `syntax-highlighting`，共享组件 CSS 不动。
 
 ### 令牌索引
 
@@ -96,7 +96,7 @@
 - **纯文本代码块**：与语言块共用 `--code-*`；`text` 不启用语言 token。
 - **公式**：MathJax 会把 `font-size: 94%` 写进 `mjx-container` 行内 style，主题用 `#quarto-document-content mjx-container { font-size: 1em !important }` 拉回与正文同档（17px），display 公式上下各留 1.3rem；行内公式与中文同基线，无需额外对齐。
 - **代码标注**：`.code-annotation-gutter` 底色透明；行内编号与注释列表编号统一成 11px 描边圆圈，描边与数字用 `--accent`，注释正文 14px `--text-secondary`。Quarto 自带的 `code.sourceCode .code-annotation-anchor` 特异性高于主题同名单类选择器，覆盖必须写 `#quarto-document-content code.sourceCode .code-annotation-anchor`。
-- **代码工具**：`.btn.code-tools-button` 是引导性小按钮（13px、`--text-secondary`、透明底、hover `--surface-raised`）；它打开的是 Bootstrap 模态 `#quarto-code-tools-source`，模态面板用 `--surface-raised` 底 + `--card-border` 边 + `--radius-lg`，标题用黑体，内容区用 `--code-bg`（里面展示的是源文件），遮罩用 `--overlay-scrim`。Quarto 1.10.19 下 `code-fold` 不生成折叠加壳（只有 JS 残留），折叠样式无为而治，不要为它写选择器。
+- **代码工具**：`.btn.code-tools-button` 是引导性小按钮（13px、`--text-secondary`、透明底、hover `--surface-raised`）；它打开的是 Bootstrap 模态 `#quarto-code-tools-source`，模态面板用 `--surface-raised` 底 + `--card-border` 边 + `--radius-lg`，标题用黑体，内容区用 `--code-bg`（里面展示的是源文件），遮罩用 `--overlay-scrim`。Quarto 1.10.19 下 `code-fold: true` 会生成 `<details class="code-fold">` 折叠加壳；项目启用时为标题、箭头与边框写样式，不启用时不要为它加选择器。
 - **`.code-caption`**：次要说明色，紧贴对象；写作见 `../../writing-quarto/quarto/03-authoring.md`。
 - **可折叠答案**：`details.answer-disclosure` 默认收起，用上下发丝线、无圆角、无底色，像书页里的自测折页。
 - **图**：Mermaid 与坐标图用令牌着色、字体随 `--ui-font`；围栏 `%%{init}%%` 用同栈短版；暗色不为白底图加滤镜。
@@ -134,12 +134,12 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 
 1. `_quarto.yml` 的 `theme.light/dark` 指到 `palettes/flexoki/theme-*.scss`。
 2. `css:` 列表先写 `palettes/flexoki/tokens.css`，再写 `palettes/solarized/tokens.css`、`palettes/solarized/syntax.css`、`palettes/hill-light/tokens.css`、`palettes/hill-light/syntax.css`；顺序决定覆盖关系。
-3. `highlight-style` 指到 Flexoki 目录的两份 `.theme`。
+3. `syntax-highlighting` 指到 Flexoki 目录的两份 `.theme`。
 4. `include-in-header` 加 `includes/palette.html`：首屏恢复 `book-palette`（含山光的 `book-hill-mode`）与明暗，并按 `link[rel~="icon"]` 的现有相对前缀换 favicon。
 5. `book.favicon` 指 `palettes/flexoki/favicon-light.svg`，另外三份 favicon 加进 `resources`；`footer.html` 的观察器在明暗/色板变化后再同步一次 favicon 与 theme-color。
 6. 跑 `checking-layout.py`：色值按活跃 pack 表，并始终核 Solarized 覆盖层；`checking-dom.py` 的 C4 核四份 favicon 已发布。
 
-Solarized 是运行时层，不进 `_quarto.yml` 的 theme/highlight-style：读者选择写 `html[data-palette="solarized"]`，`palettes/solarized/tokens.css` 覆盖语义色，`syntax.css` 覆盖 `code span.*`。它的 tokens 都带选择器前缀，因此不能直接当编译默认；要整本编成 Solarized，需要另做无前缀的 tokens 版本，再换 `theme` 与 `highlight-style`。
+Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting：读者选择写 `html[data-palette="solarized"]`，`palettes/solarized/tokens.css` 覆盖语义色，`syntax.css` 覆盖 `code span.*`。它的 tokens 都带选择器前缀，因此不能直接当编译默认；要整本编成 Solarized，需要另做无前缀的 tokens 版本，再换 `theme` 与 `syntax-highlighting`。
 
 山光同样是运行时层，但比 Solarized 多一层状态：Quarto 只能编译一对 light/dark，山光有四种时辰（晓雾 / 午荫 / 暮烟 / 夜月，前三浅纸、夜月暗纸），所以四种模式全部由 `html[data-mode]` 在运行时选择，`tokens.css` 与 `syntax.css` 都带 `html[data-palette="hill-light"][data-mode="…"]` 前缀。
 

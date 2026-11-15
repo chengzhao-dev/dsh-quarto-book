@@ -13,7 +13,7 @@
 | 选项 | 取值 | 备注 |
 |---|---|---|
 | `theme` | `light: [cosmo, theme/palettes/flexoki/theme-light.scss]` + `dark: [darkly, theme/palettes/flexoki/theme-dark.scss]` | 内置主题与项目样式叠加，顺序决定覆盖关系；Flexoki 是编译默认 |
-| `highlight-style` | `light:`/`dark:` 指向 `theme/palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` | 明暗分别指定，与 `palettes/flexoki/meta.md` 同步；Solarized 的语法色由 `theme/palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，不改这里 |
+| `syntax-highlighting` | `light:`/`dark:` 指向 `theme/palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` | 明暗分别指定，与 `palettes/flexoki/meta.md` 同步；Solarized 的语法色由 `theme/palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，不改这里 |
 | `filters` | `filters/answering-disclosure.lua`（顶层 `filters:`，书内副本） | 将正文 `.answer` 转为默认收起的原生 `details` |
 | `toc` / `toc-depth` / `toc-location` | `true` / `3` / `right` | 右侧目录最多到 H3，窄屏会折叠，不作唯一定位手段 |
 | `number-sections` | `false` | 因此标题不手填序号，见 `quarto/01-basics.md` |
@@ -93,7 +93,7 @@
 1. 看完整报错，先判断失败阶段：YAML 解析、Lua 过滤器，还是代码执行。
 2. YAML 阶段：核对缩进/冒号与选项嵌套层级。
 3. 代码执行阶段：检查依赖是否安装、缓存是否过期。
-4. 找不到单文件：整本书在书根用 `quarto render`（子目录裸跑会静默不渲染）；单章用 `quarto render 文档.qmd`，并检查文件名与相对路径。
+4. 找不到单文件：整本书在书根用 `quarto render`；在子目录裸跑只渲染该子目录的文档（输出进 `_book/` 对应子路径），不要把它当整书构建。单章用 `quarto render 文档.qmd`，并检查文件名与相对路径。
 
 ### 7. 发布到 GitHub 但页面没更新 / 打不开 / 乱码
 

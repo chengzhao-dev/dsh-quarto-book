@@ -1,4 +1,4 @@
-# 行尾由 Git 统一：文本文件一律 LF，Windows 脚本单独 CRLF
+# 行尾由 Git 统一：文本文件一律 LF，Windows 批处理脚本单独 CRLF
 * text=auto eol=lf
 *.bat text eol=crlf
 *.cmd text eol=crlf

@@ -12,6 +12,8 @@
 
 `.bat` 与 `.cmd` 用 CRLF；`.sh` 必须是 LF，否则在 Linux、WSL 与 CI 里会报 `bad interpreter`。
 
+Markdown 与 Quarto 的硬换行用行尾反斜杠或 `<br>`，不用行尾两个空格：仓库根的 `.editorconfig` 对 `*.md`、`*.qmd` 也保持 `trim_trailing_whitespace = true`，保存时会删掉行尾空格，硬换行就断了。
+
 二进制文件（图片、字体、PDF）不按文本规则处理，也不要让 Git 做行尾转换。
 
 ## 权威与工具

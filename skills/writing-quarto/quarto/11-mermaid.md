@@ -6,7 +6,7 @@ Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状
 
 ## 只使用 {mermaid} 围栏
 
-Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏被当作普通代码块，渲染结果是语法高亮的源码而不是图。`verifying-content.py` 在禁用词扫描中拦截 plain 围栏。
+Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏实测输出 `<pre class="mermaid">`，不带 `mermaid-js` 运行时，图不会渲染。`verifying-content.py` 在禁用词扫描中拦截 plain 围栏。
 
 渲染核对方法：调用 `quarto_render_check`，在返回的 `html_report` 对应 HTML 中应出现 mermaid 图表容器（`mermaid-js` 或 `quarto-diagram` 类名），不应出现 `sourceCode mermaid` 高亮代码块。
 

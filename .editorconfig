@@ -1,13 +1,34 @@
+# 本仓编辑器保存时的格式约定。
+#
+# 适用于编码、行尾、空白、缩进与列宽；行尾的最终形式以 .gitattributes 为准。
+
+# 本文件是仓库的根配置，上层目录中的 .editorconfig 不再生效。
 root = true
 
+# 适用于未在下面单独列出的文本文件：
+# Markdown、Quarto、JSON、YAML、TOML、HTML、CSS、JS 等。
 [*]
+# 使用 UTF-8 编码。
 charset = utf-8
+# 使用 LF 行尾。
 end_of_line = lf
+# 文件末尾保留一个换行。
 insert_final_newline = true
+# 删除行尾空白。
 trim_trailing_whitespace = true
+# 使用空格缩进。
+indent_style = space
+# 每级缩进 2 个空格。
+indent_size = 2
 
+# 适用于 Python 检查脚本。
+[*.py]
+# 使用空格缩进。
+indent_style = space
+# 每级缩进 4 个空格。
+indent_size = 4
+
+# 适用于 Windows 批处理脚本。
 [*.{bat,cmd}]
+# 使用 CRLF 行尾。
 end_of_line = crlf
-
-[*.md]
-trim_trailing_whitespace = false

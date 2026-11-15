@@ -216,6 +216,8 @@ test('首页含 charset 与 sitemap/search 时全部通过', async () => {
       spawn: fakeSpawn({ code: 0 }),
     })
     assert.equal(result.html_report.usable, true)
+    const output = result.html_report.checks.find((check) => check.id === 'output')
+    assert.equal(output.status, 'pass')
   } finally {
     await rm(root, { recursive: true, force: true })
   }

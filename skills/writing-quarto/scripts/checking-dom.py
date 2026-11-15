@@ -162,9 +162,9 @@ def hidden_selectors(block_css, needle):
 
 
 def parse_highlight_styles(quarto_text):
-    """从 _quarto.yml 解析 highlight-style.light / .dark。"""
+    """从 _quarto.yml 解析 syntax-highlighting（兼容旧 highlight-style）的 light / dark。"""
     block = re.search(
-        r"highlight-style:\s*\n((?:[ \t]+.+\n)+)",
+        r"(?:syntax-highlighting|highlight-style):\s*\n((?:[ \t]+.+\n)+)",
         quarto_text,
     )
     if not block:
@@ -230,12 +230,12 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         and no_custom
     )
     results.append((
-        "C0", "活跃 palette 与 highlight-style 一致", c0,
+        "C0", "活跃 palette 与 syntax-highlighting 一致", c0,
         "palette=%s，light=%s（期望 %s），dark=%s（期望 %s），无 custom.theme=%s" % (
             palette, light_hl, expect_light, dark_hl, expect_dark, no_custom),
         [
             "_quarto.yml 的 palettes/<name>/tokens.css 须与同 pack meta.md 的 highlight 映射一致",
-            "禁止 custom.theme；换色板时同步改 theme SCSS、palette tokens 与 highlight-style",
+            "禁止 custom.theme；换色板时同步改 theme SCSS、palette tokens 与 syntax-highlighting",
         ],
     ))
 
@@ -399,7 +399,7 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
     results.append((
         "C6", "代码主题与 token 样式稳定", c6, summary,
         [
-            "亮色/暗色应由 _quarto.yml 的 highlight-style（与活跃 palette meta 一致）提供",
+            "亮色/暗色应由 _quarto.yml 的 syntax-highlighting（与活跃 palette meta 一致）提供",
             "代码 CSS 应统一使用 --mono-font，不按 Bash/PowerShell 命令 token 强制改色",
             "普通文本代码块应保持左对齐并保留终端输出的空格",
             "普通文本代码块不应带 sourceCode、bash、powershell 或 hljs 类",

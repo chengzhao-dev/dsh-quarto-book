@@ -1,6 +1,6 @@
 # Palette: solarized
 
-运行时可选色板。默认页面是 Flexoki；读者在导航栏选择 Solarized 后，`html[data-palette="solarized"]` 生效，本目录的 `tokens.css` 覆盖语义颜色、`syntax.css` 覆盖语法色。亮色用 Solarized 官方 base3 页面（`#FDF6E3`），暗色用 base03 页面（`#002B36`）；正文与注释按 4.5:1 抬一档：亮色正文 `#526C74`、注释 `#556C73`；暗色正文 `#839496`、注释 `#93A1A1`。链接遵循官方 `rebase`：亮色 base01 `#586E75`、暗色 base1 `#93A1A1`，hover 才转官方蓝（亮 `#268BD2` / 暗 `#51A0D5`）；语法里的标识符蓝仍用抬过的 `#1B6EA3` / `#51A0D5`。本目录另带一对 skylighting 主题，供「整本按 Solarized 编译」时替换 `highlight-style` 使用。
+运行时可选色板。默认页面是 Flexoki；读者在导航栏选择 Solarized 后，`html[data-palette="solarized"]` 生效，本目录的 `tokens.css` 覆盖语义颜色、`syntax.css` 覆盖语法色。亮色用 Solarized 官方 base3 页面（`#FDF6E3`），暗色用 base03 页面（`#002B36`）；正文与注释按 4.5:1 抬一档：亮色正文 `#526C74`、注释 `#556C73`；暗色正文 `#839496`、注释 `#93A1A1`。链接遵循官方 `rebase`：亮色 base01 `#586E75`、暗色 base1 `#93A1A1`，hover 才转官方蓝（亮 `#268BD2` / 暗 `#51A0D5`）；语法里的标识符蓝仍用抬过的 `#1B6EA3` / `#51A0D5`。本目录另带一对 skylighting 主题，供「整本按 Solarized 编译」时替换 `syntax-highlighting` 使用。
 
 ## 接线
 
@@ -16,7 +16,7 @@
 | favicon light | `palettes/solarized/favicon-light.svg` |
 | favicon dark | `palettes/solarized/favicon-dark.svg` |
 
-当前 `_quarto.yml` **不**引用本目录的 SCSS 与 highlight 主题，只挂 `tokens.css` + `syntax.css`：Quarto 只能编译一对高亮样式，编译期保留 Flexoki 那对，Solarized 的语法色由 `syntax.css` 按 `html[data-palette="solarized"]` 覆盖 `code span.*`。当前目录只服务运行时层。若以后要整本编译 Solarized，需要另写不带 `html[data-palette]` 前缀的 tokens 版本，再换 `theme` 与 `highlight-style` 并删掉 `syntax.css` 这层覆盖。
+当前 `_quarto.yml` **不**引用本目录的 SCSS 与 highlight 主题，只挂 `tokens.css` + `syntax.css`：Quarto 只能编译一对高亮样式，编译期保留 Flexoki 那对，Solarized 的语法色由 `syntax.css` 按 `html[data-palette="solarized"]` 覆盖 `code span.*`。当前目录只服务运行时层。若以后要整本编译 Solarized，需要另写不带 `html[data-palette]` 前缀的 tokens 版本，再换 `theme` 与 `syntax-highlighting` 并删掉 `syntax.css` 这层覆盖。
 
 ## 书标与标签图标
 

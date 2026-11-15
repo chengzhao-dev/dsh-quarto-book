@@ -7,6 +7,7 @@
 ## 通用情况
 
 - 报告失败时排障写成可跟做步骤：失败现象、检查项、修法各一行，命令可直接复制。
+- 检查命令只读，只写终端；不要在书根重定向出 `*.log`（如 `temp-enc.log`）。需要留证据写 `temp/`；收尾核 `git status --porcelain`，只应剩下本轮有意改动的文件。
 
 ### 内容与链接
 
@@ -46,9 +47,9 @@
 - `callouts`：回第 3 步改 Callout 写法。
 - `dom`：回第 7 步改版式，或转 `designing-theme`。
 
-不手跑 `quarto render`，也不手跑 `checking-output.py`、`checking-callouts.py`、`checking-dom.py`。工具已经按当前书配置调用它们。
+默认不手跑 `quarto render`，也不手跑 `checking-output.py`、`checking-callouts.py`、`checking-dom.py`；工具已经按当前书配置调用它们。只有工具报产物缺失或需要人工复现排版时才手跑一次 `quarto render`，随后仍用工具核对。
 
-渲染之外还有一层可访问性核对：书配置的 debug 项里可打开 `axe: true`，Quarto 会在浏览器里加载 axe-core 报告 `heading-order`、`svg-img-alt` 这类问题。报告只作提示，改法是给 mermaid 图补图源 `accTitle:`、给 HTML/SVG 图补 `aria-label`、补齐跳过的标题层级，不把行为项当作新步骤。
+渲染之外还有一层可访问性核对：在 `format: html` 下打开 `axe: true`（不是 `book:` 或 `debug:` 项），Quarto 会在浏览器里加载 axe-core 报告 `heading-order`、`svg-img-alt` 这类问题。报告只作提示，改法是给 mermaid 图补图源 `accTitle:`、给 HTML/SVG 图补 `aria-label`、补齐跳过的标题层级，不把行为项当作新步骤。
 
 ### 执行回执
 

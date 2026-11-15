@@ -13,7 +13,6 @@ Project-specific rules are optional. If the book has
 
   {
     "forbidden_terms": ["..."],
-    "fragment_prefixes": ["games/", "shared/"],
     "chapter_titles": {"content/part/01-intro.qmd": "入门"},
     "later_chapter_names": {"content/part/02-board.qmd": ["LaterType"]}
   }

@@ -1,5 +1,6 @@
 {
   "forbidden_terms": [],
-  "fragment_prefixes": [],
-  "chapter_titles": {}
+  "lead_chars": [60, 140],
+  "chapter_titles": {},
+  "later_chapter_names": {}
 }

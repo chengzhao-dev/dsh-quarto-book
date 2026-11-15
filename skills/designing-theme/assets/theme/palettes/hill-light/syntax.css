@@ -1,6 +1,6 @@
 /* ============================================================
    Palette: hill-light · 语法高亮覆盖层
-   Quarto 只编译一对 highlight-style（Flexoki）；山光四时的语法色
+   Quarto 只编译一对 syntax-highlighting（Flexoki）；山光四时的语法色
    在这里按 html[data-palette="hill-light"][data-mode] 覆盖。
    只写颜色，不改字号、字重与布局。
    ============================================================ */

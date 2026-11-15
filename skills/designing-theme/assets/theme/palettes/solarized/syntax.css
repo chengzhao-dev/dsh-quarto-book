@@ -1,6 +1,6 @@
 /* ============================================================
    Palette: solarized · 语法高亮覆盖层
-   Quarto 只能按明暗编译一对 highlight-style，默认那对是 Flexoki；
+   Quarto 只能按明暗编译一对 syntax-highlighting，默认那对是 Flexoki；
    Solarized 的语法色在这里按 html[data-palette="solarized"] 覆盖。
    只写颜色，不改字号、字重与布局。
    ============================================================ */
