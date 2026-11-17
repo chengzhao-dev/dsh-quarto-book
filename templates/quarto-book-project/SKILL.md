@@ -1,6 +1,6 @@
 ---
 name: quarto-book-project
-description: 记录某一本 Quarto Book 的项目级约定：书名、读者、术语、渲染与检查命令、主题与过滤器路径；由项目维护，不随插件发布
+description: 记录某一本 Quarto Book 的项目级约定：书名、读者、术语、渲染与检查命令、主题与过滤器路径；本文件是插件提供的模板，复制到书的 .agents/skills/ 后随书维护
 ---
 
 # 项目级 Quarto Book 约定
@@ -24,7 +24,9 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 - 章节顺序的唯一来源：根 `_quarto.yml` 的 `book.chapters`。
 - 每章的类章或能力章、关键对象、`title` 与二级标题：`writing/chapter-map.md`。
-- 目录布局：正文按部分放在 `content/<part>/`，章节写成 `content/<part>/<NN-chapter>.qmd`；附录放在 `content/appendix/`，由根 `_quarto.yml` 的 `appendices` 引用。
+- 目录布局：正文按部分放在书根的章节目录（默认 `chapters/<part>/`），章节写成 `chapters/<part>/<NN>_<chapter>.qmd`；附录放在 `chapters/appendix/`，由根 `_quarto.yml` 的 `appendices` 引用。
+- 命名：目录名与文件名内的词间分隔用下划线，不用连字符；`index.qmd` 必须留在书根，Quarto 只把书根的同名文件当首页。
+- 渲染范围：Book 只渲染 `chapters` 与 `appendices` 列出的文件，目录里未登记的 `.qmd` 不会出现在产物中。
 - 改文件名时同轮同步 `_quarto.yml`、章节对照、`title` 和已有链接。
 
 ## 术语表

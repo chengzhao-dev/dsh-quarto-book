@@ -63,8 +63,7 @@ def render_grid(rows=3, cols=3, labels="coords", origin="top-left",
         f'<svg class="coords-grid" xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
         f'font-family="{FONT_FAMILY}" font-size="{font_size}">',
-        '<style>.coords-grid{color:#1F2328}'
-        '@media (prefers-color-scheme: dark){.coords-grid{color:#CDD9E5}}</style>',
+        '<style>.coords-grid{color:var(--body-color, currentColor)}</style>',
         '<g stroke="currentColor" fill="none" stroke-width="1.25">',
     ]
 
@@ -191,8 +190,7 @@ def render_index_strip(count, cols=3, highlight=None, cell=56, font_size=14):
         f'<svg class="coords-grid" xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
         f'font-family="{FONT_FAMILY}" font-size="{font_size}">',
-        '<style>.coords-grid{color:#1F2328}'
-        '@media (prefers-color-scheme: dark){.coords-grid{color:#CDD9E5}}</style>',
+        '<style>.coords-grid{color:var(--body-color, currentColor)}</style>',
         '<g stroke="currentColor" fill="none" stroke-width="1.25">',
     ]
 

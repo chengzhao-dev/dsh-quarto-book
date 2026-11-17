@@ -34,7 +34,7 @@ pre:not(.sourceCode) {
 }
 pre:not(.sourceCode) {
   border: 1px solid var(--code-border);
-  border-radius: var(--code-radius);
+  border-radius: var(--radius-md);
 }
 
 pre.sourceCode code,
@@ -102,7 +102,7 @@ div.sourceCode code {
   background-color: var(--code-title-bg);
   border: 1px solid var(--code-border);
   border-bottom: 0;
-  border-radius: var(--code-radius) var(--code-radius) 0 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 /* Quarto 的深色规则是 .quarto-dark .code-with-filename…，提高一层作用域才能
@@ -227,7 +227,7 @@ pre.sourceCode code > span:hover { background-color: var(--line-hover-bg); }
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   background: var(--surface-raised);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-code-menu);
   font-family: var(--ui-font);
   font-size: 0.875rem;
   padding: 0.25rem;

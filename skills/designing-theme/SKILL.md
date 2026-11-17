@@ -35,7 +35,7 @@ metadata:
 ## 加载与结束
 
 - 只改 `_quarto.yml` 实际引用的主题文件；不打开章节正文，也不打开章节以外的实现文件。
-- 一次激活只开本文件、`theme/02-theme-spine.md`、被改组件对应的那一节及其登记的 CSS；第 4 步按 `theme/02-theme-spine.md` 表内列出的四份一起开；同轮不把其余组件 CSS 和 `theme/` 的另外两份条文一起打开。
+- 一次激活只开本文件、`theme/02-theme-spine.md`、被改组件对应的那一节及其登记的 CSS；打开集合以 `theme/02-theme-spine.md` 的登记项为准，本文件不另列清单。
 - 同一文件最多退回上一步一次；第二次仍失败就停在检查输出上，不重走整段。
 - `scripts/checking-layout.py` 通过并完成一次整本渲染后，在同一轮结束 goal，不把没失败的步骤留到下一轮。
 - 不探测同 profile 的其他插件，也不把它们写成依赖；子会话按自己的 cwd 重新判定门禁。
@@ -51,7 +51,7 @@ metadata:
 ## P0 硬约束
 
 1. 主题资产被书根 `_quarto.yml` 以相对路径直接消费；移动或改名必须同步 `_quarto.yml`。
-2. `css/` 组件规则不写色值，语义颜色只来自 `palettes/<name>/tokens.css`（默认 Flexoki；Solarized 为运行时覆盖层）；`css/tokens.css` 只放结构尺度令牌，明暗共用。
+2. `css/` 组件规则不写语义色值或字面色，语义颜色只来自 `palettes/<name>/tokens.css`（默认 Flexoki；Solarized 为运行时覆盖层）；不随明暗与色板变化的界面 chrome 常量（灯光箱遮罩与按钮、色板身份色点）在 `css/tokens.css` 定义、组件用 `var()` 引用；`css/tokens.css` 其余只放结构尺度令牌，明暗共用。
 3. 这套资产是本插件主题的唯一来源。项目内若存在副本，先确认哪一份被 `_quarto.yml` 引用，再只改被引用的那一份，不假定两处自动同步。
 4. 修改主题或 `_quarto.yml` 后用 `quarto_render_check` 做整本渲染，验证明暗两套主题；布局调整优先修改 grid 与共享节奏，不用页面局部样式堆叠间距。
 5. 不新增字体文件、不引入新颜色来源：字体与颜色决定的理由在 `theme/01-reading-surface.md`，改决定先改知识再动资产。

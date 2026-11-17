@@ -49,7 +49,6 @@ html[data-palette="hill-light"]:not([data-mode]) body {
   --selection-bg: #CFE0DA;
   --mark-bg: rgba(138, 90, 18, 0.24);
   --sidebar-hover-bg: rgba(43, 53, 56, 0.04);
-  --sidebar-active-bg: rgba(45, 106, 102, 0.10);
   --sidebar-fg: #58686B;
   --accent: var(--action-color);
   --navbar-bg: #F2EFE7;
@@ -112,7 +111,6 @@ html[data-palette="hill-light"][data-mode="noon"] body {
   --selection-bg: #CCE5D8;
   --mark-bg: rgba(126, 81, 15, 0.24);
   --sidebar-hover-bg: rgba(38, 50, 48, 0.04);
-  --sidebar-active-bg: rgba(29, 106, 85, 0.10);
   --sidebar-fg: #4F615B;
   --accent: var(--action-color);
   --navbar-bg: #FAF6EC;
@@ -175,7 +173,6 @@ html[data-palette="hill-light"][data-mode="dusk"] body {
   --selection-bg: #E4CFB6;
   --mark-bg: rgba(138, 85, 24, 0.24);
   --sidebar-hover-bg: rgba(58, 44, 38, 0.04);
-  --sidebar-active-bg: rgba(53, 100, 93, 0.10);
   --sidebar-fg: #67534A;
   --accent: var(--action-color);
   --navbar-bg: #F1E2D0;
@@ -238,7 +235,6 @@ html[data-palette="hill-light"][data-mode="night"] body {
   --selection-bg: #35514B;
   --mark-bg: rgba(216, 171, 110, 0.24);
   --sidebar-hover-bg: rgba(215, 221, 217, 0.06);
-  --sidebar-active-bg: rgba(140, 185, 174, 0.10);
   --sidebar-fg: #A2AEA9;
   --accent: var(--action-color);
   --navbar-bg: #1B2223;
@@ -298,7 +294,6 @@ html[data-palette="hill-light"][data-mode="night"] body {
   --selection-bg: #CFE0DA;
   --mark-bg: rgba(138, 90, 18, 0.24);
   --sidebar-hover-bg: rgba(43, 53, 56, 0.04);
-  --sidebar-active-bg: rgba(45, 106, 102, 0.10);
   --sidebar-fg: #58686B;
   --accent: var(--action-color);
   --navbar-bg: #F2EFE7;

@@ -19,7 +19,7 @@
 | 机制型 | 声明 + 定义 | 实现文字 | 定义非平凡，需要讲分支、算法或步骤 |
 | 纯定义型 | 定义 | 实现文字 | 定义就在头文件（`constexpr`、模板），或声明已在本章前文出现过 |
 
-补充一条**组合转发例外**：同一小节里几个一跳转发的定义可以合并成一个短围栏，正文讲它们如何组合；合并后仍遵守「正文只讲围栏里看得到的代码」。
+每个一跳转发的定义各自一个围栏、各配一句导语；只有常量紧接着被下一行使用时才并入同一围栏。
 
 ## 不允许的写法
 
@@ -40,18 +40,18 @@
 
 改前——声明围栏，正文讲定义：
 
-```markdown
+````markdown
 ```{.cpp filename="board.h"}
   /// @return 任一方形成三连时该棋子类型；没有赢家时返回空。
   [[nodiscard]] std::optional<CellType> GetWinner() const;
 ```
 
 `GetWinner` 扫描全部整行、整列与两条对角线，命中就返回赢家。
-```
+````
 
 改后——组合围栏，正文对着代码讲组合：
 
-```markdown
+````markdown
 ```{.cpp filename="game.cpp"}
 GameResult Game::JudgeAfterPlace(const Board& board, Player player) {
   const auto winner = board.GetWinner();
@@ -66,10 +66,10 @@ GameResult Game::JudgeAfterPlace(const Board& board, Player player) {
 ```
 
 `JudgeAfterPlace` 先看赢家再看满盘；`Board` 只回答有没有三连、是否满盘，结束与否由对局层组合。
-```
+````
 
 ## 与其它规则的关系
 
 - **代码块门槛**（`steps/03-blocks.md`）：平凡实现不出围栏；本文件给的是「已经决定要讲」时该怎么配围栏。
 - **正文与注释分工**：契约与边界写进 `///`，正文不转述；实现文字只补围栏里没有的上下文（怎么组合、和谁配合）。
-- **检查器**：`scripts/verifying-content.py` 按 `###` 小节扫描，只有 `.h` 围栏而正文出现实现词时报 `decl-without-def`；「常见错误」「自测问题」「本章回顾」与表格行豁免。
+- **检查器**：`scripts/verifying-content.py` 按 `##`/`###` 小节扫描，只有 `.h` 围栏而正文出现实现词时报「只有声明围栏，正文却讲实现」（规则名 `decl-without-def`）；「常见错误」「自测问题」「本章回顾」、表格行、引用块、Callout 围栏与各类列表豁免。

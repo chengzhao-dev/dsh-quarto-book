@@ -2,7 +2,7 @@
 
 ## 令牌与色板（定颜色）
 
-令牌语义与流程见本文件。**颜色**只写在 `palettes/<name>/tokens.css` 与同目录的品牌标/标签图标（`brand-mark.svg`、`favicon-light.svg`、`favicon-dark.svg`）；Solarized 与山光的语法色是仅有的 CSS 例外，写在各自的 `palettes/<name>/syntax.css`。**结构尺度**（字号、半径、字体栈、`--content-width`）写在 `css/tokens.css`。本文件不维护数值副本。
+令牌语义与流程见本文件。**颜色**只写在 `palettes/<name>/tokens.css` 与同目录的品牌标/标签图标（`brand-mark.svg`、`favicon-light.svg`、`favicon-dark.svg`）；Solarized 与山光的语法色是仅有的 CSS 例外，写在各自的 `palettes/<name>/syntax.css`。**结构尺度**（字号、半径、字体栈、`--content-width`）与不随明暗/色板变化的界面 chrome 常量（灯光箱遮罩与按钮、色板身份色点）写在 `css/tokens.css`。数值以 `css/tokens.css` 与组件 CSS 为准；本文件的表是方便阅读的复述，调值必须同轮同步资产。
 
 编译默认色板是 `palettes/flexoki`（Flexoki Light / Dark）；`palettes/solarized` 与 `palettes/hill-light`（山光四时：晓雾/午荫/暮烟/夜月）是运行时可选覆盖层，不参与编译。每个色板目录带同一枚「打开的书」品牌标与明暗两份标签图标；书标外形全站一份，颜色随色板。换默认色板时只改 `_quarto.yml` 的 pack SCSS、`palettes/<name>/tokens.css` 与 `syntax-highlighting`，共享组件 CSS 不动。
 
@@ -33,7 +33,7 @@
 - 链接里的加粗跟链接色走；代码文件名用自己的 `--code-title-fg`，不被 strong 强调色盖住。
 - 行内代码与 `kbd` 保持「弱底 + 正文色」，不继承强调色。
 - `prefers-contrast: more` 段只把正文、边框与行号收紧到更深档，不换色相，也不把强调色改成语法蓝。
-- 组件 CSS 不写色值，明暗各写一套；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色。
+- 组件 CSS 不写语义色值或字面色（只引用令牌），明暗各写一套；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色。
 
 ## 字体栈与字形来源（定字体）
 
@@ -74,18 +74,18 @@
 ## 组件约定（定组件）
 
 - **代码块**：弱底 + 细边。有 `filename` 时用标题条，复制钮右上角；复制钮边框和图标用 `--text-secondary`（暗色下按钮底与代码底同色，边框太暗图标会沉进去）。
-- **Callout**：2px 左条、无填充、无圆角；标题 13px、字距 0（汉字等宽，加字距只把词拉散）、正文色；正文 16px；左条 2px、无填充、无圆角；内链接用正文链接色。
+- **Callout**：2px 左条、无填充、无圆角；标题 13px、字距 0（汉字等宽，加字距只把词拉散）、正文色；正文 16px；内链接用正文链接色。规格与五类清单见本节开头的 Callout 段。
 - **侧栏 active**：只保留 `--accent` 左轨与正文色，不加浅底、不加圆角；右目录 active 同策略（正文色 + 色条，`!important` 压住 Quarto 写死的亮蓝，暗色不得漏亮蓝）；侧栏与目录焦点环用中性灰，正文焦点环用动作色。
 - **列表与折叠**：marker 用 `--text-secondary`，折叠三角用正文色；答案盒子只用上下 hairline，不做卡片。
 - **首页目录**：不是卡片；每行一条顶线、透明底、无圆角，一行最多两列；单张卡占满整行，序号 `01` 起、动作链接靠右下，窄屏动作移到提要下方；hover 只把顶线换成 `--accent`。
 - **章节翻页**：一条顶线 + 左右两个文字链接，不用边框卡片；箭头用 `<` / `>`，hover 才转 `--accent`，下一页右对齐。箭头用字符而不用 SVG 是量过的：Bright 的 `<` `>` 墨迹中心在 0.23em，与同行西文同一轴，没有面包屑 `>` 那种偏高，换 SVG 反而要另配基线。
-- **章节线**：标题不画线。全书只有一种横线——通栏 1px `--card-border` 发丝线，只出现在顶栏底边、引用块上下边、表格 booktabs、首页目录每行顶线、翻页顶线、页脚顶线、答案折叠线；`h2::after` 的 2.25rem 短发丝线已删除（连同首页 `.feature-grid` 例外），章节节奏只靠 H2 的 `margin-top: 3.25rem` 与字号台阶。约定改动时同步本节与 `css/base.css`。
+- **章节线**：标题不画线。全书只有一种横线——通栏 1px `--card-border` 发丝线，出现在顶栏底边、引用块上下边、表格 booktabs、首页目录每行顶线、翻页顶线、页脚顶线、答案折叠线、脚注区块顶线与 `<hr>`；`h2::after` 的 2.25rem 短发丝线已删除（连同首页 `.feature-grid` 例外），章节节奏只靠 H2 的 `margin-top: 3.25rem` 与字号台阶。约定改动时同步本节与 `css/base.css`。
 - **引用块**：上下各一条 1px `--card-border` 横线、正文色、无底色、无左右竖条；与 Callout 的 2px 左色条区分开（后者是类型标记，不是分隔线）。
-- **表格**：`display: table` + `table-layout: fixed` 吃 `tbl-colwidths`；`width: 100%` + `box-sizing: border-box` + `margin-inline: 0` 让表外框与代码块外框同宽、左右边缘对齐；单元格 `padding: 0.7rem 1.25rem`，首列因此离开表的左缘。表头与表体同一列对齐：文本列左对齐，数字列右对齐，表头跟随该列；垂直方向表体格子顶对齐（`vertical-align: top`），表头文字在格内居中（`vertical-align: middle`）。`display: block` 不行：外层块占 100%，里面的匿名表按内容收缩，表会变窄。宽表由 Quarto `.responsive` 类包成 `.table-responsive` 外层滚动容器；包内表改回 `table-layout: auto` + `width: max-content`，否则 fixed + 100% 永远不会溢出、滚动条是死的。不需要 JS 量列宽。表题走 `caption-side: top`、左对齐、14px `--text-secondary`；`table-striped` 压平成与普通行同底。
+- **表格**：`display: table` + `table-layout: fixed` 吃 `tbl-colwidths`；`width: 100%` + `box-sizing: border-box` + `margin-inline: 0` 让表外框与代码块外框同宽、左右边缘对齐；单元格 `padding: 0.7rem 1.25rem`，首列因此离开表的左缘。表头与表体同一列对齐：文本列左对齐，数字列右对齐，表头跟随该列；垂直方向表体格子顶对齐（`vertical-align: top`），表头文字在格内居中（`vertical-align: middle`）。`display: block` 不行：外层块占 100%，里面的匿名表按内容收缩，表会变窄。宽表由 Quarto `.responsive` 类包成 `.table-responsive` 外层滚动容器；包内表改回 `table-layout: auto` + `width: max-content`，否则 fixed + 100% 永远不会溢出、滚动条是死的。不需要 JS 量列宽。表题走 `caption-side: top`、左对齐、14px `--text-secondary`；`table-striped` 只在作者显式加类时启用，交替底色用 `color-mix` 取极浅一档；默认表格不加条纹。
 - **脚注**：区块顶部一条 1px `--card-border`、`margin-top: 3rem`、14px / lh 1.7、`--text-secondary`；回跳箭头随正文链接色。
 - **任务列表**：`input[type=checkbox]` 用 `accent-color: var(--action-color)`，不用系统蓝。
 - **图片**：正文图与坐标图圆角一律 `--radius-sm`（3px），不用 6px 大圆角；图注选择器同时覆盖 `figure figcaption`、`.quarto-float-caption`、`.figure-caption`（`lang: zh` 后 Quarto 生成「图 3.1: …」，`lang` 必须写在 `_quarto.yml`，否则图/表题回落英文 Figure/Table）。
-- **图片灯箱**：`format.html.lightbox` 打开后 GLightbox 默认 0.7 黑遮罩，页面图注会从图后透出；主题把遮罩加深到 0.86、关闭/翻页按钮做成 32% 黑的圆钮白描边。透明底 SVG 必须垫白卡（`img[src$=".svg"]`），否则深色遮罩上会整幅消失；位图不加白边。
+- **图片灯箱**：`format.html.lightbox` 打开后 GLightbox 默认 0.7 黑遮罩，页面图注会从图后透出；主题把遮罩加深到 0.86、关闭/翻页按钮做成 45% 黑的圆钮（hover 70%）、图标白色。透明底 SVG 必须垫白卡（`img[src$=".svg"]`），否则深色遮罩上会整幅消失；位图不加白边。
 - **顶栏品牌标**：`palettes/<name>/brand-mark.svg` 作 `mask`、以 `--navbar-fg` 上色；外形是同一枚「打开的书」，16px 仍可辨。标签页用同目录 `favicon-light.svg` / `favicon-dark.svg`，`book.favicon` 指 Flexoki light，其余五份随 `resources` 发布，`palette.html` 按色板与明暗换 href。图标高 1.25rem、与标题间距 0.5rem，`margin-bottom: 0.2rem` 对齐汉字基线；窄屏先压搜索再省标题：`≤420px` 只留书标，图标长到 1.375rem 并撤掉那条抬升，书名改成视觉隐藏（`clip-path: inset(50%)`）而不是 `display:none`——这枚链接仍是「回到首页」，读屏必须能读出书名。次级导航的面包屑在首页与部首页只有一项（书名或部名），紧挨品牌重复一遍，用 `:has(> li:only-child)` 整条收起，只留侧栏开关；两项以上的章节轨迹才显示。
 - **顶栏搜索**：Quarto 的 Algolia detached button 自带 `svg.aa-SubmitIcon`，主题不再给 `#quarto-search` 画伪元素放大镜；按钮 32×32、图标 18px、用 `--navbar-muted` 上色，hover 用 `--navbar-hover-bg`。浮层容器、表单和输入框都用纸面/正文令牌，输入框需用与 Quarto 同等长的选择器（`.aa-DetachedContainer .aa-DetachedFormContainer .aa-Form .aa-InputWrapper .aa-Input`）压过编译期暗色值；占位文字用 `--text-secondary`，取消按钮 `white-space: nowrap`，结果选中项用 `--surface-raised`。`≤575.98px` 时浮层收成贴顶通栏，左右无圆角，避免 Quarto 的桌面 `top:100px` 把搜索条压在正文中部。
 - **色板切换**：`.palette-picker` 是 select-only combobox——按钮 `role="combobox"` + `aria-haspopup="listbox"`，面板 `.palette-menu-list` 为 `role="listbox"`，选项 `role="option"`；焦点留在按钮上，用 `aria-activedescendant` 指当前项。闭合态是 2rem 高胶囊：色点 + 英文名（Flexoki / Solarized / Hill Light）+ 方向箭头；展开后三行「色点 + 名称」，当前项右侧打勾。键位照 APG：↑/↓/Home/End 移动、首字母跳转、Enter 或 Space 提交、Esc 无提交关闭、Tab 关闭并走开。名称用英文，与 `book-palette` 的取值和色板目录同名，不另起中文译名。选择仍写 `book-palette`，首屏恢复逻辑不变，样式在 `css/nav.css`。不用原生 `<select>`（暗色下会保持系统浅色下拉）。
@@ -125,7 +125,7 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 | `palettes/<name>/syntax.css` | Solarized 与山光的 `code span.*` 语法色覆盖 | 结构尺度、布局 |
 | `palettes/<name>/meta.md` | 来源、highlight 映射、图标接线 | 运行时 CSS |
 | `css/fonts.css` | `@font-face` 声明 | 字体栈选择 |
-| `css/tokens.css` | 字号、半径、字体栈、`--content-width`、`color-scheme` 基线 | 色值、选择器 |
+| `css/tokens.css` | 字号、半径、字体栈、`--content-width`、`color-scheme` 基线、界面 chrome 常量 | 语义色值、选择器 |
 | `css/*.css`（除 tokens） | 组件规则；顺序 = `_quarto.yml` 的 `css:` | Bootstrap 变量 |
 
 ### 切换色板
@@ -136,18 +136,18 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 2. `css:` 列表先写 `palettes/flexoki/tokens.css`，再写 `palettes/solarized/tokens.css`、`palettes/solarized/syntax.css`、`palettes/hill-light/tokens.css`、`palettes/hill-light/syntax.css`；顺序决定覆盖关系。
 3. `syntax-highlighting` 指到 Flexoki 目录的两份 `.theme`。
 4. `include-in-header` 加 `includes/palette.html`：首屏恢复 `book-palette`（含山光的 `book-hill-mode`）与明暗，并按 `link[rel~="icon"]` 的现有相对前缀换 favicon。
-5. `book.favicon` 指 `palettes/flexoki/favicon-light.svg`，另外三份 favicon 加进 `resources`；`footer.html` 的观察器在明暗/色板变化后再同步一次 favicon 与 theme-color。
-6. 跑 `checking-layout.py`：色值按活跃 pack 表，并始终核 Solarized 覆盖层；`checking-dom.py` 的 C4 核四份 favicon 已发布。
+5. `book.favicon` 指 `palettes/flexoki/favicon-light.svg`，另外五份 favicon 加进 `resources`；`footer.html` 的观察器在明暗/色板变化后再同步一次 favicon 与 theme-color。
+6. 跑 `checking-layout.py`：色值按活跃 pack 表，并始终核 Solarized 覆盖层；`checking-dom.py` 的 C4 核六份 favicon 已发布。
 
 Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting：读者选择写 `html[data-palette="solarized"]`，`palettes/solarized/tokens.css` 覆盖语义色，`syntax.css` 覆盖 `code span.*`。它的 tokens 都带选择器前缀，因此不能直接当编译默认；要整本编成 Solarized，需要另做无前缀的 tokens 版本，再换 `theme` 与 `syntax-highlighting`。
 
 山光同样是运行时层，但比 Solarized 多一层状态：Quarto 只能编译一对 light/dark，山光有四种时辰（晓雾 / 午荫 / 暮烟 / 夜月，前三浅纸、夜月暗纸），所以四种模式全部由 `html[data-mode]` 在运行时选择，`tokens.css` 与 `syntax.css` 都带 `html[data-palette="hill-light"][data-mode="…"]` 前缀。
 
-山光需要让 Quarto 的基座跟着时辰走：`includes/palette.html` 在 `<head>` 里按已存模式写 `quarto-color-scheme` 哨兵（夜月写 `alternate`，其余写 `default`），让 Quarto 的 before-body 脚本首帧就挂对 `quarto-light` / `quarto-dark`；运行时再由 `syncBase()` 调 `window.quartoToggleColorScheme()` 把 `body` 类与 `data-mode` 对齐（`applyPalette` / `applyMode` / 跨页恢复都会调）。夜月的 `body` 另声明 `color-scheme: dark`，滚动条与原生控件才跟着变暗。山光下 `includes/palette.html` 还会隐藏 Quarto 的明暗圆钮（明暗由时辰决定），并在色板分段右侧显示四时辰分段；favicon 的 `dark` 版本对应夜月。打印时夜月回落晓雾令牌（`tokens.css` 末尾的 `@media print`），纸面不出现深底。完整取值、对比度与偏离理由见 `palettes/hill-light/meta.md`。
+山光需要让 Quarto 的基座跟着时辰走：`includes/palette.html` 在 `<head>` 里按已存模式写 `quarto-color-scheme` 哨兵（夜月写 `alternate`，其余写 `default`），让 Quarto 的 before-body 脚本首帧就挂对 `quarto-light` / `quarto-dark`；运行时再由 `syncBase()` 调 `window.quartoToggleColorScheme()` 把 `body` 类与 `data-mode` 对齐（`applyPalette` / `applyMode` / 跨页恢复都会调）。夜月的 `body` 另声明 `color-scheme: dark`，滚动条与原生控件才跟着变暗。山光下 `css/nav.css` 用 `[data-palette="hill-light"]` 隐藏 Quarto 的明暗圆钮（明暗由时辰决定），`includes/palette.html` 只在色板分段右侧显示四时辰分段；favicon 的 `dark` 版本对应夜月。打印时夜月回落晓雾令牌（`tokens.css` 末尾的 `@media print`），纸面不出现深底。完整取值、对比度与偏离理由见 `palettes/hill-light/meta.md`。
 
 ### 页面结构约定
 
-- 垂直节奏由正文容器与 section 的 `* + *` 控制，不对 `pre`/`p` 另设 `margin-bottom`。正文间距收成四档，档位按「两块内容是不是同一件事」取：**粘连 0.5rem**（标题→首段/列表、标题→callout、caption→其代码块）、**相关 1rem**（代码块↔caption、代码块↔callout、列表内代码块→验证句）、**换段 1.4rem**（段落/列表/代码块默认）、**换节 3.25rem**（h2 之前；h3/h4/h5 之前 2.25rem）。h2 的 `margin-bottom` 与相邻 margin-top 折叠取大者，设 0.5rem 避免粘连档被抬高一倍。档位依据见标识 `bg-reading-surface-v1` 的知识文件。
+- 垂直节奏由正文容器与 section 的 `* + *` 控制，不对 `pre`/`p` 另设 `margin-bottom`。正文间距收成四档，档位按「两块内容是不是同一件事」取：**粘连 0.5rem**（标题→首段/列表、标题→callout、caption→其代码块）、**相关 0.9rem**（代码块↔caption、代码块↔callout、列表内代码块→验证句）、**换段 1.4rem**（段落/列表/代码块默认）、**换节 3.25rem**（h2 之前；h3/h4/h5 之前 2.25rem）。h2 的 `margin-bottom` 与相邻 margin-top 折叠取大者，设 0.5rem 避免粘连档被抬高一倍。callout 与 callout 相邻的上边距是唯一例外：`1.6rem`（见 `callouts.css`），因为两层提示直接贴合会被读成一个框。档位依据见标识 `bg-reading-surface-v1` 的知识文件。
 - 顶栏与页面同底 + 底发丝线，用 `--navbar-*`。
 - 正文链接常态与正文同色（Flexoki 墨色 / Solarized base01 / base1 / 山光墨色）+ 细下划线，hover 才转 `--link-hover-color`；不加 `:visited` 紫色。
 - 表格用 booktabs：表头顶/底 1px、表头下 1px、无竖线、无斑马纹、tbody 无行线；`tbody` 末行底边也是 1px，与全站唯一的发丝线粗细一致（1.5px 已全部收回 1px）。
@@ -169,4 +169,4 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 - `text` 与语言块共用字体尺度；标题块用 `.code-with-filename`。
 - 对比度断言：`checking-layout.py` 的 `palette text contrast >= 4.5:1` 逐色板逐模式检查六对——正文/次要/链接/代码前景对各自底色，外加行号对代码底、代码标题字对标题条；`prefers-contrast: more` 段跳过（那里本就更高）。山光行号原值 4.19–4.25:1（辅助信息，压一档到 4.6 以上），Solarized 代码标题字由派生表面配深/浅一档（亮 4.96、暗 5.55），理由记在各自 `meta.md` 的偏离表。
 - 语法彩色 token 不在断言范围：Solarized 官方的注释 2.34、字符串 4.12、数字 2.97 属于调色板特征，只抬注释与标识符到可读线；山光派生语法色 4.19–4.36 同理，提高通道走 `prefers-contrast: more`。
-- `checking-dom.py`：C0 palette↔highlight；复制按钮兄弟 DOM；触屏/打印；C4 四份 favicon；Mermaid SVG。
+- `checking-dom.py`：C0 palette↔highlight；复制按钮兄弟 DOM；触屏/打印；C4 六份 favicon（三色板 × 明暗，逐对校验）；Mermaid SVG。

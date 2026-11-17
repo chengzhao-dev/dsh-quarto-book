@@ -1,6 +1,6 @@
 /* dsh-quarto-book · 自托管 Web 字体（均见 theme/assets/fonts/OFL.txt） */
-/* 全站只有一份正文字面：LXGW Bright Medium（登记为 weight 400，标题请求 600
-   时在 font-synthesis: none 下仍落到这一份）；代码用 LXGW Bright Code。 */
+/* 正文字面只有一份：LXGW Bright Medium（登记为 weight 400）；标题与导航走
+   --heading-font 系统黑体栈，不另加正文字面；代码用 LXGW Bright Code。 */
 
 @font-face {
   font-family: "LXGW Bright Medium";

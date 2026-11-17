@@ -11,7 +11,7 @@ Take a Quarto Book from chapters to publishable output: `writing-quarto` owns th
 
 | Name | Use it for | Out of scope |
 | --- | --- | --- |
-| `writing-quarto` | Creating or editing `content/**/*.qmd`, `index.qmd`, `_quarto.yml`; chapter skeletons, Chinese prose, code and figures, content checks | CSS, fonts and colours |
+| `writing-quarto` | Creating or editing `chapters/**/*.qmd`, `index.qmd`, `_quarto.yml`; chapter skeletons, Chinese prose, code and figures, content checks | CSS, fonts and colours |
 | `designing-theme` | Theme CSS, SCSS, fonts, palettes, navigation and callout styling | Chapter prose |
 | `quarto_render_check` | Check that `output-dir` is safe, render once when asked, and inspect HTML in `_book/` for publishing | Editing `.qmd`, fixing config automatically, or re-running a failed render |
 | `quarto_pass_report` | Compress the run into a fixed-line receipt card: skill, mode, files and steps changed, items held, check verdicts | Saving to disk, quoting chapter prose, or changing the text based on the receipt |
@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.26`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.26`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.27`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.27`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 

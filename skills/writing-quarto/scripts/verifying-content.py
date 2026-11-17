@@ -7,14 +7,15 @@ paragraphs and sentences, declared code-fence languages, `{mermaid}` fences,
 class-diagram content budgets, directory-tree annotation columns and markers,
 and no placeholder text left in the prose.
 
-Project-specific rules are optional. If the book has
-`.agents/skills/quarto-book-project/SKILL.md`, the script also reads
-`.agents/skills/quarto-book-project/checks.json` when present:
+Project-specific rules are optional. If the book has a project skill at
+`.agents/skills/quarto-book-project/SKILL.md` (or the underscore form
+`.agents/skills/quarto_book_project/SKILL.md`), the script also reads the
+`checks.json` sitting next to it when present:
 
   {
     "forbidden_terms": ["..."],
-    "chapter_titles": {"content/part/01-intro.qmd": "入门"},
-    "later_chapter_names": {"content/part/02-board.qmd": ["LaterType"]}
+    "chapter_titles": {"chapters/part/01_intro.qmd": "入门"},
+    "later_chapter_names": {"chapters/part/02_board.qmd": ["LaterType"]}
   }
 
 Without a project skill, those checks are skipped and only the generic rules
@@ -162,10 +163,10 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
     Supports the forms Quarto Book uses:
       chapters:
         - index.qmd
-        - href: content/part/01-intro.qmd
-        - part: content/part/index.qmd
+        - href: chapters/part/01_intro.qmd
+        - part: chapters/part/index.qmd
           chapters:
-            - content/part/01-intro.qmd
+            - chapters/part/01_intro.qmd
     `part:` 带标题时只是分组标题，不带 .qmd 后缀，因此不会被当成章节；带文件时，
     该文件是分组落地页，也要接受内容检查。嵌套的 `chapters:` 键本身不是章节。
     """
@@ -1219,9 +1220,22 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
     return issues
 
 
+# 两种目录名都接受：连字符是模板与本书使用的写法，下划线来自 cpp 插件的同构约定。
+PROJECT_SKILL_DIRS = ("quarto_book_project", "quarto-book-project")
+
+
+def find_project_skill(root: Path) -> Path | None:
+    """项目技能标记文件；两种书写都接受，同时存在时下划线目录优先。"""
+    for name in PROJECT_SKILL_DIRS:
+        skill = root / ".agents" / "skills" / name / "SKILL.md"
+        if skill.is_file():
+            return skill
+    return None
+
+
 def load_project(root: Path) -> tuple[bool, dict]:
-    skill = root / ".agents" / "skills" / "quarto-book-project" / "SKILL.md"
-    if not skill.is_file():
+    skill = find_project_skill(root)
+    if skill is None:
         return False, {}
     config_path = skill.parent / "checks.json"
     if not config_path.is_file():
@@ -1308,7 +1322,8 @@ def main() -> int:
     if not args.quiet:
         print(f"根目录：{root}")
         print(f"章节：{len(files)} 个 .qmd；目录声明：{len(chapters)} 条")
-        print(f"项目规则：{'已加载' if has_project else '未发现 .agents/skills/quarto-book-project，跳过'}")
+        project_hint = " 或 ".join(f".agents/skills/{name}" for name in PROJECT_SKILL_DIRS)
+        print(f"项目规则：{'已加载' if has_project else f'未发现 {project_hint}，跳过'}")
         print()
 
     if not issues:

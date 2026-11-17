@@ -76,6 +76,8 @@ jobs:
           echo "::error::npm publish failed and ${PACKAGE}@${VERSION} is still absent"
           exit 1
       - name: Ensure tag and GitHub Release
+        # 已发布版本被 main 推送触发时不要给 HEAD 补旧版本 tag；手动推同版本 tag 时仍允许补 Release。
+        if: steps.release.outputs.published == 'false' || github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}

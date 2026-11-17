@@ -6,6 +6,7 @@
 dsh-quarto-book/
 ├── .editorconfig            # 编辑器统一编码与行尾
 ├── .gitattributes           # Git 统一文本行尾
+├── .gitignore               # 本地生成物与工具缓存
 ├── cordis.patch.yml         # 宿主补丁：注册技能与工具
 ├── docs/                   #/ 维护说明
 ├── icon.svg                 # 插件图标
@@ -31,7 +32,7 @@ dsh-quarto-book/
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
-`skills/writing-quarto/` 各文件的分工见 `docs/module-layout.md`，本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.gitattributes` 与 `.editorconfig` 为准。
+`skills/writing-quarto/` 各文件的分工见 `docs/module-layout.md`，本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.editorconfig`、`.gitattributes` 与 `.gitignore` 为准。
 
 ## 放置规则
 

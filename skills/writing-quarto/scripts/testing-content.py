@@ -27,7 +27,7 @@ book:
   title: 示例书
   chapters:
     - index.qmd
-    - content/part/01-intro.qmd
+    - chapters/part/01_intro.qmd
 """
 
 INDEX = """---
@@ -157,10 +157,10 @@ def run_case(tmp: Path) -> subprocess.CompletedProcess[str]:
 
 
 def make_book(root: Path, chapter: str = VALID_CHAPTER) -> None:
-    (root / "content" / "part").mkdir(parents=True, exist_ok=True)
+    (root / "chapters" / "part").mkdir(parents=True, exist_ok=True)
     (root / "_quarto.yml").write_text(QUARTO_YML, encoding="utf-8")
     (root / "index.qmd").write_text(INDEX, encoding="utf-8")
-    (root / "content" / "part" / "01-intro.qmd").write_text(chapter, encoding="utf-8")
+    (root / "chapters" / "part" / "01_intro.qmd").write_text(chapter, encoding="utf-8")
 
 
 def main() -> int:
@@ -180,6 +180,7 @@ def main() -> int:
         project: bool = False,
         checks_json: str | None = None,
         files: dict[str, str] | None = None,
+        skill_dir: str = "quarto-book-project",
     ) -> None:
         nonlocal passed_cases
         passed_cases += 1
@@ -191,13 +192,13 @@ def main() -> int:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(content, encoding="utf-8")
             if project:
-                skill_dir = root / ".agents" / "skills" / "quarto-book-project"
-                skill_dir.mkdir(parents=True)
-                (skill_dir / "SKILL.md").write_text(
+                skill_path = root / ".agents" / "skills" / skill_dir
+                skill_path.mkdir(parents=True)
+                (skill_path / "SKILL.md").write_text(
                     "---\nname: quarto-book-project\ndescription: 项目约定\n---\n",
                     encoding="utf-8",
                 )
-                (skill_dir / "checks.json").write_text(
+                (skill_path / "checks.json").write_text(
                     checks_json or '{"forbidden_terms": ["棋盘格子"]}',
                     encoding="utf-8",
                 )
@@ -277,7 +278,16 @@ def main() -> int:
         1,
         "对象章点到后章类型",
         project=True,
-        checks_json='{"later_chapter_names": {"content/part/01-intro.qmd": ["LaterType"]}}',
+        checks_json='{"later_chapter_names": {"chapters/part/01_intro.qmd": ["LaterType"]}}',
+    )
+    expect(
+        "下划线项目技能目录",
+        VALID_CHAPTER + "\n三类结果都交给 `LaterType` 处理。\n",
+        1,
+        "对象章点到后章类型",
+        project=True,
+        checks_json='{"later_chapter_names": {"chapters/part/01_intro.qmd": ["LaterType"]}}',
+        skill_dir="quarto_book_project",
     )
     expect(
         "围栏内后章类型不报",
@@ -285,7 +295,7 @@ def main() -> int:
         0,
         "OK",
         project=True,
-        checks_json='{"later_chapter_names": {"content/part/01-intro.qmd": ["LaterType"]}}',
+        checks_json='{"later_chapter_names": {"chapters/part/01_intro.qmd": ["LaterType"]}}',
     )
     expect("正文 H1", VALID_CHAPTER.replace("## 目标", "# 目标"), 1, "正文出现 H1")
     expect("缺 title", VALID_CHAPTER.replace("title: 入门\n", ""), 1, "缺少 YAML frontmatter")
@@ -532,7 +542,7 @@ def main() -> int:
         passed_cases += 1
         root = Path(raw)
         make_book(root)
-        (root / "content" / "part" / "01-intro.qmd").unlink()
+        (root / "chapters" / "part" / "01_intro.qmd").unlink()
         result = run_case(root)
         output = result.stdout + result.stderr
         if result.returncode != 1 or "章节不存在" not in output:

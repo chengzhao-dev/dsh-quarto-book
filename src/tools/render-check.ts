@@ -669,10 +669,10 @@ export async function inspectHtml(input: {
       spawnFn,
       input.signal,
     )
-    // C1/C2 依赖主题 CSS，C6/C7/C8 依赖主题资产；没有 theme/ 的书只跑通用契约。
+    // C0/C1/C2/C4/C6/C7/C8 依赖主题资产；没有 theme/ 的书只跑通用契约。
     const hasTheme = await isDirectory(path.join(input.root, 'theme'))
     const universal = ['C3', 'C5', 'C9']
-    const themeOwned = ['C1', 'C2', 'C6', 'C7', 'C8']
+    const themeOwned = ['C0', 'C1', 'C2', 'C4', 'C6', 'C7', 'C8']
     const selected = parseDomLines(dom.output).filter((item) =>
       universal.includes(item.id) || (hasTheme && themeOwned.includes(item.id)),
     )
@@ -835,7 +835,8 @@ function reportLine(check: CheckResult): string {
 
 function cardLines(value: RenderCheckResult): string[] {
   const lines = [renderSummary(value)]
-  if (value.warnings.length > 1) lines.push(...value.warnings.slice(1))
+  const warningStart = value.safe_to_render ? 0 : 1
+  if (value.warnings.length > warningStart) lines.push(...value.warnings.slice(warningStart))
   if (value.errors.length > 0) lines.push(...value.errors)
   if (value.html_report) {
     lines.push(...value.html_report.checks.map(reportLine))

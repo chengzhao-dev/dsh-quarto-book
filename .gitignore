@@ -1,16 +1,26 @@
 node_modules/
 _book/
 .quarto/
+*_files/
+**/*.quarto_ipynb
 coverage/
 *.log
 .DS_Store
+Thumbs.db
+[Dd]esktop.ini
 
 # Local pack output
 /temp/
 *.tgz
 
+# Editor and tool caches
+/.vscode/
+.cache/
+/.zcode/
+/.zcodeignore
+
 # Python caches
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
 .venv/

@@ -11,7 +11,7 @@
 
 | 名称 | 用途 | 不做什么 |
 | --- | --- | --- |
-| `writing-quarto` | 新建或修改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml`；章节骨架、中文行文、代码与图表、内容检查 | 不改 CSS、字体和颜色 |
+| `writing-quarto` | 新建或修改 `chapters/**/*.qmd`、`index.qmd`、`_quarto.yml`；章节骨架、中文行文、代码与图表、内容检查 | 不改 CSS、字体和颜色 |
 | `designing-theme` | 调整主题的 CSS、SCSS、字体、palette、导航与 Callout 样式 | 不改章节正文 |
 | `quarto_render_check` | 先判断 `output-dir` 是否安全，再按需渲染一次，检查 `_book/` 里的 HTML 是否可发布 | 不改 `.qmd`，不自动修配置，不重复渲染 |
 | `quarto_pass_report` | 收尾时把执行结论压成固定行数的回执卡片：技能、模式、改过的文件与步骤、未改项、检查结论 | 不保存到磁盘，不贴章节原文，不据回执改文章 |
@@ -29,7 +29,7 @@
 2. 在书仓库里打开会话。`_quarto.yml` 要有独立一行的 `type: book`，书根至少有一个 `.qmd` 或 `.md` 章节源文件；两个技能名这时才会出现。
 3. 调用技能：写正文用 `writing-quarto`，改主题用 `designing-theme`。
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.26`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.26`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.27`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.27`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile）：先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book`，再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -73,7 +73,7 @@ python scripts/checking-names.py --root <book>
 
 `checking-prose.py` 只报中文混排里能直接判断的问题；`checking-names.py` 只在全仓改写时加跑。日常章节检查跑前三条即可。
 
-渲染后的 Callout、HTML 产物与 DOM 结构约定由 `quarto_render_check` 调包内脚本完成，不用手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`；`designing-theme` 的 `scripts/checking-layout.py` 在渲染后的 HTML 上检查溢出、对比度和页面结构。`apply()` 不在加载时跑这些脚本，也不跑 `quarto render`。
+渲染后的 Callout、HTML 产物与 DOM 结构约定由 `quarto_render_check` 调包内脚本完成，不用手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`；`designing-theme` 的 `scripts/checking-layout.py` 在渲染后的 HTML 上检查配色、对比度和页面结构；溢出与窄屏浮层需要显式传 `--browser` 才检查。`apply()` 不在加载时跑这些脚本，也不跑 `quarto render`。
 
 一轮结束时调用一次 `quarto_pass_report`，把这次执行的结论压成卡片；卡片就是回执，回复里不再复述。
 

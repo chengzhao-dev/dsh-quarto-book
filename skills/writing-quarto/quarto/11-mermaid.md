@@ -1,12 +1,12 @@
 # Mermaid 图表渲染约定
 
-本文件记录 `content/**/*.qmd` 中 Mermaid 图表的渲染层约定；是否使用图表的门槛见 `writing-quarto` 技能的 P0 硬约束，主题侧取色与排版守卫见 `designing-theme` 技能的 `../../designing-theme/assets/theme/css/mermaid.css`。
+本文件记录 `chapters/**/*.qmd` 中 Mermaid 图表的渲染层约定；主题侧取色与排版守卫见 `designing-theme` 技能的 `../../designing-theme/assets/theme/css/mermaid.css`。
 
 Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状态面板行列、二维下标）走 `rendering-coords.py` 加 `{python}` 可执行单元，分工与写法见 `quarto/10-coords.md`，禁止用 Mermaid 硬画网格。
 
 ## 只使用 {mermaid} 围栏
 
-Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏实测输出 `<pre class="mermaid">`，不带 `mermaid-js` 运行时，图不会渲染。`verifying-content.py` 在禁用词扫描中拦截 plain 围栏。
+Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏实测输出 `<pre class="mermaid">`，不带 `mermaid-js` 运行时，图不会渲染。`verifying-content.py` 在围栏语言检查中拦截 plain `mermaid` 围栏。
 
 渲染核对方法：调用 `quarto_render_check`，在返回的 `html_report` 对应 HTML 中应出现 mermaid 图表容器（`mermaid-js` 或 `quarto-diagram` 类名），不应出现 `sourceCode mermaid` 高亮代码块。
 
@@ -18,7 +18,7 @@ Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏
 
 ## 块首固定 init 指令
 
-每个 `{mermaid}` 块的第一行写：
+每个 `{mermaid}` 块在图注/选项行之后写：
 
 ```text
 %%{init: {"fontFamily": "LXGW Bright Medium, system-ui, sans-serif", "class": {"hideEmptyMembersBox": true}}}%%
@@ -26,7 +26,7 @@ Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏
 
 mermaid 用 init 指令中的字体测量标签宽度，页面 CSS 按 `--ui-font` 渲染文字；两者使用同一字体栈，标签测量与最终渲染一致，避免文字溢出或留白。`mermaid.css` 的排版守卫依赖这一约定。
 
-`class.hideEmptyMembersBox` 只影响类图：没有成员的类只画类名和注解，不画空成员栏。接口、派生类和函数节点都靠它收紧；`verifying-content.py` 要求每个类图块首出现这一项。
+`class.hideEmptyMembersBox` 只影响类图：没有成员的类只画类名和注解，不画空成员栏。接口、派生类和函数节点都靠它收紧；`verifying-content.py` 要求每个类图块内出现这一项（不校验是否在块首）。
 
 ## 类图：先定内容预算
 

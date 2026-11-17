@@ -4,7 +4,7 @@
 
 > 速查：外观选项集中在根目录配置的格式块下 · 目录收至三级标题放右侧 · 本书不用行号、代码块不折叠。自测答案使用 `.answer` 并渲染为原生 details
 
-选项语义、作用域层级与生效边界的唯一出处是本文件与 `steps/02-structure.md`（宽度与节奏）；本文件只留本书的取值和写作口径：
+选项语义、作用域层级与生效边界的唯一出处是本文件；页面宽度归 `designing-theme`，段落节奏归 `steps/04-paragraphs.md`。本文件只留本书的取值和写作口径：
 
 ### 本书的现行取值
 
@@ -21,7 +21,7 @@
 | `grid` | sidebar 300 / body 872 / margin 272 / gutter 1rem | 正文列 840px，约 50 个汉字；四值是最大基准值，窄视口由 Quarto 响应缩放 |
 | `lang` | `zh` | 影响部分 HTML 行为与提示框默认词 |
 
-本书**不开启**代码行号（`code-line-numbers`）与代码折叠（`code-fold`）。站点 QMD 代码块使用 `{.语言 filename="标题"}`；Quarto 会把标题渲染为 `.code-with-filename`，外观与复制按钮位置由主题统一控制。filename 缺失由 `verifying-content.py` 拦截，内容语义与篇幅由 `verifying-content.py` 负责。
+本书**不开启**代码行号（`code-line-numbers`）与代码折叠（`code-fold`）。站点 QMD 代码块使用 `{.语言 filename="标题"}`；Quarto 会把标题渲染为 `.code-with-filename`，外观与复制按钮位置由主题统一控制。filename 缺失由渲染后的 `checking-dom.py` 拦截（只有书根存在 `theme/` 副本时，该契约才在 `render_check` 里执行）；`verifying-content.py` 只核对已带 filename 围栏的片段与源文件一致性。
 
 站点级项放在 `book:` 下：`site-url`、`repo-url`、`repo-actions: [source]`、`favicon`、`page-navigation: true` 与 `navbar.search: true`。它们只改站壳与导航，不改正文；`repo-actions` 不默认加 `edit`/`issue`，读者侧入口按发布面定。
 
@@ -35,7 +35,7 @@
 
 ### 验证
 
-渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py` 与 `checking-callouts.py` 自动核对；页面宽度与视觉依据见 `steps/02-structure.md`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
+渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py` 与 `checking-callouts.py` 自动核对；页面宽度与视觉依据见 `designing-theme`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
 
 ## 排查顺序
 
@@ -98,7 +98,7 @@
 ### 7. 发布到 GitHub 但页面没更新 / 打不开 / 乱码
 
 - **处置顺序**：先看 Actions 是否成功（失败查日志）→ 分支部署核对分支与目录 → `gh-pages` 方式确认推送成功且远端存在该分支 → 用 `GET /repos/:repo/pages` 核对 Pages 源配置（404 = 源从未配置，线上就是 404）→ 最后才考虑缓存或 CDN 延迟。
-- **发布前拦截**：先跑 `verifying-content.py`（源码编码与结构），渲染后再跑 `checking-output.py` 做产物 smoke（首页、charset、乱码特征、可选 sitemap）。渲染成功不代表线上可读。
+- **发布前拦截**：先跑 `verifying-content.py`（结构与 UTF-8 解码失败；BOM 与 CRLF 不检查），渲染后读 `quarto_render_check` 的 `html_report.checks` 做产物 smoke（工具内部已跑 checking-output/callouts/dom）。渲染成功不代表线上可读。
 - **错误必须阻断**：workflow 里以**读回判定**收尾——`POST`/`PUT /repos/:repo/pages` 尽力而为（`PUT` 成功返回 204），最后 `GET` 读回 source，不是 `gh-pages` `/` 即 `exit 1`，不允许降级成 warning。`GITHUB_TOKEN` 首次创建 Pages 可能 403，需一次性用 PAT 或在 Settings → Pages 手动启用；未认证的 `GET /pages` 恒为 404，不能当作「未启用」的判据。
 - **发布架构**：Actions 渲染校验后推 `_book/` 到 `gh-pages`，Pages legacy 源 = `gh-pages /`，`gh-pages` 只由 Actions 更新。legacy 模式下 `GITHUB_TOKEN` 改不动 Pages 配置（403），读回判定只检测不自愈，漂移需 PAT 或手动改回。
 
@@ -112,7 +112,7 @@
 ### 9. 路径/名称含特殊字符导致渲染失败
 
 - **症状**：`quarto render` 报 `recoverEncode: invalid argument` 类错误。
-- **处置**：项目、目录、Quarto 内容与资源文件名一律纯 ASCII，多词用普通 `-`（U+002D）；C++ 与脚本源文件保持各自语言的命名（可含 `_`），同样必须纯 ASCII、无空格。用 `scripts/checking-names.py` 校验整个仓库。
+- **处置**：项目与资源文件名一律纯 ASCII，多词用普通 `-`（U+002D）；`chapters/` 下的章节目录与章节文件名按 `quarto/01-basics.md` 用下划线；C++ 与脚本源文件保持各自语言的命名（可含 `_`）。全部名称同样必须纯 ASCII、无空格，用 `scripts/checking-names.py` 校验整个仓库。
 
 ### 10. YAML `title:` 与同文本 `# H1` 重复 → 页面出现两个标题
 
@@ -128,14 +128,14 @@
 
 - **症状**：源文件写了未登记的 callout 类，渲染后没有提示框，且块内标题混进右侧目录。
 - **处置**：只用内置 `note`/`tip`/`warning`/`important`/`caution` 五类，标题写成 `::: {.callout-note title="中文标题"}`。语义映射见 `quarto/03-authoring.md`「Callout 提示框」。
-- **自检**：渲染后跑 `checking-output.py` 与 `checking-callouts.py`，`callouts` 项会扫描 `_book/**/*.html`。
+- **自检**：渲染后读 `quarto_render_check` 返回的 `html_report.checks.callouts`，它扫描 `_book/**/*.html`。
 
 ### 13. `{{< include >}}` 引用代码文件未加属性围栏 → 乱码式排版、目录被污染
 
 - **症状**：渲染出的脚本失去高亮与等宽底色，`#` 注释行变成大号标题，含 `*`、`_` 的行变成斜体或粗体，右侧目录多出假标题。
 - **处置**：`{{< include >}}` 整体放进 `{.cpp filename="main.cpp"}` 形式的属性围栏，按扩展名选语言并把 `filename` 写成真实文件名短名，**没有一个例外**。规则见 `quarto/03-authoring.md`「代码与媒体」；include 的使用边界见 `quarto/12-quarto-render.md`。
 
-本文件记录本书 `content/**/*.qmd` 的渲染层约定，供 Agent 编写和评审章节时使用；写作层骨架与元素规则见 `steps/` 下的步骤文件。
+本文件记录本书 `chapters/**/*.qmd` 的渲染层约定，供 Agent 编写和评审章节时使用；写作层骨架与元素规则见 `steps/` 下的步骤文件。
 
 ## include 短代码必须包在围栏代码块内
 
@@ -151,16 +151,16 @@
 ```
 ````
 
-- include 路径相对于 qmd 文件所在目录解析（`content/<part>/` 下用 `../../src/...` 指向仓库根的 `src/`）。
+- include 路径相对于 qmd 文件所在目录解析（`chapters/<part>/` 下用 `../../src/...` 指向仓库根的 `src/`）。
 - 语言标注决定语法高亮：Python 用 `python`，C++ 用 `cpp`，Shell 用 `bash`。
 - 新增或修改 include 后必须用 `quarto_render_check` 渲染，并核对返回的 `html_report`：嵌入内容应出现在 `<pre class="sourceCode ...">` 代码块中，而不是 `<p>` 段落里。
 - include 展示的是 `src/` 下真实源文件，渲染问题只修 qmd 的包裹方式，不改被引用的源文件。
 
 ## 链接使用约定
 
-qmd 指向仓库内路径的链接仍**一律使用 GitHub 绝对链接**，不使用相对路径链接；锚文本与外链按下列规则执行。
+qmd 指向仓库内路径的链接**除章节互引（用相对 `.qmd` 路径）外一律使用 GitHub 绝对链接**，不使用相对路径链接；锚文本与外链按下列规则执行。
 
-- 章节互引：用章节 title 作链接文字，`.qmd` 相对路径（规则见 `steps/06-wording.md`）；
+- 章节互引：用章节 title 作链接文字，`.qmd` 相对路径（规则见 `quarto/06-crossrefs.md`「引用形式」）；
 - 仓库内目录：`https://github.com/your-org/your-book/tree/main/<路径>`，锚文本用简短中文描述（如「最小工程目录」）；
 - 仓库内文件：`https://github.com/your-org/your-book/blob/main/<路径>`，锚文本用中文描述或专名文件名（如「构建规则 CMakeLists.txt」「main.cpp」）；
 - 锚文本不写路径结构：`src/` 这类层级不进锚文本；完整路径只出现在 GitHub URL、目录树和确需精确指路的行文里，不进代码块 filename（filename 一律短名，见 `steps/03-blocks.md`）；
@@ -180,6 +180,5 @@ qmd 指向仓库内路径的链接仍**一律使用 GitHub 绝对链接**，不�
 - 见 `steps/02-structure.md`：title 与二三级标题的标题字数（动词短语、无冒号）与纵向承诺链；
 - 见 `steps/03-blocks.md`：代码块 filename 标注、盒子密度、Callout、目录树、多命令块；
 - 见 `writing/examples/10-wording-cases.md`：措辞替换与术语节奏；句段对照见 `writing/examples/07-sentence-frame.md`；
-- 见 `steps/02-structure.md`：小节主线收束与信息分层。
 
 本文件只维护 include 包裹与链接使用两条渲染层约定。

@@ -65,4 +65,4 @@ flowchart TD
 
 ## 检查
 
-`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建再跑 `tests/*.test.mjs`，两者都要过。结构检查覆盖本图里的每一层：`SKILL.md` 的 H2 与九步表、步骤文件号与 H1、`quarto/` 与 `writing/examples/` 非空、反引号路径与节名、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验（`npm run ci` 在 test 之后跑它）。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。

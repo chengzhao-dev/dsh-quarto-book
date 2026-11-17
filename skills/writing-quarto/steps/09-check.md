@@ -13,7 +13,7 @@
 
 项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py`、`checking-links.py` 与 `checking-prose.py`。
 
-`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/` 存在时启用。
+`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/SKILL.md`（也接受下划线目录 `.agents/skills/quarto_book_project/`）存在时启用。
 
 ### 渲染与 HTML
 
@@ -31,14 +31,14 @@
 
 报告字段：
 
-- `warnings`：输出目录不安全的说明。
+- `warnings`：输出目录不安全、检查入口缺失等需要用户先看一眼的提醒；`safe_to_render` 为 true 时也会保留。
 - `errors`：渲染失败、超时或找不到 `quarto` 时的一句话原因；成功时为空数组。
 - `safe_to_render`：是否允许渲染。
 - `suggested_output_dir`：固定为 `_book`。
 - `render_result`：`ok`、`exit_code`、`duration_ms` 与末尾输出；`dry_run: true` 时为 `null`。
 - `html_report`：`usable`、`checks`、`output_files`、`output_files_total`；`dry_run: true` 时为 `null`。
 
-`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`。固定项有 `index_html`、`html_files`、`utf8`、`charset`、`no_file_uri`；条件项有 `sitemap`、`search_index`、`callouts`、`dom`。`usable` 在没有 `fail` 时为 true。
+`checks` 每项是 `{ id, status, detail, environment_failure? }`，`status` 只取 `pass`、`fail`、`skip`。固定项有 `index_html`、`html_files`、`utf8`、`charset`、`no_file_uri`、`output`、`callouts`；条件项有 `sitemap`、`search_index`、`dom`。`usable` 要求没有 `fail` 且没有 `environment_failure`：Python 环境失败时该项记 `skip`，不算通过。
 
 `fail` 按项退回：
 
@@ -71,7 +71,7 @@
 
 ### 情况：没有 DSH 工具
 
-会话里没有 `quarto_render_check` 时，说明插件没有加载或版本低于 0.3.0。停住并报告，不改回手跑 `quarto render`。
+会话里没有 `quarto_render_check` 时，说明插件没有加载，或宿主版本低于 `docs/versioning.md` 的兼容下限（0.2.1）。停住并报告，不改回手跑 `quarto render`。
 
 ## 完成判据
 

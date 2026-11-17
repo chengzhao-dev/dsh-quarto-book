@@ -180,20 +180,20 @@ mjx-container[display="true"] {
 
 /* 图片灯箱（GLightbox，format.html.lightbox: true 时启用）
    默认遮罩 0.7 黑、页面图注会从图片后面透出来，读起来像「标签贴错位置」；
-   这里加深遮罩把图单独抬出来，关闭/翻页按钮统一成白描边胶囊。 */
+   这里加深遮罩把图单独抬出来，关闭/翻页按钮统一成 45% 黑圆钮、白色图标。 */
 .glightbox-container .goverlay {
-  background: rgba(0, 0, 0, 0.86);
+  background: var(--lightbox-scrim);
 }
 .glightbox-container .gbtn {
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--lightbox-button-bg);
   border-radius: 999px;
 }
 .glightbox-container .gbtn:hover,
 .glightbox-container .gbtn:focus-visible {
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--lightbox-button-bg-hover);
 }
 .glightbox-container .gbtn svg path {
-  fill: #fff;
+  fill: var(--lightbox-icon);
 }
 .glightbox-container .gslide-image img {
   border-radius: var(--radius-sm);
@@ -202,7 +202,7 @@ mjx-container[display="true"] {
    位图不加任何装饰，避免给照片套白边。 */
 .glightbox-container .gslide-image img[src$=".svg"],
 .glightbox-container .gslide-image img[src*=".svg?"] {
-  background: #fff;
+  background: var(--lightbox-svg-card);
   padding: 0.9rem;
   box-sizing: border-box;
 }

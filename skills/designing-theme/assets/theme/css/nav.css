@@ -105,7 +105,7 @@ nav.navbar.navbar-expand-lg {
   height: 0.55rem;
   border-radius: 50%;
   background-color: var(--swatch, var(--navbar-muted));
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-nav-inset);
 }
 .palette-caret {
   flex: none;
@@ -130,7 +130,7 @@ nav.navbar.navbar-expand-lg {
   background-color: var(--surface-raised);
   border: 1px solid var(--card-border);
   border-radius: 0.5rem;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-nav);
 }
 .palette-menu-list[hidden] {
   display: none;
@@ -168,15 +168,15 @@ nav.navbar.navbar-expand-lg {
 }
 .palette-trigger[data-key="flexoki"],
 .palette-menu-item[data-key="flexoki"] {
-  --swatch: #24837b;
+  --swatch: var(--swatch-flexoki);
 }
 .palette-trigger[data-key="solarized"],
 .palette-menu-item[data-key="solarized"] {
-  --swatch: #268bd2;
+  --swatch: var(--swatch-solarized);
 }
 .palette-trigger[data-key="hill-light"],
 .palette-menu-item[data-key="hill-light"] {
-  --swatch: #2d6a66;
+  --swatch: var(--swatch-hill-light);
 }
 /* ---------- 时辰切换（Hill Light）：与色板同一胶囊，只在 Hill Light 下出现 ----------
    Hill Light 的明暗由时辰决定（夜月是唯一暗色时辰），所以这种色板下让 Quarto 的

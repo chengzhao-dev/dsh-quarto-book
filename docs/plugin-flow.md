@@ -57,7 +57,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 - `dry_run: true` 只判断输出目录，最多 2 次：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。
 - `dry_run: false` 才运行一次 `quarto render`，最多 1 次；成功时同一次返回 `html_report`，不再为同一份文件重新运行。`html_report.usable` 是最终结论。
 - 工具与技能共用同一道书门禁；工具在 `apply()` 注册、执行前按 `cwd` 拒绝，注册与执行的分工见 `docs/plugin-boundaries.md`。渲染根优先取 `cwd` 向上最近的合法书根；`cwd` 不在书里时，再按 `qmd_path` 所在目录向上找。`qmd_path` 同时用于定位回执卡片。不手跑 `quarto render`，也不截图 PNG；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
-- 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
+- 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 且没有 `environment_failure` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
 
 成功渲染时的返回形状（`output` 只保留末尾若干行）：
 

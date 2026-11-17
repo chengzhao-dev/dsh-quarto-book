@@ -91,7 +91,7 @@ function walk(dir, out = []) {
 }
 
 // 装机脚本也读技能目录：它引用旧布局时同样会断，必须一起扫。
-const watched = [...walk(skill), ...walk(join(repo, 'templates')), ...walk(join(repo, 'scripts')).filter((p) => p.endsWith('.ps1'))].filter((p) => !p.includes(`${join('scripts', 'diagrams')}`) || p.endsWith('.md'));
+const watched = [...walk(skill), ...walk(join(repo, 'templates')), ...walk(join(repo, 'scripts')).filter((p) => p.endsWith('.ps1'))];
 
 const conflicts = ['不另立第二套', '标记方式统一见', '全角冒号判失败', '注释是名词', '不用全角冒号挂解释'];
 const oldTrees = [/\bconventions\//, /\breferences\/zh\//, /\bknowledge\/cases\//, /\bkb_id\b/, /\bwriting-quarto[/\\](?:conventions|knowledge)\b/, /\bwriting-quarto[/\\]references[/\\]/];

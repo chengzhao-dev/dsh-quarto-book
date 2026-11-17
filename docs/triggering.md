@@ -50,6 +50,6 @@
 
 ## 验证与维护
 
-- 结构检查：`scripts/checking-skill-links.mjs` 要求本页存在、两个技能的 `description` 不超过 450 字符且含「不用于」、每个 step 有「通用情况/情况/正反例」三节；触发矩阵与反例由人工维护。
+- 结构检查：`scripts/checking-skill-links.mjs` 只核对 `writing-quarto` 的 `description`（≤450 字符、含「不用于」）与每个 step 的三节结构；`designing-theme` 的 `description`、本页存在与触发矩阵由人工维护。
 - 人工抽样：改 description 或步骤表后，用 8–10 条正例、8–10 条反例各跑 3 次，触发率低于一半就改 description 的信号词，不改正文。
 - 改 `SKILL.md` 的 `description` 必须同改本页的判据表与矩阵；只改矩阵不改 description，等于没改。

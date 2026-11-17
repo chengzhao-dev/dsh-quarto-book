@@ -4,7 +4,7 @@
 Only relative links that point at repository files are checked; external URLs,
 anchors, mail links and Quarto template placeholders are skipped. The script
 resolves `../` and `./` against the containing file, then falls back to the
-book root so links written from `content/` still work.
+book root so links written from `chapters/` still work.
 
 Usage:
   python checking-links.py [--root PATH] [--paths PATH ...]

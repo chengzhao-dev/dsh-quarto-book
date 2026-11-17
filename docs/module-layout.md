@@ -4,7 +4,7 @@
 
 命名规则：
 
-- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；有先后的文件加两位数字前缀，案例统一用两位数字前缀并按章内阅读顺序编号。
+- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；`designing-theme` 没有步骤文件，用 `theme/`（条文）与 `assets/`（主题资产）取代 `steps/`。有先后的文件加两位数字前缀，案例统一用两位数字前缀并按章内阅读顺序编号。
 - 同一事实只在一处成文；旧路径不留转述页。
 - `examples/` 下不再建子目录。
 - 篇幅上限见 `skills/writing-quarto/token-budget.md`。

@@ -38,7 +38,7 @@ constexpr bool IsInRange(Position position) { … }
 桥接句：下面的图标出每个数据项的 (row, col)，与 `IsInRange` 接受的范围一致。
 
 ```{python}
-#| fig-cap: "图 1：…"
+#| fig-cap: "…"
 ```
 
 图后：图外坐标一律拒绝。
@@ -70,7 +70,7 @@ constexpr bool IsInRange(Position position) { … }
 流程开始时状态面板还没有任何元素，下面的图展示这个初始局面。
 
 ```{python}
-#| fig-cap: "图 2：初始状态面板，九个数据项都为空。"
+#| fig-cap: "初始状态面板，九个数据项都为空。"
 ```
 
 终端程序打印的三行对应图中每个数据项的 CellState::kEmpty。
@@ -133,7 +133,7 @@ struct Move { … };
 下面的图展示一次进行到中途的局面。
 
 ```{python}
-#| fig-cap: "图 1：…"
+#| fig-cap: "…"
 ```
 
 图中加粗描边的格子是下一步操作目标。

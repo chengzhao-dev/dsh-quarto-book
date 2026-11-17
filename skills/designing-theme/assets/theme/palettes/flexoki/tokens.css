@@ -46,7 +46,6 @@ body {
   --selection-bg: rgba(187, 220, 206, 0.30);
   --mark-bg: rgba(208, 162, 21, 0.28);
   --sidebar-hover-bg: rgba(16, 15, 15, 0.04);
-  --sidebar-active-bg: rgba(36, 131, 123, 0.10);
   --sidebar-fg: #6F6E69;
   --accent: var(--action-color);
   --navbar-bg: #FFFCF0;
@@ -109,7 +108,6 @@ body.quarto-dark {
   --selection-bg: rgba(30, 95, 91, 0.30);
   --mark-bg: rgba(208, 162, 21, 0.28);
   --sidebar-hover-bg: rgba(206, 205, 195, 0.06);
-  --sidebar-active-bg: rgba(58, 169, 159, 0.16);
   --sidebar-fg: #9F9D96;
   --accent: var(--action-color);
   --navbar-bg: #100F0F;

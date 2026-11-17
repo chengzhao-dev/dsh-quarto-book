@@ -142,11 +142,7 @@ h6 {
 /* ---------- 垂直节奏（上边距节奏，书籍阅读的段落呼吸） ----------
    Quarto 把每个 h2 章节内容包在 <section class="level2"> 里，因此对主容器与各 section
    的直属块级子元素统一重置 margin，用上边距节奏控制间距
-   —— 正文间距收成四档，档位按「两块内容是不是同一件事」取：
-      粘连 0.5rem（标题→首段/列表、标题→callout、caption→其代码块）
-      相关 0.9rem（代码块↔caption、代码块↔callout、列表内代码块→验证句）
-      换段 1.4rem（段落/列表/代码块之间的默认距离，下方 * + * 是唯一来源）
-      换节 3.25rem（h2 之前；h3/h4/h5 之前 2.25rem） */
+   —— 正文间距四档，取值与档位语义见 theme/03-theme-system.md「页面结构约定」的间距表 */
 #quarto-document-content > *,
 #quarto-document-content section > * {
   margin-top: 0;
@@ -279,7 +275,7 @@ code a:any-link {
   background: var(--surface-raised);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow-panel);
 }
 .modal-header {
   border-bottom: 1px solid var(--card-border);

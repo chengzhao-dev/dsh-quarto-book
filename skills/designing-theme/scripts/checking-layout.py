@@ -61,7 +61,7 @@ def active_palette_name(quarto_text=""):
 
 # 共享结构令牌与组件规则（与色板无关）
 SHARED_CHECKS = [
-    ("body line-height 1.75", "line-height: 1.75"),
+    ("body line-height 1.85", "line-height: 1.85"),
     ("content width", "--content-width: 840px"),
     ("code font 15px", "--code-font-size: 0.9375rem"),
     ("code line-height 1.7", "--code-line-height: 1.7"),
@@ -73,8 +73,8 @@ SHARED_CHECKS = [
     ("code followup gap", "--code-followup-gap: 0.9rem"),
     ("list code followup spacing", "margin-top: var(--code-followup-gap)"),
     ("list code with filename selector", "li > :is(.code-copy-outer-scaffold, .code-with-filename"),
-    ("readable body font", "font-size: 1rem"),
-    ("body block rhythm", "margin-top: 1.5rem"),
+    ("readable body font", "font-size: 1.0625rem"),
+    ("body block rhythm", "margin-top: 1.4rem"),
     ("paragraphs follow the body column", "max-width: 100%"),
     ("answer disclosure container", "details.answer-disclosure"),
     ("list marker token color", "li::marker"),
@@ -724,7 +724,7 @@ def qmd_font_chunks(path):
     return [prose, *prose_chunks], [*inline_code, *code_chunks]
 
 
-def check_font_coverage(book_dir):
+def check_font_coverage(book_dir, root):
     """Check Chinese coverage for prose and code in qmd sources separately.
 
     声明了 unicode-range 的 face 按声明区间判定。未声明时用 fontTools
@@ -755,7 +755,13 @@ def check_font_coverage(book_dir):
     missing = {family: set() for family in FONT_FAMILIES}
     if not any(coverage.values()):
         return coverage, missing
-    for qmd_path in sorted(book_dir.rglob("*.qmd")):
+    skip_parts = {"_book", "temp", ".quarto", "build", ".cache"}
+    qmd_paths = [
+        path
+        for path in sorted(root.rglob("*.qmd"))
+        if not skip_parts.intersection(path.parts)
+    ]
+    for qmd_path in qmd_paths:
         prose_chunks, code_chunks = qmd_font_chunks(qmd_path)
         for family, chunks in (
             ("LXGW Bright Medium", prose_chunks),
@@ -1026,13 +1032,20 @@ def main():
     if font_partition_problems:
         fail += 1
 
-    ranges, missing = check_font_coverage(book_dir)
-    coverage_ok = not any(missing.values())
+    ranges, missing = check_font_coverage(book_dir, ROOT)
+    scanned = len([
+        path
+        for path in ROOT.rglob("*.qmd")
+        if not {"_book", "temp", ".quarto", "build", ".cache"}.intersection(path.parts)
+    ])
+    coverage_ok = bool(scanned) and not any(missing.values())
     print(
         f"  {'OK  ' if coverage_ok else 'MISS'} CJK font coverage"
-        f"  (covered-codepoints={sum(len(s) for s in ranges.values())}, "
+        f"  (scanned-qmd={scanned}, covered-codepoints={sum(len(s) for s in ranges.values())}, "
         f"missing={sum(map(len, missing.values()))})"
     )
+    if not scanned:
+        print("       no .qmd found under --root; pass the book root, not _book")
     for family, chars in missing.items():
         if chars:
             print(f"       {family}: " + "".join(sorted(chars)[:20]))

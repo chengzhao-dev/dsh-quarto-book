@@ -7,7 +7,7 @@ metadata:
 
 # writing-quarto
 
-本技能负责 Quarto Book 的读者正文：`content/**/*.qmd`、`index.qmd` 与 `_quarto.yml` 的章节结构。主题样式走 `designing-theme`，C++ 源码走 `developing-cpp`，书里的业务事实由项目技能提供。
+本技能负责 Quarto Book 的读者正文：`chapters/**/*.qmd`、`index.qmd` 与 `_quarto.yml` 的章节结构。主题样式走 `designing-theme`，C++ 源码走 `developing-cpp`，书里的业务事实由项目技能提供。
 
 ## 适用场景
 

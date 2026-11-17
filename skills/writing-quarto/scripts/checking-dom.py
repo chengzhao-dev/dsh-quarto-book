@@ -310,11 +310,13 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         else:
             missing.append(str(path.relative_to(book_dir)))
     icon_files = [p for p in book_dir.rglob("favicon-*.svg")]
-    icon_names = {p.name for p in icon_files}
-    icon_palettes = {p.parent.name for p in icon_files}
-    icon_file = (
-        {"favicon-light.svg", "favicon-dark.svg"} <= icon_names
-        and {"flexoki", "solarized"} <= icon_palettes
+    icon_pairs = {}
+    for path in icon_files:
+        if path.name in {"favicon-light.svg", "favicon-dark.svg"}:
+            icon_pairs.setdefault(path.parent.name, set()).add(path.name)
+    icon_file = all(
+        icon_pairs.get(name) == {"favicon-light.svg", "favicon-dark.svg"}
+        for name in ("flexoki", "solarized", "hill-light")
     )
     if not require_favicon:
         results.append((
@@ -324,7 +326,7 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         ))
     else:
         c4 = icon_pages == len(htmls) and icon_file and bool(htmls)
-        summary = "%d/%d 页含 icon 链接，四份色板图标已发布=%s" % (icon_pages, len(htmls), icon_file)
+        summary = "%d/%d 页含 icon 链接，六份色板图标已发布=%s" % (icon_pages, len(htmls), icon_file)
         if missing:
             summary += "；缺链接: " + ", ".join(missing[:3])
             if len(missing) > 3:
@@ -332,8 +334,8 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         results.append((
             "C4", "站点图标已注入并发布", c4, summary,
             ["每页 <head> 需 <link rel=\"icon\" … favicon-light.svg 或 favicon-dark.svg>；"
-             "四份源文件见 theme/palettes/{flexoki,solarized}/favicon-{light,dark}.svg，"
-             "book.favicon 指 Flexoki light，另外三份随 resources 发布"],
+             "六份源文件见 theme/palettes/{flexoki,solarized,hill-light}/favicon-{light,dark}.svg，"
+             "book.favicon 指 Flexoki light，另外五份随 resources 发布"],
         ))
 
     # ---------- C5 Mermaid ----------

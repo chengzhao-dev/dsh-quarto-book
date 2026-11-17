@@ -3,8 +3,7 @@
 
 为什么需要它：渲染成功不等于线上可读。历史事故里 quarto render 全绿。线上却
 出现 404 或乱码。问题出在 site-url 缺失、Pages 源未配置或产物编码被破坏。
-本检查在渲染后、发布前运行。它把这类失败拦在 CI。run.py check 的其余产物检查
-不在本检查范围内。
+本检查在渲染后、发布前运行。它把这类失败拦在 CI。
 
 用法：python checking-output.py [--book-dir _book] [--root .] [--require-sitemap]
 退出码：0 = 通过；1 = 存在阻塞问题；2 = 渲染产物目录或首页缺失。
