@@ -16,7 +16,7 @@ flowchart TD
     G --> I["writing/*.md 与 writing/examples/*.md<br/>正反例、整书次序、操作判据、规则优先级、token 预算"]
     I --> J["内容检查 verifying-content.py、<br/>链接检查 checking-links.py"]
     D --> K["designing-theme/SKILL.md<br/>六步：定表面、定字体、定尺度、定颜色、定组件、通过检查"]
-    K --> L["assets/theme/<br/>content.css、过滤后的 SCSS"]
+    K --> L["assets/theme/<br/>css/ 组件样式、palettes/* 的 SCSS 与令牌"]
     J --> M["quarto_render_check 工具"]
     L --> M
     M --> N["quarto_pass_report 回执"]
@@ -51,7 +51,8 @@ flowchart TD
 | `skills/writing-quarto/` 的 `steps/`、`writing/`、`quarto/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/module-layout.md`，本表不重复 |
 | `skills/designing-theme/SKILL.md` | 触发描述、六步、主题文件入口 |
 | `skills/designing-theme/theme/` | 阅读表面理由、主题步骤与主题系统 |
-| `skills/designing-theme/assets/theme/` | `content.css` 与 SCSS 层 |
+| `skills/designing-theme/assets/theme/` | `css/` 的组件样式、`palettes/*/theme-*.scss` 与 `tokens.css`、`includes/` 与 `assets/fonts/` |
+| `skills/writing-quarto/assets/config/` | 书根运行时配置的骨架：复制为书的 `config/runtime.config` 后填写 |
 | `templates/quarto-book-project/` | 项目技能模板：书名、读者、术语、章节对照 |
 | `src/tools/render-check.ts`、`pass-report.ts` | 工具源码，编译到 `lib/tools/` |
 | `docs/architecture.md` | 本页：分层、数据流与文件职责 |
@@ -65,4 +66,4 @@ flowchart TD
 
 ## 检查
 
-`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验（`npm run ci` 在 test 之后跑它）。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/**/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验（`npm run ci` 在 test 之后跑它）。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。

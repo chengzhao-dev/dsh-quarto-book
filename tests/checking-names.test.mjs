@@ -69,3 +69,28 @@ test('命名检查拦非 ASCII 路径', { skip: python ? false : '没有可用�
   assert.equal(result.status, 1, result.stdout + result.stderr)
   assert.match(result.stdout, /U\+4E2D/)
 })
+
+test('命名检查接受章节的 <NN>_<topic> 下划线文件名与章节目录', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const result = await runWith(async (root) => {
+    await mkdir(path.join(root, 'chapters', 'core_rules'), { recursive: true })
+    await writeFile(path.join(root, 'index.qmd'), '', 'utf8')
+    await writeFile(path.join(root, 'chapters', 'core_rules', '01_intro.qmd'), '', 'utf8')
+    await writeFile(path.join(root, 'chapters', 'core_rules', '02_board_layout.qmd'), '', 'utf8')
+  })
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+})
+
+test('命名检查拦书稿文件名与目录名里的连字符', { skip: python ? false : '没有可用的 Python' }, async () => {
+  const fileResult = await runWith(async (root) => {
+    await writeFile(path.join(root, '01-intro.qmd'), '', 'utf8')
+  })
+  assert.equal(fileResult.status, 1, fileResult.stdout + fileResult.stderr)
+  assert.match(fileResult.stdout, /含连字符/)
+
+  const dirResult = await runWith(async (root) => {
+    await mkdir(path.join(root, 'chapters', 'board-game'), { recursive: true })
+    await writeFile(path.join(root, 'chapters', 'board-game', 'index.qmd'), '', 'utf8')
+  })
+  assert.equal(dirResult.status, 1, dirResult.stdout + dirResult.stderr)
+  assert.match(dirResult.stdout, /含连字符（目录名用下划线）/)
+})

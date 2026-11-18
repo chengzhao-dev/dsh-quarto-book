@@ -13,7 +13,7 @@
 
 项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py`、`checking-links.py` 与 `checking-prose.py`。
 
-`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/SKILL.md`（也接受下划线目录 `.agents/skills/quarto_book_project/`）存在时启用。
+`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度（单句三档见 `steps/05-sentences.md`「句子规则」）、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/SKILL.md`（也接受下划线目录 `.agents/skills/quarto_book_project/`）存在时启用。
 
 ### 渲染与 HTML
 

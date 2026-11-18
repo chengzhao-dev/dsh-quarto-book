@@ -19,6 +19,8 @@ Markdown 与 Quarto 的硬换行用行尾反斜杠或 `<br>`，不用行尾两�
 ## 权威与工具
 
 - 仓库根的 `.gitattributes` 管提交与检出时的行尾，`.editorconfig` 管编辑器写入时的编码、行尾与空白。两份文件冲突时以 `.gitattributes` 为准，并同轮修正 `.editorconfig`。
+- `.editorconfig` 的文件名由 EditorConfig 规范固定，不能改名：插件从目标文件所在目录逐级向上
+  查找全小写的 `.editorconfig`，改名后不会被识别；放进子目录只对该子树生效。
 - 新建文件前先看根 `.editorconfig` 是否已覆盖该扩展名；没有就用编辑器显式设成 UTF-8、LF。
 - `.gitignore` 只在仓库根出现的路径写前导 `/`；`build/`、`__pycache__/` 这类任意层级生成的目录不加。`_freeze/` 按 Quarto 文档建议入库，不要忽略。
 - 提交前跑 `git diff --check`，它会拦下行尾空白与冲突标记；行尾本身由 `.gitattributes` 保证。

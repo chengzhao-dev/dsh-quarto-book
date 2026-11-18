@@ -13,8 +13,8 @@ import argparse
 import sys
 from pathlib import Path
 
-# 本文件的乱码特征与 checking-encoding.py 完全一致。命中任意一个特征即判为编码破坏。
-# 这些特征用 \u 转义存放。checking-encoding.py 不会把本文件误判成含乱码。
+# 命中任意一个特征即判为编码破坏。特征用 \u 转义存放，脚本自身因此不含乱码字符，
+# 不会把自己的源码误判成待检查文本。
 MOJIBAKE_MARKERS = (
     "\u951f", "\u93c2", "\u941c", "\u7ed4", "\u93b4",
     "\u7487", "\u6d60", "\u934f", "\u7039", "\u95b8",

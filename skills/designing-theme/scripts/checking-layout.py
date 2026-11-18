@@ -67,9 +67,9 @@ SHARED_CHECKS = [
     ("code line-height 1.7", "--code-line-height: 1.7"),
     ("code title padding token", "--code-title-padding"),
     ("ui font stack", '--ui-font: "LXGW Bright Medium"'),
-    ("cjk font fallback", '"LXGW Bright Medium"'),
+    ("cjk font fallback", '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC"'),
     ("code font stack", '--mono-font: "LXGW Bright Code"'),
-    ("bright code family", '"LXGW Bright Code"'),
+    ("code font cjk fallback", '"Courier New", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC"'),
     ("code followup gap", "--code-followup-gap: 0.9rem"),
     ("list code followup spacing", "margin-top: var(--code-followup-gap)"),
     ("list code with filename selector", "li > :is(.code-copy-outer-scaffold, .code-with-filename"),
@@ -111,12 +111,37 @@ PALETTE_VALUE_CHECKS = {
         ("dark link ink #CECDC3", "--link-color: #CECDC3"),
         ("callout note border light", "--callout-note-border: #6F6E69"),
         ("callout warning border light", "--callout-warning-border: #BC5215"),
-        ("light highlight comment #575653", "#575653"),
-        ("light highlight keyword #66800b", "#66800b"),
-        ("dark highlight comment #878580", "#878580"),
-        ("dark highlight keyword #879a39", "#879a39"),
     ],
 }
+
+# 高亮主题是 JSON：注释与关键字色按文件逐项断言，不能由 tokens.css 的同一串兜底。
+HIGHLIGHT_EXPECTATIONS = {
+    "flexoki": {
+        "light": {"Comment": "#575653", "Keyword": "#66800b"},
+        "dark": {"Comment": "#878580", "Keyword": "#879a39"},
+    },
+}
+
+
+def highlight_problems(palette):
+    """返回当前色板高亮主题与预期不符的项；非编译期色板没有 .theme，返回空。"""
+    problems = []
+    for mode, expected in HIGHLIGHT_EXPECTATIONS.get(palette, {}).items():
+        path = PALETTE_ROOT / palette / f"highlight-{mode}.theme"
+        if not path.is_file():
+            problems.append(f"缺少 {path.name}")
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            problems.append(f"{path.name} 无法解析：{exc}")
+            continue
+        for node, color in expected.items():
+            actual = (data.get(node) or {}).get("text-color", "")
+            if str(actual).lower() != color.lower():
+                problems.append(f"{path.name}: {node} 的 text-color 是 {actual or '缺失'}，应为 {color}")
+    return problems
+
 
 # Solarized 是运行时覆盖层：令牌必须挂在 html[data-palette="solarized"] 下。
 SOLARIZED_TOKEN_CHECKS = [
@@ -915,13 +940,24 @@ def main():
         print(f"  OK   active palette `{palette}`  ({palette_tokens.as_posix()})")
 
     checks = list(SHARED_CHECKS) + list(TOKEN_NAME_CHECKS)
-    checks.extend(PALETTE_VALUE_CHECKS.get(palette or "", []))
     for name, pattern in checks:
         found = any(pattern in text for text in search_texts)
         mark = "OK  " if found else "MISS"
         print(f"  {mark} {name}  ({pattern})")
         if not found:
             fail += 1
+
+    # 色值只在色板资产与书内主题源码里断言：_book 渲染产物或 .theme 同串不能兜底。
+    for name, pattern in PALETTE_VALUE_CHECKS.get(palette or "", []):
+        found = any(pattern in text for text in source_css_texts)
+        mark = "OK  " if found else "MISS"
+        print(f"  {mark} {name}  ({pattern})")
+        if not found:
+            fail += 1
+
+    for problem in highlight_problems(palette or ""):
+        print(f"  MISS highlight theme  {problem}")
+        fail += 1
 
     # Solarized 不参与编译，但两份覆盖层必须始终可用；按文件分别核 selector 与色值。
     solarized_tokens = PALETTE_ROOT / "solarized" / "tokens.css"

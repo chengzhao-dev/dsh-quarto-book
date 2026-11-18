@@ -324,6 +324,18 @@ function runProcess(
   })
 }
 
+// 书可以在 `config/runtime.config` 里写死解释器路径；只读 `python_path`
+// 一个键，缺失或读不到就退回环境变量与 PATH 候选。
+async function declaredPython(root: string): Promise<string | undefined> {
+  try {
+    const text = await readFile(path.join(root, 'config', 'runtime.config'), 'utf8')
+    const match = /^\s*python_path\s*=\s*"([^"]+)"/m.exec(text)
+    return match?.[1]?.trim() || undefined
+  } catch {
+    return undefined
+  }
+}
+
 async function runPython(
   script: string,
   args: string[],
@@ -332,7 +344,13 @@ async function runPython(
   spawnFn: SpawnLike,
   signal?: AbortSignal,
 ): Promise<ProcessResult> {
-  const candidates = [explicitPython, process.env.PYTHON, 'python3', 'python'].filter(
+  const candidates = [
+    explicitPython,
+    await declaredPython(root),
+    process.env.PYTHON,
+    'python3',
+    'python',
+  ].filter(
     (item): item is string => typeof item === 'string' && item.trim() !== '',
   )
   let last: ProcessResult = { ok: false, missing: true, code: null, output: `找不到 Python 解释器：${script}`, duration_ms: 0 }

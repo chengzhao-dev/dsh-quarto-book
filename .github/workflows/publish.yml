@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -54,6 +55,7 @@ jobs:
         run: |
           npm ci
           npm test
+          npm run check
       - name: Publish to npm
         if: steps.release.outputs.published == 'false'
         # main 推送与手动标签推送可能同时触发发布；后到的 run 可能读到缓存里的旧状态，

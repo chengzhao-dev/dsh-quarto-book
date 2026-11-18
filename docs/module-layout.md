@@ -4,7 +4,7 @@
 
 命名规则：
 
-- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；`designing-theme` 没有步骤文件，用 `theme/`（条文）与 `assets/`（主题资产）取代 `steps/`。有先后的文件加两位数字前缀，案例统一用两位数字前缀并按章内阅读顺序编号。
+- 技能根固定为 `SKILL.md`、`steps/`、`scripts/`；`designing-theme` 没有步骤文件，用 `theme/`（条文）与 `assets/`（主题资产）取代 `steps/`；`writing-quarto` 的 `assets/` 只放要复制到书里的骨架文件。有先后的文件加两位数字前缀，案例统一用两位数字前缀并按章内阅读顺序编号。
 - 同一事实只在一处成文；旧路径不留转述页。
 - `examples/` 下不再建子目录。
 - 篇幅上限见 `skills/writing-quarto/token-budget.md`。
@@ -18,7 +18,6 @@
 │       ├── ci.yml                                                # 文件
 │       └── publish.yml                                           # 文件
 ├── .gitignore                                                    # 文件
-├── .npmignore                                                    # 文件
 ├── LICENSE                                                       # 文件
 ├── README.en.md                                                  # 文件
 ├── README.md                                                     # 文件
@@ -72,7 +71,6 @@
 │   │   │       │   ├── sidebar.css                               # 文件
 │   │   │       │   └── tokens.css                                # 文件
 │   │   │       ├── includes/                                    #/ 目录
-│   │   │       │   ├── fonts.html                                # 文件
 │   │   │       │   ├── footer.html                               # 文件
 │   │   │       │   └── palette.html                              # 文件
 │   │   │       └── palettes/                                    #/ 目录
@@ -113,6 +111,9 @@
 │   │       └── 03-theme-system.md                                # 文件
 │   └── writing-quarto/                                          #/ 目录
 │       ├── SKILL.md                                              # 文件
+│       ├── assets/                                              #/ 目录
+│       │   └── config/                                          #/ 目录
+│       │       └── runtime.config                                # 文件
 │       ├── quarto/                                              #/ 目录
 │       │   ├── 01-basics.md                                      # 文件
 │       │   ├── 02-encoding.md                                    # 文件

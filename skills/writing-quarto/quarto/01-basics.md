@@ -1,8 +1,6 @@
 # Quarto 基础（Book 项目）
 
-本文件是 Quarto Book 项目结构、YAML front matter、章节标题约定的**规范唯一出处**。其他文件提到这些约定时一律引用本文件，不重复陈述。`format: html` 的选项语义与失效边界归 `quarto/12-quarto-render.md`，本文件不复制。
-
-> 速查：`.qmd` = YAML front matter + Markdown 正文 · `title:` 与 `# H1` 二选一 · `index.qmd` 必须存在 · Book 输出 `_book/` · `part:` 分组章节 · `appendices:` 收附录
+本文件是 Quarto Book 项目结构、YAML front matter、章节标题约定的**规范唯一出处**。其他文件只引用本文件，不重复陈述。`format: html` 的选项语义与失效边界归 `quarto/12-quarto-render.md`，本文件不复制。
 
 Quarto 接受 `.qmd`、`.md`、`.ipynb`、`.Rmd` 四种章节源文件；Book 的章节以 `.qmd` 为主，本技能只按 `.qmd` 与 `.md` 讲正文写法，其他类型按 Quarto 官方文档处理。
 
@@ -41,7 +39,7 @@ quarto preview 文档.qmd     # 本地预览（实时刷新）
 quarto render               # 渲染当前项目全部内容
 ```
 
-渲染整本书时，`quarto render` 在书根执行；在子目录裸跑只渲染该子目录的文档，输出进 `_book/` 下对应子路径，不要把它当整书构建。渲染单章用 `quarto render 文档.qmd`，可以从子目录执行，输出仍进 `_book/`。书里若有 `{python}` 可执行单元，先按项目约定设置 `QUARTO_PYTHON`，再运行 `quarto render`；不要依赖系统 PATH 里的 `python3`（Windows 上可能是 Store 占位符）。
+渲染整本书时，`quarto render` 在书根执行；在子目录裸跑只渲染该子目录的文档，输出进 `_book/` 下对应子路径，不要把它当整书构建。渲染单章用 `quarto render 文档.qmd`，可以从子目录执行，输出仍进 `_book/`。
 
 ## Quarto Book 项目
 
@@ -54,8 +52,8 @@ book/
 ├── .editorconfig              # 编辑器保存格式
 ├── .gitattributes             # 入库与检出的行尾
 ├── .gitignore                 # 生成物与本地产物
-├── config/                   #/ 工具链配置
-│   └── config.toml           # Python 解释器、依赖与最低版本
+├── config/                   #/ 运行时配置
+│   └── runtime.config         # Python 解释器与 Quarto 的版本
 ├── chapters/                 #/ 正文与附录
 │   ├── <part>/               #/ 一个部分
 │   │   ├── index.qmd          # part 落地页：本部分章节卡片
@@ -67,7 +65,7 @@ book/
 └── filters/                  #/ 书内过滤器
 ```
 
-工具链配置放书根 `config/config.toml`，只写这一份；解释器、版本下限与依赖清单的取值规则见本文件「解释器与依赖取值」。
+运行时配置放书根 `config/runtime.config`，只写这一份；新建书时从本技能的 `assets/config/runtime.config` 复制。解释器与版本下限的取值规则见本文件「解释器与依赖取值」。
 
 Quarto Book 的核心配置在书根 `_quarto.yml`：
 
@@ -76,10 +74,24 @@ project:
   type: book
 
 book:
+  # 1. 身份
   title: "<书名>"
+  # 2. 说明
+  description: "<一句话说明>"
+  # 3. 站点与仓库
+  site-url: "https://<用户名>.github.io/<仓库>"
+  repo-url: "https://github.com/<用户名>/<仓库>"
+  repo-actions: [source]
+  # 4. 外观
+  favicon: "<主题内 favicon 的相对路径>"
+  # 5. 阅读界面
+  page-navigation: true
   search: true
   sidebar:
     collapse-level: 2
+  navbar:
+    title: "<书名>"
+  # 7. 正文结构：章节清单永远最后
   chapters:
     - index.qmd
     - part: chapters/<part>/index.qmd
@@ -99,6 +111,7 @@ book:
 - `collapse-level` 按章节深度设：只有一个 part、章在第二层时用 `2`（默认值）；用 `1` 会把章全部折叠，侧栏只剩 part 标题。
 - **`appendices:` 只放附录页**，排在 `chapters` 之后；附录标题默认由 Quarto 加前缀，想改中文名在 `crossref.appendix-title` 设「附录」。
 - 用 `#refs` 生成的书目页按项目约定留在 `chapters`；Quarto 不会因为 `#refs` 自动把它归成附录，放错位置会按普通章节排序。
+- **`book:` 键序按七组排，`chapters`/`appendices` 永远最后**：身份（title/subtitle/author/date/date-format）→ 说明（description/abstract/license）→ 站点与仓库（site-url/repo-url/repo-branch/repo-subdir/repo-actions）→ 外观（cover-image/cover-image-alt/favicon）→ 阅读界面（page-navigation/back-to-top-navigation/search/sidebar/navbar/page-footer）→ 分享（downloads/sharing/open-graph/twitter-card/comments）→ 正文结构。新增键先归组再插入，不跨组搬动；整组未用时连注释一起省略，其他组序号不变。
 - 渲染：`quarto render`，Book 默认输出到 `_book/`。
 
 ### 根首页与 part 落地页的链接边界
@@ -118,7 +131,7 @@ book:
 title: "章节标题"
 ---
 
-开篇说明写正文普通段落（1-3 句）；章节与 part 落地页不写 `description`，定位信息只保留在开篇说明。
+开篇说明写正文普通段落（2–4 句）；章节与 part 落地页不写 `description`，定位信息只保留在开篇说明。
 
 ## 第一个小节
 正文。
@@ -143,15 +156,14 @@ title: "章节标题"
 
 ## 执行缓存与 CI 依赖
 
-- `_quarto.yml` 顶层 `execute: freeze: auto`：全项目 `quarto render` 对未变化的计算页面复用根 `_freeze/`；页面源码变化时才重新执行。
-- 根 `_freeze/` 是 Quarto 官方建议提交的共享快照；`.quarto/_freeze/` 是同一结果的本地隐藏 freezer，随整个 `.quarto/` 忽略且绝不提交。`_book/` 是忽略的 Pages 发布物，CI 只发布它，不发布 `_freeze/`。
+- `execute: freeze: auto`：全项目渲染复用根 `_freeze/` 中未变化页面的结果，源码变化才重跑；`_freeze/` 应提交，`.quarto/_freeze/` 随 `.quarto/` 忽略，`_book/` 是发布物、CI 不发布 `_freeze/`。
 - 本地或 CI 以无参数 `quarto render` 渲染整本书。修改单元、`rendering-coords.py`、输入数据或依赖后，必须刷新并提交对应根 `_freeze/`；发生冲突时重新执行生成结果，不手工合并 JSON。
-- CI 仍安装 Jupyter 依赖，供页面或外部输入变更后的重执行兜底；渲染验收仍是 `_book` 对应 HTML 含 `coords-grid` 类名的 SVG 容器。
+- 用 `{python}` 可执行单元的书，CI 还要安装 Jupyter 依赖，供页面或外部输入变更后的重执行兜底；渲染验收仍是 `_book` 对应 HTML 含 `coords-grid` 类名的 SVG 容器。
 
 ### 解释器与依赖取值
 
-- 解释器与依赖只写一份 `config/config.toml`：`python_path`、`python_min_version` 给解释器与版本下限，`quarto_python_packages` 是依赖清单；缺失或版本低于下限时脚本直接失败，不回退 PATH。键注释的写法见 `04-comments.md`「TOML 与项目配置」。
-- Quarto 的 jupyter 引擎用环境变量 `QUARTO_PYTHON` 定位解释器；本地和 CI 都显式设置它，值取自 `config/config.toml` 的 `python_path`。
-- **裸 `quarto preview` / `quarto render` 不读 `config/config.toml` 的解释器字段**。Windows PATH 上的 `python3` 常是 Store 占位符，会报 Python not found；优先在会话或 CI 里设置 `QUARTO_PYTHON`。
+- 解释器与版本只写一份 `config/runtime.config`：`python_path`、`python_min_version` 给解释器与版本下限。缺失或版本低于下限时脚本直接失败，不回退 PATH。键注释的写法见 `04-comments.md`「TOML 与项目配置」。
+- Quarto 的 jupyter 引擎用环境变量 `QUARTO_PYTHON` 定位解释器；本地与渲染 Python 单元的 CI 都显式设置它，值取自 `config/runtime.config` 的 `python_path`。
+- **裸 `quarto preview` / `quarto render` 不读 `config/runtime.config` 的解释器字段**。Windows PATH 上的 `python3` 常是 Store 占位符，会报 Python not found；优先在会话或 CI 里设置 `QUARTO_PYTHON`。
 - Cursor / VS Code 的 Quarto Preview：扩展从 **Python: Select Interpreter** 取路径注入 `QUARTO_PYTHON`；选书里实际使用的解释器。
-- 依赖清单不另写 `requirements.txt`；已经有的项目二选一，不要两处并存。CI 从 `quarto_python_packages` 按行提取成 pip 的 `-r` 文件，本地按同一份清单准备。SVG 用标准库生成，不强制 matplotlib。
+- SVG 用标准库生成，不强制 matplotlib。

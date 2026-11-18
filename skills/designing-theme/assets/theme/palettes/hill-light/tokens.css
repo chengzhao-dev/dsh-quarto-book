@@ -1,7 +1,7 @@
 /* ============================================================
    Palette: hill-light · 山光四时（dawn / noon / dusk / night）
-   色值源：D:/Github/hill-light/hill-light-theme/css/tokens.css（单一色值来源）。
-   本文件把山光的「纸/墨/强调/线」映射到本插件的 59 个语义令牌；
+   色值源：上游主题仓库 hill-light 的 css/tokens.css（单一色值来源）。
+   本文件把山光的「纸/墨/强调/线」映射到本插件的 53 个语义令牌；
    四种模式由 html[data-mode] 选择，night 同时声明 color-scheme: dark。
    几何、字号、行高与明暗共用，见 css/tokens.css。
    ============================================================ */

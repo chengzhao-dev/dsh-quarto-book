@@ -137,6 +137,7 @@ body.quarto-dark {
     --emphasis-color: #000000;
     --link-color: #000000;
     --code-border: #878580;
+    --line-num-color: #000000;
     --card-border: #878580;
     --navbar-border: #878580;
   }
@@ -148,6 +149,7 @@ body.quarto-dark {
     --emphasis-color: #FFFCF0;
     --link-color: #FFFCF0;
     --code-border: #6F6E69;
+    --line-num-color: #FFFCF0;
     --card-border: #6F6E69;
     --navbar-border: #6F6E69;
   }

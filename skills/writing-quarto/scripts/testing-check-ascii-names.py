@@ -38,10 +38,10 @@ def main() -> int:
     failures: list[str] = []
 
     accepted = (
-        "designing-theme", "01-rules.qmd", "theme-light.scss", "v1.2.md",
+        "designing-theme", "01_rules.qmd", "theme-light.scss", "v1.2.md",
         "board_test.cpp", "checking-book.py", "cli_test.cpp",
     )
-    rejected = ("test support.md", "Designing-theme", "a--b.md")
+    rejected = ("test support.md", "Designing-theme", "a--b.md", "01-rules.qmd")
 
     for name in accepted:
         error = module.name_form_error(name)
@@ -51,6 +51,9 @@ def main() -> int:
     for name in rejected:
         if module.name_form_error(name) is None:
             failures.append(f"{name} 应失败，实际通过")
+
+    if module.name_form_error("board-game", is_dir=True) is None:
+        failures.append("目录名 board-game 应失败，实际通过")
 
     for tool_name in ("CMakeLists.txt", "SKILL.md", "README.en.md", "package.json"):
         error = module.name_form_error(tool_name)
@@ -66,7 +69,7 @@ def main() -> int:
             print(f"  FAIL {line}")
         return 1
 
-    print(f"PASS：{len(accepted) + len(rejected) + 4} 个用例全部通过")
+    print(f"PASS：{len(accepted) + len(rejected) + 5} 个用例全部通过")
     return 0
 
 

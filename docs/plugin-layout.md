@@ -28,7 +28,7 @@ dsh-quarto-book/
 
 安装与加载需要 Node.js 22 与 DSH 0.2.1 及以上（<0.3.0）；`src/`、`tests/`、`scripts/` 和 `docs/` 都不进 npm 包，发布包加载编译后的 `lib/`。
 
-发布包内容由 `package.json` 的 `files` 白名单决定，根 `.npmignore` 对白名单里的目录不生效：白名单列出 `skills` 后，技能目录下的文件会整棵进包。Python 缓存因此要在白名单里显式排除（`!**/__pycache__`、`!**/*.pyc`），`scripts/checking-skill-links.mjs` 也会在技能目录出现已跟踪的 `__pycache__` 或 `.pyc` 时报错。
+发布包内容由 `package.json` 的 `files` 白名单决定：白名单列出 `skills` 后，技能目录下的文件会整棵进包，白名单之外的文件不进包。Python 缓存因此要在白名单里显式排除（`!**/__pycache__`、`!**/*.pyc`），`scripts/checking-skill-links.mjs` 也会在技能目录出现已跟踪的 `__pycache__` 或 `.pyc` 时报错。
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
@@ -47,7 +47,8 @@ dsh-quarto-book/
 | 主题资产 | `skills/designing-theme/assets/theme/` | 主题技能与书内副本 |
 | 工具源码与产物 | `src/`、`lib/` | 构建与宿主加载 |
 | 维护说明 | `docs/` | 维护者；不进 npm 包 |
-| 项目技能模板 | `templates/quarto-book-project/` | 新书复制后填写 |
+| 项目技能模板 | `templates/quarto-book-project/` | 新书复制到 `.agents/skills/quarto-book-project/` 后填写 |
+| 运行时配置骨架 | `skills/writing-quarto/assets/config/runtime.config` | 复制到书根 `config/runtime.config` 后填写 |
 | 发布边界 | `package.json` 的 `files` | npm 打包 |
 
 发布只带 `files` 白名单，`docs/`、`src/`、`tests/` 与 `scripts/` 不随包安装。`docs/` 只放规则、边界、调用面与交付约定，不放检索原文、逐轮日志或一次性统计；一条规则只在一个 step 成文，放置规则与单文件上限见 `docs/module-layout.md` 与 `skills/writing-quarto/token-budget.md`。

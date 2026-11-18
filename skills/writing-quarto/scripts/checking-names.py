@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that repository paths are ASCII and use portable kebab-case.
+"""Check that repository paths are ASCII and use portable underscore names.
 
 Quarto fails on some non-ASCII path characters (notably U+2011 and U+2212),
 and mixed separators break links after rendering. This script checks every
@@ -8,7 +8,8 @@ directories.
 
 Rules:
   * Every character is ASCII.
-  * Directory and Quarto/asset file names use lower-case words separated by one hyphen.
+  * Directory and Quarto/asset file names use lower-case words separated by one
+    underscore; a hyphen is rejected, except for tool-owned names in TOOL_FIXED_NAMES.
   * Code and tool file names follow their language convention; underscores are allowed,
     but they must stay ASCII and contain no spaces.
   * Dots are allowed for extensions and version-like names.
@@ -43,11 +44,16 @@ CODE_SUFFIXES = {
     ".ps1", ".lua",
 }
 
+CONTENT_SUFFIXES = {".qmd", ".md"}
+
 TOOL_FIXED_NAMES = {
     "CMakeLists.txt", "_quarto.yml", "_quarto.yaml", "SKILL.md", "AGENTS.md",
     "README.md", "README.en.md", "LICENSE", "OFL.txt", "CONTRIBUTING.md",
-    ".editorconfig", ".gitignore", ".gitattributes", "openai.yaml",
+    ".editorconfig", ".gitignore", ".gitattributes", ".github", "openai.yaml",
     "package.json", "package-lock.json", "pnpm-lock.yaml", "tsconfig.json",
+    # 工具规定的技能目录保持连字符原名，不按书稿下划线口径改。
+    "writing-quarto", "designing-theme",
+    "quarto-book-project", "cpp-workflow-project",
 }
 
 
@@ -58,10 +64,25 @@ def first_non_ascii(name: str) -> str | None:
     return None
 
 
-def name_form_error(name: str) -> str | None:
+def name_form_error(name: str, is_dir: bool = False) -> str | None:
     if name in TOOL_FIXED_NAMES:
         return None
-    if Path(name).suffix.lower() in CODE_SUFFIXES:
+    suffix = Path(name).suffix.lower()
+    if suffix in CODE_SUFFIXES:
+        return None
+    if suffix in CONTENT_SUFFIXES or is_dir:
+        if " " in name:
+            return "含空格"
+        if any(a.islower() and b.isupper() for a, b in zip(name, name[1:])):
+            return "含驼峰"
+        # 书稿用 `<NN>_<topic>.qmd`：两位数字前缀只为人眼排序（章序由
+        # book.chapters 决定），词间用下划线；目录同样允许下划线分段。
+        if suffix in CONTENT_SUFFIXES:
+            stem = name[: -len(suffix)]
+            if "-" in stem:
+                return "含连字符（书稿文件名用下划线）"
+        elif "-" in name:
+            return "含连字符（目录名用下划线）"
         return None
     # CMake 模块名按社区习惯写 CamelCase（CompileSettings.cmake），由
     # include() / find_package() 按名查找，改名会直接断掉构建，故与
@@ -90,7 +111,7 @@ def name_form_error(name: str) -> str | None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="检查路径名的 ASCII 与连字符形式")
+    parser = argparse.ArgumentParser(description="检查路径名的 ASCII 与下划线形式")
     parser.add_argument("--root", default=".", help="书根目录（默认当前目录）")
     args = parser.parse_args()
 
@@ -126,7 +147,7 @@ def main() -> int:
             if ch is not None:
                 bad.append((f"U+{ord(ch):04X}", target))
                 continue
-            form = name_form_error(name)
+            form = name_form_error(name, is_dir=name in dirnames)
             if form is not None:
                 bad.append((form, target))
 
@@ -134,14 +155,14 @@ def main() -> int:
     print()
 
     if not bad:
-        print("OK：所有路径均为纯 ASCII，Quarto 路径符合连字符形式，代码文件按语言命名。")
+        print("OK：所有路径均为纯 ASCII；书稿文件名与目录名符合下划线形式，代码文件按语言命名。")
         return 0
 
     print(f"发现 {len(bad)} 个不合规路径：")
     for code, path in bad:
         print(f"  [{code}] {path}")
     print()
-    print('建议：非 ASCII 字符改为普通 "-"；Quarto 路径改为小写连字符式，代码文件保持 ASCII。')
+    print('建议：非 ASCII 字符改为 ASCII；书稿文件名与目录名改为下划线式，代码文件保持 ASCII。')
     return 1
 
 

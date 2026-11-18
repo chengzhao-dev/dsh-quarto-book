@@ -15,7 +15,8 @@ Project-specific rules are optional. If the book has a project skill at
   {
     "forbidden_terms": ["..."],
     "chapter_titles": {"chapters/part/01_intro.qmd": "入门"},
-    "later_chapter_names": {"chapters/part/02_board.qmd": ["LaterType"]}
+    "later_chapter_names": {"chapters/part/02_board.qmd": ["LaterType"]},
+    "lead_chars": [60, 140]
   }
 
 Without a project skill, those checks are skipped and only the generic rules
@@ -23,6 +24,7 @@ run. This keeps another book's chapter names and vocabulary out of this book.
 
 Usage:
   python verifying-content.py [--root PATH] [--strict] [--quiet]
+  python verifying-content.py [--root PATH] --paths chapters/part/01_intro.qmd
 
 Exit codes: 0 = no blocking problem, 1 = problems found, 2 = bad root.
 """
@@ -176,7 +178,9 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
     in_chapters = False
     for raw in read_text(quarto_yml).splitlines():
         stripped = raw.strip()
-        if re.match(r"^chapters:\s*$", stripped):
+        # chapters 与 appendices 都是正文结构：附录页同样要进内容检查，
+        # 只解析 chapters 会让附录整批漏检，也会在 --strict 下被当成未登记。
+        if re.match(r"^(?:chapters|appendices):\s*$", stripped):
             in_chapters = True
             continue
         if not in_chapters:
@@ -384,7 +388,7 @@ def check_mermaid_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]
     if "hideEmptyMembersBox" not in text:
         issues.append(Issue(
             path, start_line,
-            "类图块首缺少 hideEmptyMembersBox 配置；空类会画出空成员栏",
+            "类图块缺少 hideEmptyMembersBox 配置（位置不限，通常随 init 放块首）；空类会画出空成员栏",
         ))
     caption_at = next(
         (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%| fig-cap:")),
@@ -790,6 +794,19 @@ def source_doc_above(source: list[str], index: int) -> list[str]:
     return block
 
 
+def resolve_blob_path(root: Path, relative: str) -> Path | None:
+    """按书根与它的祖先目录依次找 blob 路径。
+
+    书根可能只是仓库的一个子目录（`book/`、`docs/book/`），源码在仓库根；
+    只从书根拼路径会让子目录书静默跳过摘录核对。
+    """
+    for base in (root, *root.parents):
+        candidate = (base / relative).resolve()
+        if candidate.is_file():
+            return candidate
+    return None
+
+
 def check_excerpts(path: Path, root: Path, lines: list[str]) -> list[Issue]:
     """Reader text carries no file headers; kept doc comments match the source."""
     issues: list[Issue] = []
@@ -815,8 +832,8 @@ def check_excerpts(path: Path, root: Path, lines: list[str]) -> list[Issue]:
         if not blob:
             continue
         relative = blob.group(1)
-        source_path = (root / relative).resolve()
-        if root not in source_path.parents or not source_path.is_file():
+        source_path = resolve_blob_path(root, relative)
+        if source_path is None:
             continue
         source = read_text(source_path).splitlines()
 
@@ -1019,7 +1036,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
         if raw.lstrip().startswith("|"):
             flush_paragraph()
             flush_list()
-            # 表格行按列组织，不套散文句长阈值；列数与表头一致性由表格检查负责。
+            # 表格行按列组织，不套散文句长阈值；列数与表头一致性靠人工检查清单，本脚本不查。
             continue
 
         if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
@@ -1215,7 +1232,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
             issues.append(Issue(path, 1, f"章节 title 应包含「{required}」，实际为「{title}」"))
 
     if rel not in chapters and path.name != "index.qmd" and path.parent.name != "":
-        issues.append(Issue(path, 1, "文件未列入 _quarto.yml 的 chapters（目录会漏章）"))
+        issues.append(Issue(path, 1, "文件未列入 _quarto.yml 的 chapters/appendices（目录会漏章）"))
 
     return issues
 

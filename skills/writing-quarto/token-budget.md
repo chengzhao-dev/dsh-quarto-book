@@ -4,7 +4,7 @@
 
 ## 预算
 
-估算口径：一个 CJK 字符按 1 token，其余字符按 4 字符 1 token 计。`scripts/checking-skill-budget.mjs` 用同一口径检查，`npm run check` 会执行。
+估算口径：一个 CJK 字符按 1 token，其余字符按 4 字符 1 token 计。`scripts/checking-skill-budget.mjs` 用同一口径检查，`npm run check` 会执行。技能文件按每汉字 1 token 计预算，章节按 1.5 计（见 `steps/02-structure.md`「分层上限」），两者不可直接换算。
 
 | 目录或文件 | 单文件上限 |
 | --- | --- |

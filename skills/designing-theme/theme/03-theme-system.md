@@ -32,12 +32,12 @@
 - 列表里独占一段的 `strong`（如「出错的原因」）保持块级小标题，颜色用正文色，不走强调色。
 - 链接里的加粗跟链接色走；代码文件名用自己的 `--code-title-fg`，不被 strong 强调色盖住。
 - 行内代码与 `kbd` 保持「弱底 + 正文色」，不继承强调色。
-- `prefers-contrast: more` 段只把正文、边框与行号收紧到更深档，不换色相，也不把强调色改成语法蓝。
+- `prefers-contrast: more` 段把正文、边框、强调与行号收紧到更深档，不换色相，也不把强调色改成语法蓝。
 - 组件 CSS 不写语义色值或字面色（只引用令牌），明暗各写一套；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色。
 
 ## 字体栈与字形来源（定字体）
 
-正文与标题各一面。**正文**用 `LXGW Bright Medium`（Klee One 中笔画 + Ysabeau Office 西文，登记 `font-weight: 400`，`font-synthesis: none` 下不合成粗体）；**代码**用 `LXGW Bright Code`（Klee + Monaspace Argon）；**标题**（h1–h6、导航书名、首页卡片小标题）用 `--heading-font` 的系统黑体栈（`Noto Sans SC` → 思源黑体 → `PingFang SC` → `Microsoft YaHei` → system-ui），请求 600/700 时由系统字面真正加粗。理由：单字面的楷体在 24px 以上笔画偏细、600 又不合成，标题与正文层级只靠字号，层级弱；对照实测 h2 换黑体后层级立刻清楚，且不新增字体文件、不影响正文观感。中文正文保持霞鹜楷体路线；文楷 Screen 与 Fixel 已移除。候选对比、授权与字面实测属于开发期记录，不再入库；这里只留可执行结论。西文来源依据：文楷仓库点名 Ysabeau；Bright 用齐线数字的 Ysabeau Office；文楷 Screen 的 Medium 笔画标 Regular、度量对齐 Roboto，不适合中西文都自托管的站点。
+正文与标题各一面。**正文**用 `LXGW Bright Medium`（Klee One 中笔画 + Ysabeau Office 西文，登记 `font-weight: 400`，`font-synthesis: none` 下不合成粗体）；**代码**用 `LXGW Bright Code`（Klee + Monaspace Argon）；**标题**（h1–h6、导航书名、首页卡片小标题）用 `--heading-font` 的系统黑体栈（`Noto Sans SC` → 思源黑体 → `PingFang SC` → `Microsoft YaHei` → system-ui），请求 600/700 时由系统字面真正加粗。取选理由、候选对比与字面实测见 `01-reading-surface.md`；这里只留可执行结论。
 
 - 文件与预算：`assets/theme/assets/fonts/` 每字体一个 `*-common.woff2`（共 2 个），单页合计 ≤ 1.6 MB、≤ 5 个文件。
 - 子集：沿用常用字表并覆盖全书正文与终端输出；生成方式 `pyftsubset --flavor=woff2 --no-hinting`。改结果文案或新增字符后，用 fontTools 读 woff2 cmap 复核（起因：子集共用字符表漏「胜」，结果行末字落到宋体）；`checking-layout.py` 的覆盖断言在未声明 unicode-range 时直接读 cmap。新增字符时，按同版本上游 TTF（Bright 5.528、Bright Code 2.922）保留现 cmap 并入新码位后重建，输出到插件与书内两份；跑页面矩阵时用 `NODE_PATH` 指向插件的 `node_modules`。
@@ -45,7 +45,7 @@
 - 不逐符号位移：Bright 的数字、括号、`× ÷ = +` 共用同一条数学轴（+ 中心 0.23em，汉字 0.357em）。只抬 `++` 会脱离同行的符号，所以 `.plus-align` 这类 `translateY` 已删除；对齐问题只在字形缺失时补码位。
 - 同步点：改字体须同步 SCSS、tokens、fonts、OFL、资产与 `checking-layout.py`；Mermaid 的 `%%{init}%%` 与坐标图脚本的 `FONT_FAMILY` 用同栈短版（`LXGW Bright Medium, system-ui, sans-serif`），保证测量与渲染一致。
 - 栈尾 CJK 系统字体后备（PingFang SC、Microsoft YaHei、Noto Sans CJK SC、Source Han Sans SC）保留，缺字时落系统黑体而不是浏览器默认宋体。
-- 不采用 Inter、思源黑体、JetBrains Mono、Cascadia、Iosevka、Inconsolata；Roboto/Segoe UI 不放进 `assets/theme/assets/fonts/`（OFL 政策）。
+- 排除清单与 OFL 政策见 `01-reading-surface.md`；Roboto/Segoe UI 不进 `assets/theme/assets/fonts/`。
 
 ## 字号、行长与页面尺度（定尺度）
 
@@ -73,7 +73,7 @@
 
 ## 组件约定（定组件）
 
-- **代码块**：弱底 + 细边。有 `filename` 时用标题条，复制钮右上角；复制钮边框和图标用 `--text-secondary`（暗色下按钮底与代码底同色，边框太暗图标会沉进去）。
+- **代码块**：弱底 + 细边。有 `filename` 时用标题条，复制钮右上角；复制钮图标用 `--text-secondary`，边框用 `--copy-btn-border`（暗色下按钮底与代码底同色，边框太暗图标会沉进去）。
 - **Callout**：2px 左条、无填充、无圆角；标题 13px、字距 0（汉字等宽，加字距只把词拉散）、正文色；正文 16px；内链接用正文链接色。规格与五类清单见本节开头的 Callout 段。
 - **侧栏 active**：只保留 `--accent` 左轨与正文色，不加浅底、不加圆角；右目录 active 同策略（正文色 + 色条，`!important` 压住 Quarto 写死的亮蓝，暗色不得漏亮蓝）；侧栏与目录焦点环用中性灰，正文焦点环用动作色。
 - **列表与折叠**：marker 用 `--text-secondary`，折叠三角用正文色；答案盒子只用上下 hairline，不做卡片。
@@ -104,7 +104,7 @@
 - **面板宽度与触摸目标**：交互面板宽度 `width: min(100%, 27rem)`，棋盘三列改成 `repeat(3, minmax(0, 1fr))` + 格子 `aspect-ratio: 1`，格子随卡片等比缩放（1280/768 → 121px，430 → 112，390 → 99，360 → 89，320 → 75），不再用 `vw` 猜屏宽；色板菜单项在 ≤575.98px 抬到 36px 一行、四时图标按钮 `min-width/min-height` 至少 24×28，菜单与胶囊都不出视口；源码模态 ≥576px 封顶 `min(1000px, 100vw - 2rem)` 并留 1rem 边距；行内代码在窄屏允许 `pre-wrap`，避免 `std::array<…>` 这类无空格类型名把正文列顶宽。
 - **书页内交互面板**（cpp-board-games「运行效果」）：面板本体是 `--surface-raised` 底 + `--card-border` 边的圆角卡；反馈行做成留言条——细边框 + 2px 左色条 + 状态点，`data-kind` 分 hint/warn/success 换色，不用裸灰字；「输入坐标」是模式开关，关闭时无框次要色、展开时 `--action-color` 描边并以 `aria-expanded` 同步；坐标输入行给 `行列` 等宽标签 + 两个数字位 + 「落子」按钮，帮助句常驻、报错时用 `:has()` 让帮助句让位、错误行带描边圆圈感叹号；程序输出是独立的终端窗（三点 + 标题 + 文件名 + 展开箭头，命令行走等宽字体），与面板之间留一道间隔，不再用原生 `details` 三角。
 - **打印**：`pre` 恢复折行；屏幕横向滚动规则不动。
-- **高对比偏好**：`prefers-contrast: more` 段与常规模式保持同一套强调与边框色。
+- **高对比偏好**：`prefers-contrast: more` 段沿用常规色相，只收紧正文、边框、强调与行号，规则见上节「强调、链接与明暗一致性」。
 
 ## 设计来源
 
@@ -118,7 +118,7 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 
 | 文件 | 放什么 | 不放什么 |
 |---|---|---|
-| `palettes/<name>/theme-*.scss` | `$primary`、`$callout-color-*`、字体栈等 | 组件规则 |
+| `palettes/<flexoki|solarized>/theme-*.scss` | `$primary`、`$callout-color-*`、字体栈等 | 组件规则 |
 | `palettes/<name>/tokens.css` | 明暗语义颜色；Flexoki 挂 `body` / `body.quarto-dark`，Solarized 挂 `html[data-palette="solarized"]`，山光挂 `html[data-palette="hill-light"][data-mode="…"] body` | 结构尺度 |
 | `palettes/<name>/brand-mark.svg` | 顶栏 mask 用的纯黑书标剪影 | 第二套外形、字母或折角 |
 | `palettes/<name>/favicon-*.svg` | 明暗两份「打开的书」标签图标 | 运行时改色、`prefers-color-scheme` |
@@ -132,12 +132,12 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`（Flexoki Light / Dar
 
 默认（编译期）色板固定为 `flexoki`：
 
-1. `_quarto.yml` 的 `theme.light/dark` 指到 `palettes/flexoki/theme-*.scss`。
-2. `css:` 列表先写 `palettes/flexoki/tokens.css`，再写 `palettes/solarized/tokens.css`、`palettes/solarized/syntax.css`、`palettes/hill-light/tokens.css`、`palettes/hill-light/syntax.css`；顺序决定覆盖关系。
-3. `syntax-highlighting` 指到 Flexoki 目录的两份 `.theme`。
+1. `_quarto.yml` 的 `theme.light/dark` 指到 `theme/palettes/flexoki/theme-*.scss`。
+2. `css:` 列表先写 `theme/palettes/flexoki/tokens.css`，再写 `theme/palettes/solarized/tokens.css`、`theme/palettes/solarized/syntax.css`、`theme/palettes/hill-light/tokens.css`、`theme/palettes/hill-light/syntax.css`；顺序决定覆盖关系。
+3. `syntax-highlighting` 指到 `theme/palettes/flexoki/` 的两份 `.theme`。
 4. `include-in-header` 加 `includes/palette.html`：首屏恢复 `book-palette`（含山光的 `book-hill-mode`）与明暗，并按 `link[rel~="icon"]` 的现有相对前缀换 favicon。
-5. `book.favicon` 指 `palettes/flexoki/favicon-light.svg`，另外五份 favicon 加进 `resources`；`footer.html` 的观察器在明暗/色板变化后再同步一次 favicon 与 theme-color。
-6. 跑 `checking-layout.py`：色值按活跃 pack 表，并始终核 Solarized 覆盖层；`checking-dom.py` 的 C4 核六份 favicon 已发布。
+5. `book.favicon` 指 `theme/palettes/flexoki/favicon-light.svg`，另外五份 favicon 加进 `resources`；`footer.html` 的观察器在明暗/色板变化后再同步一次 favicon 与 theme-color。
+6. 跑 `scripts/checking-layout.py --browser` 核色值与 `.theme` 高亮，再跑 `../../writing-quarto/scripts/checking-dom.py` 的 C0、C4。
 
 Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting：读者选择写 `html[data-palette="solarized"]`，`palettes/solarized/tokens.css` 覆盖语义色，`syntax.css` 覆盖 `code span.*`。它的 tokens 都带选择器前缀，因此不能直接当编译默认；要整本编成 Solarized，需要另做无前缀的 tokens 版本，再换 `theme` 与 `syntax-highlighting`。
 
@@ -158,15 +158,15 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 ### 新增 callout
 
 1. 活跃 palette `tokens.css` 加 border/bg（亮暗各一对）。
-2. 同 pack `theme-*.scss` 加 `$callout-color-*`。
+2. Flexoki、Solarized 在 `theme-*.scss` 加 `$callout-color-*`；山光无 SCSS，改在 `callouts.css` 的 `[data-palette="hill-light"]` 取值。
 3. `callouts.css` 加 `.callout.callout-<name>`。
 4. 新语义写入本节令牌索引。
 
 ### 校验与高亮约定
 
-- `checking-layout.py` 校验令牌与布局；发布用 `1280/768/390/360` 明暗与触屏、窄屏浮层。
-- 高亮由 `_quarto.yml` 提供且与 palette `meta.md` 一致（默认 `palettes/flexoki/highlight-light.theme` / `highlight-dark.theme`，取色自 Flexoki 官方 VS Code 主题）；Solarized 的语法色由 `palettes/solarized/syntax.css` 在 `html[data-palette="solarized"]` 下覆盖，山光的由 `palettes/hill-light/syntax.css` 在 `html[data-palette="hill-light"][data-mode]` 下覆盖，都不改编译配置。注释色必须在本书代码底（亮 `#F2F0E5`、暗 `#1C1B1A`）上达到 4.5:1：亮色注释用 `#575653`（6.42:1），暗色用 `#878580`（4.67:1）。
+- `checking-layout.py` 校验令牌与布局；发布视口矩阵见 `02-theme-spine.md` 第 6 步。
+- 高亮由 `_quarto.yml` 的 `.theme` 对与各色板 `syntax.css` 覆盖提供，不改编译配置；对应关系与取色见各色板 `meta.md`。注释色必须在本书代码底（亮 `#F2F0E5`、暗 `#1C1B1A`）上达到 4.5:1：亮色注释用 `#575653`（6.42:1），暗色用 `#878580`（4.67:1）。
 - `text` 与语言块共用字体尺度；标题块用 `.code-with-filename`。
-- 对比度断言：`checking-layout.py` 的 `palette text contrast >= 4.5:1` 逐色板逐模式检查六对——正文/次要/链接/代码前景对各自底色，外加行号对代码底、代码标题字对标题条；`prefers-contrast: more` 段跳过（那里本就更高）。山光行号原值 4.19–4.25:1（辅助信息，压一档到 4.6 以上），Solarized 代码标题字由派生表面配深/浅一档（亮 4.96、暗 5.55），理由记在各自 `meta.md` 的偏离表。
-- 语法彩色 token 不在断言范围：Solarized 官方的注释 2.34、字符串 4.12、数字 2.97 属于调色板特征，只抬注释与标识符到可读线；山光派生语法色 4.19–4.36 同理，提高通道走 `prefers-contrast: more`。
-- `checking-dom.py`：C0 palette↔highlight；复制按钮兄弟 DOM；触屏/打印；C4 六份 favicon（三色板 × 明暗，逐对校验）；Mermaid SVG。
+- 对比度断言：`checking-layout.py` 的 `palette text contrast >= 4.5:1` 逐色板逐模式检查六对——正文/次要/链接/代码前景对各自底色，外加行号对代码底、代码标题字对标题条；`prefers-contrast: more` 段跳过（那里本就更高）。山光行号现值 4.63–4.96:1（辅助信息，已压到 4.6 以上），Solarized 代码标题字由派生表面配深/浅一档（亮 4.96、暗 5.55），理由记在各自 `meta.md` 的偏离表。
+- 语法彩色 token 不在断言范围：Solarized 与山光的低比值语法色属调色板特征，只抬注释与标识符到可读线，逐项比值见各自 `meta.md` 的偏离表。
+- `checking-dom.py`：C0 palette↔highlight；复制按钮兄弟 DOM；触屏/打印；C4 六份 favicon；Mermaid SVG。

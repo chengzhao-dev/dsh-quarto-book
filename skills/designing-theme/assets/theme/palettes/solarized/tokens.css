@@ -14,6 +14,7 @@ html[data-palette="solarized"] body {
   --emphasis-color: #586E75;
   --code-bg: #EEE8D5;
   --code-border: #93A1A1;
+    --line-num-color: #93A1A1;
   --code-fg: #526C74;
   --code-title-bg: #E7E0CB;
   --code-title-fg: #4C6166;
@@ -58,7 +59,7 @@ html[data-palette="solarized"] body {
   --dot-accent: #268BD2;
   --card-bg: transparent;
   --card-border: #93A1A1;
-  --overlay-scrim: rgba(0, 38, 54, 0.44);
+  --overlay-scrim: rgba(0, 38, 54, 0.42);
   --toc-active: var(--body-color);
   --page-bg: #FDF6E3;
   --surface-raised: #EEE8D5;
@@ -73,6 +74,7 @@ html[data-palette="solarized"] body.quarto-dark {
   --emphasis-color: #93A1A1;
   --code-bg: #073642;
   --code-border: #586E75;
+    --line-num-color: #405B63;
   --code-fg: #93A1A1;
   --code-title-bg: #0A3F4C;
   --code-title-fg: #A9B7B7;

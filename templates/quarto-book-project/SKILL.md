@@ -46,6 +46,10 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 - 命令在哪个环境执行（本机 / WSL / 容器）：
 - 检查命令只写终端，输出不落盘；需要留证据时写已忽略的 `temp/`。
 
+## 运行时配置
+
+- 书根 `config/runtime.config` 从 `writing-quarto` 的 `assets/config/runtime.config` 复制，填解释器路径与版本下限；模板里的 `<解释器路径>` 是占位符，未替换时检查会失败。注释写法见 `quarto/04-comments.md`「TOML 与项目配置」。
+
 ## 主题与过滤器路径
 
 - Quarto 读取的书内主题副本：`theme/`（`_quarto.yml` 只引用这一份相对路径）。

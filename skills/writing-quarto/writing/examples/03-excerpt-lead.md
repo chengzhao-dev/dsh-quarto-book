@@ -135,7 +135,7 @@ constexpr bool IsInRange(Position position) {
 
 ## 函数导语与成员列表的 示例章对照
 
-以 示例章改稿前三句为对照，规则见 `steps/03-blocks.md`「内容块前后的闭环」、`steps/07-layout.md`「列表选择」、书项目 `glossary/forbidden-terms.md` 的手工词表（座位）：
+以 示例章改稿前三句为对照，规则见 `steps/03-blocks.md`「内容块前后的闭环」、`steps/07-layout.md`「列表选择」、书项目在 `checks.json` 的 `forbidden_terms` 里登记的词表（座位）：
 
 ```text
 不佳（「另一座位」用了座位术语，且第二句未沿用 PlayerToOpponent 注释的说法）：

@@ -92,7 +92,7 @@ def main():
     print()
     if bad_pages:
         print(f"{bad_pages} 个页面存在 callout 问题。")
-        print('修复：改用内置 5 类，并用 `title="中文标题"` 提供标题（见 quarto/rendering-and-output.md #12）。')
+        print('修复：改用内置 5 类，并用 `title="中文标题"` 提供标题（见 quarto/12-quarto-render.md 的 「Callout 类名」节）。')
         return 1
     print(f"OK：{len(html_files)} 个页面的 callout 均正常渲染。")
     return 0

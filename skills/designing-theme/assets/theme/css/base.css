@@ -193,7 +193,7 @@ h6 {
 }
 #quarto-document-content :is(.code-copy-outer-scaffold, pre) + .callout,
 #quarto-document-content .callout + :is(.code-copy-outer-scaffold, pre) {
-  margin-top: 1rem;
+  margin-top: var(--code-followup-gap);
 }
 /* h2 间距：换节档 3.25rem；margin-bottom 与相邻 margin-top 折叠取大者，
    设 0.5rem 让标题与首段保持粘连档，不被折叠抬高一倍 */

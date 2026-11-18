@@ -18,6 +18,7 @@ const expected = [
   'quarto/examples/01-qmd-elements.md',
   ...['01-operations', '02-priority', '03-book-journey', '04-personas', '05-readability', '06-prose', '07-refactor'].map((n) => `writing/${n}.md`),
   'token-budget.md',
+  'assets/config/runtime.config',
   ...['answering-disclosure.lua', 'checking-callouts.py', 'checking-dom.py', 'checking-links.py', 'checking-names.py', 'checking-output.py', 'checking-prose.py', 'testing-check-ascii-names.py', 'testing-content.py', 'verifying-content.py'].map((n) => `scripts/${n}`),
 ];
 
@@ -28,6 +29,18 @@ const gone = ['conventions', 'knowledge', 'references', 'examples', 'writer-spin
 
 for (const file of expected) {
   if (!existsSync(join(skill, file))) problems.push(`缺少 skills/writing-quarto/${file}`);
+}
+
+// 运行时配置骨架自身必须守「键注释」规则：每个键上方一行「对象：…」，解释器路径留占位符。
+const assetConfig = join(skill, 'assets', 'config', 'runtime.config');
+if (existsSync(assetConfig)) {
+  const lines = readFileSync(assetConfig, 'utf8').split('\r\n').join('\n').split('\n');
+  lines.forEach((line, index) => {
+    if (!/^[a-z_]+\s*=/.test(line)) return;
+    const prev = lines[index - 1] ?? '';
+    if (!prev.startsWith('# ') || !prev.includes('：')) fail(assetConfig, `第 ${index + 1} 行的键上方缺少「对象：…」注释`);
+  });
+  if (!lines.some((line) => line === 'python_path = "<解释器路径>"')) fail(assetConfig, '解释器路径必须是未填写的占位符');
 }
 for (const file of themeExpected) {
   if (!existsSync(join(theme, file))) problems.push(`缺少 skills/designing-theme/${file}`);
@@ -125,7 +138,7 @@ for (const file of watched) {
 }
 
 // 反引号里指向技能或仓库的路径必须存在；书仓库自己的路径不在这里核对。
-const own = /^(steps|writing|quarto|scripts|templates|docs|lib|locale)\//;
+const own = /^(steps|writing|quarto|scripts|assets|templates|docs|lib|locale)\//;
 for (const file of watched) {
   if (!file.endsWith('.md')) continue;
   const text = read(file);

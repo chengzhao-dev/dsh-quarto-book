@@ -22,7 +22,7 @@
 
 两套色板共用同一枚「打开的书」：`brand-mark.svg` 是纯黑剪影、中缝镂空，16px 仍可辨认，顶栏用 mask 取 `--navbar-fg`，一份覆盖该色板明暗；`favicon-light.svg` / `favicon-dark.svg` 是圆角方底加同一枚书，底色/书/中缝分别用该色板的纸色、墨色、动作色。Solarized 亮色 `#FDF6E3`/`#526C74`/`#268BD2`，暗色 `#002B36`/`#839496`/`#51A0D5`。
 
-用书项目在 `_quarto.yml` 设 `book.favicon: theme/palettes/flexoki/favicon-light.svg`，并把另外三份 favicon 放进 `resources`。`includes/palette.html` 在 head 内按 `book-palette` 与明暗改 `link[rel=icon]` 的 href，只替换 URL 里的色板名与 `favicon-light|dark`，保留 Quarto 写好的 `./` / `../` 前缀；发布 URL 仍带 `palettes/<name>/`。
+用书项目在 `_quarto.yml` 设 `book.favicon: theme/palettes/flexoki/favicon-light.svg`，并把另外五份 favicon 放进 `resources`。`includes/palette.html` 在 head 内按 `book-palette` 与明暗改 `link[rel=icon]` 的 href，只替换 URL 里的色板名与 `favicon-light|dark`，保留 Quarto 写好的 `./` / `../` 前缀；发布 URL 仍带 `palettes/<name>/`。
 
 ## 页面分层
 

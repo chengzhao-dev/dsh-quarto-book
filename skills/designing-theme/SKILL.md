@@ -58,7 +58,7 @@ metadata:
 
 ## 完成判据
 
-- [ ] `quarto_render_check` 的 `html_report` 为可用，明暗主题下页面无错位或对比度问题；`scripts/checking-layout.py` 通过。
+- [ ] `quarto_render_check` 的 `html_report` 为可用，明暗主题下页面无错位或对比度问题；`scripts/checking-layout.py --browser` 通过（浏览器矩阵已执行，不是 SKIP）。该脚本读消费书渲染后的 `_book`，由消费书执行；插件仓的 `npm test` 只校验脚本可解析与文件齐全。
 - [ ] 代码块 filename 标题在长路径输入下不撑破容器，窄屏仍可读；超长代码在块内横向滚动，不出整页横向滚动条。
 - [ ] 若项目内有主题副本，已在交付说明中写清改动是否同步，以及以哪一份为准。
 - [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `designing-theme`，`mode` 填 `theme`，`steps` 用主题步骤表的名字（`定表面`、`定字体`、`定尺度`、`定颜色`、`定组件`、`通过检查`），检查结论照实填。卡片就是回执，回复里不再复述。
