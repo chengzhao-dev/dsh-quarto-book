@@ -13,7 +13,7 @@
 
 项目技能列了内容检查命令时，只跑它列出的命令。没有项目技能时，在书根跑本技能 `scripts/` 下的 `verifying-content.py`、`checking-links.py` 与 `checking-prose.py`。
 
-`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度（单句三档见 `steps/05-sentences.md`「句子规则」）、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）和本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/SKILL.md`（也接受下划线目录 `.agents/skills/quarto_book_project/`）存在时启用。
+`verifying-content.py` 查章节表、YAML 标题、标题层级、句段长度（单句三档见 `steps/05-sentences.md`「句子规则」）、围栏语言、Mermaid 围栏、占位文字、目录树（行数、目录注释 16 列且无冒号/顿号、文件注释 1–2 项、标记列对齐）；`checking-links.py` 查本地链接；`checking-prose.py` 查中文与拉丁字母、数字、行内代码之间的空格，以及中文句里的半角标点。项目专属检查只在书的 `.agents/skills/quarto-book-project/SKILL.md`（也接受下划线目录 `.agents/skills/quarto_book_project/`）存在时启用。
 
 ### 渲染与 HTML
 
@@ -24,7 +24,7 @@
 
 检查次数有上限：
 
-- `dry_run: true` 最多 2 次。第 1 次返回 `safe_to_render: false` 时，只改 `output-dir` 一次。第 2 次仍不安全就停住，把 `warnings` 列给用户。
+- `dry_run: true` 最多 2 次。第 1 次返回 `safe_to_render: false` 时只处理一次：`output-dir` 不是 `_book` 就改成 `_book`，已经是 `_book` 就清理旧产物；然后重试。第 2 次仍不安全就停住，把 `warnings` 列给用户。
 - `dry_run: false` 最多 1 次。渲染失败就停住，把 `errors` 列给用户，不自动重新运行。
 - 成功时同一次返回里带 `html_report`，不再为同一份文件重新运行。
 - 同一轮改多章时，每章只跑项目的章节检查；全部章改完后 `quarto_render_check` 只跑一轮，`dry_run: true` 最多 2 次，`dry_run: false` 1 次，`quarto_pass_report` 只收尾一次。
@@ -67,7 +67,7 @@
 
 ### 情况：全仓改写
 
-任务是全仓改写时，打开 `writing/07-refactor.md` 取范围和排除，并加跑 `checking-links.py` 与 `checking-names.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
+任务是全仓改写时，打开 `writing/07-refactor.md` 取范围和排除，并加跑 `checking-links.py`、`checking-names.py` 与 `checking-prose.py`。HTML 可用性仍只由 `quarto_render_check` 判定。
 
 ### 情况：没有 DSH 工具
 
@@ -75,7 +75,7 @@
 
 ## 完成判据
 
-内容命令与混排检查通过，`dry_run: false` 返回 `render_result.ok: true`，且 `html_report.usable: true`，并调用一次 `quarto_pass_report` 出回执，才算完成。任一条件不满足，回到报告指向的步骤。
+内容命令与混排检查通过，新人能按正文独立完成任务（清单见 `writing/05-readability.md`），并且：章节在 `dry_run: false` 返回 `render_result.ok: true` 且 `html_report.usable: true`，调用一次 `quarto_pass_report` 出回执；只改 README 或说明页时跳过渲染，回执按上文「当前文件不是章节」传 `executed: false`、`mode: skipped`。任一条件不满足，回到报告指向的步骤。
 
 ## 正反例
 

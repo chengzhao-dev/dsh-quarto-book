@@ -61,9 +61,10 @@ flowchart TD
 | `docs/plugin-layout.md` | 仓库目录、运行环境与发布边界 |
 | `docs/triggering.md` | 触发矩阵与描述维护规则 |
 | `docs/versioning.md` | 版本号与发布顺序 |
+| `docs/module-layout.md` | 仓库文件位置的唯一清单 |
 
 同一事实只留一份权威：章节路径在 `_quarto.yml`，术语在项目技能的术语表，表格写法在 `quarto/08-tables.md`，交叉引用的标签、前缀与书内编号在 `quarto/06-crossrefs.md`，主题变量在 `theme/03-theme-system.md`。步骤文件只写「这一步做什么、何时退出」，具体写法一律指向条文。
 
 ## 检查
 
-`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/**/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验（`npm run ci` 在 test 之后跑它）。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/**/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验；它必须在构建之前跑（`npm run ci`、CI 与发布流程都是先 `check:lib` 再 `test`），否则比对的是刚被覆盖的产物。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。

@@ -58,7 +58,7 @@
 - 常驻目录只有 `name`、`description`（可选 `whenToUse`），`description` 默认截断在 500 字符；正文不进目录，`get()` 每次重读。
 - 本地扫描 rank：`project-dsh` 100、`project-agents` 200、`custom` 300、`user-dsh` 400、`user-agents` 500、`bundled` 600；同层内才按 rank、provider 注册序、本地序决胜，跨层是更近的层直接覆盖。
 - 名称 kebab-case；只接受 `<name>/SKILL.md` 或 `<name>.md`，不递归 `**/SKILL.md`；provider 名在同一层内唯一。
-- 采用：本仓继续每个技能一个目录、rank 550 低于项目层；三个 `description` 是唯一常驻成本，必须写清触发条件而不是流程摘要。
+- 采用：本仓继续每个技能一个目录、rank 550 低于项目层；每个技能的 `description` 是唯一常驻成本，必须写清触发条件而不是流程摘要。
 
 ### 渐进披露与 token
 

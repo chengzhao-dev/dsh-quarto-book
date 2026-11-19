@@ -6,7 +6,7 @@
 
 ## 当前版本
 
-`dsh-quarto-book` 为 **0.6.29**，`dsh-cpp-workflow` 为 **0.7.8**。两个插件各自沿自己的版本线做补丁递增，不再共用版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废，不再复用。
+`dsh-quarto-book` 为 **0.6.30**。`dsh-cpp-workflow` 是另一份插件，沿自己的版本线单独递增，本文不记录它的版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废，不再复用。
 
 ## 装上之后怎么看版本
 
@@ -28,8 +28,8 @@ README 默认安装命令跟 npm 的 `latest`；需要固定时写 `@<版本>`�
 
 ## 发布
 
-1. 改 `package.json` 与 `package-lock.json` 顶部、`packages[""]`；两份 README 的安装命令随版本更新。
-2. 提交并推送 `main`。`publish.yml` 读 `package.json` 的版本，`npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 查重：不存在就 `npm ci`、`npm test`、`npm publish --provenance`；已存在就跳过发布。
+1. 改 `package.json` 与 `package-lock.json` 顶部、`packages[""]`、本文件「当前版本」一行的版本号；两份 README 的安装命令随版本更新。
+2. 提交并推送 `main`。`publish.yml` 读 `package.json` 的版本，`npm view @chengzhao-dev/dsh-quarto-book@<版本> version` 查重：不存在就 `npm ci`、`npm run check:lib`、`npm test`、`npm run check`、`npm publish --provenance`；已存在就跳过发布。`check:lib` 必须排在 `npm test` 的构建之前，否则比对的只是刚被覆盖的 `lib/`。
 3. 发布成功后，同一个 workflow 在同一个提交上建 annotated `v<版本>` 标签，再用 `gh release create --verify-tag --generate-notes` 建 GitHub Release。
 4. 读回：Actions 的 publish run 成功；`npm view ... version` 返回该版本且 `dist.attestations.provenance` 存在；`gitHead` 等于标签指向的提交。
 

@@ -1,15 +1,15 @@
 /* ============================================================
-   Palette: solarized · 语法高亮覆盖层
-   Quarto 只能按明暗编译一对 syntax-highlighting，默认那对是 Flexoki；
-   Solarized 的语法色在这里按 html[data-palette="solarized"] 覆盖。
-   只写颜色，不改字号、字重与布局。
-   ============================================================ */
+      Palette: solarized · 语法高亮覆盖层
+      Quarto 只能按明暗编译一对 syntax-highlighting，默认那对是 Flexoki；
+      Solarized 的语法色在这里按 html[data-palette="solarized"] 覆盖。
+      只写颜色，不改字号、字重与布局。
+      ============================================================ */
 
 /* 基础文字（无 token 类名的 span 与 sourceCode 容器） */
 html[data-palette="solarized"] code span:not([class]),
 html[data-palette="solarized"] div.sourceCode,
 html[data-palette="solarized"] div.sourceCode pre.sourceCode {
-  color: #526C74;
+    color: #526C74;
 }
 
 html[data-palette="solarized"] code span.al { color: #DC322F; font-weight: 600; }
@@ -47,21 +47,61 @@ html[data-palette="solarized"] code span.wa { color: #CB4B16; }
 html[data-palette="solarized"] body.quarto-dark code span:not([class]),
 html[data-palette="solarized"] body.quarto-dark div.sourceCode,
 html[data-palette="solarized"] body.quarto-dark div.sourceCode pre.sourceCode {
-  color: #93A1A1;
+    color: #93A1A1;
 }
 
+/* 暗色：官方八色在 base03 上多数不足 4.5:1，统一按原色相抬亮度，
+   并逐项在 checking-layout.py 的语法对比度断言里守住 4.5。 */
 html[data-palette="solarized"] body.quarto-dark code span.an,
 html[data-palette="solarized"] body.quarto-dark code span.co,
 html[data-palette="solarized"] body.quarto-dark code span.cv,
 html[data-palette="solarized"] body.quarto-dark code span.do,
 html[data-palette="solarized"] body.quarto-dark code span.in,
 html[data-palette="solarized"] body.quarto-dark code span.re {
-  color: #93A1A1;
+    color: #93A1A1;
 }
 
-/* 暗色语法蓝也要比 base03 上的官方 #268BD2 再亮一档 */
+html[data-palette="solarized"] body.quarto-dark code span.al,
+html[data-palette="solarized"] body.quarto-dark code span.er,
+html[data-palette="solarized"] body.quarto-dark code span.ex,
+html[data-palette="solarized"] body.quarto-dark code span.sc {
+    color: #EB8380;
+}
+
+html[data-palette="solarized"] body.quarto-dark code span.at,
+html[data-palette="solarized"] body.quarto-dark code span.dt {
+    color: #C99B12;
+}
+
+html[data-palette="solarized"] body.quarto-dark code span.bn,
+html[data-palette="solarized"] body.quarto-dark code span.cn,
+html[data-palette="solarized"] body.quarto-dark code span.dv,
+html[data-palette="solarized"] body.quarto-dark code span.fl,
+html[data-palette="solarized"] body.quarto-dark code span.ot {
+    color: #E584B2;
+}
+
 html[data-palette="solarized"] body.quarto-dark code span.bu,
 html[data-palette="solarized"] body.quarto-dark code span.fu,
 html[data-palette="solarized"] body.quarto-dark code span.va {
-  color: #51A0D5;
+    color: #64AEE0;
+}
+
+html[data-palette="solarized"] body.quarto-dark code span.cf,
+html[data-palette="solarized"] body.quarto-dark code span.kw,
+html[data-palette="solarized"] body.quarto-dark code span.op {
+    color: #98AE12;
+}
+
+html[data-palette="solarized"] body.quarto-dark code span.ch,
+html[data-palette="solarized"] body.quarto-dark code span.ss,
+html[data-palette="solarized"] body.quarto-dark code span.st,
+html[data-palette="solarized"] body.quarto-dark code span.vs {
+    color: #34B0A7;
+}
+
+html[data-palette="solarized"] body.quarto-dark code span.im,
+html[data-palette="solarized"] body.quarto-dark code span.pp,
+html[data-palette="solarized"] body.quarto-dark code span.wa {
+    color: #EE8357;
 }

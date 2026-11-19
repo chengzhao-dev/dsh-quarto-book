@@ -1,6 +1,6 @@
 # Quarto 元素写法正反对照
 
-元素细则（filename 标注、闭环、盒子密度、Callout）见 `steps/03-blocks.md`；本文件保存元素写法的正反对照，检索单元是「正确 + 不佳 + 改写」。
+元素细则（filename 标注、闭环、盒子密度、Callout）见 `steps/03-blocks.md`；本文件保存元素写法的正反对照，检索单元是「正确 + 不佳 + 改写」。示例的图注省略「图 N：」前缀，编号由 Quarto 按 `lang: zh` 生成。
 
 ## 代码块导语元计数对照
 
@@ -25,7 +25,7 @@ constexpr bool IsInRange(Position position) { … }
 ```
 
 ```{python}
-#| fig-cap: "图 1：…"
+#| fig-cap: "…"
 ```
 
 改写（块前引语只讲一个对象，桥接句核对已讲清的关系，图后补图外结论）：
@@ -61,10 +61,10 @@ constexpr bool IsInRange(Position position) { … }
 流程开始时状态面板还没有任何元素，下面的图展示这个初始局面。
 
 ```{python}
-#| fig-cap: "图 2：初始状态面板，九个数据项都为空。"
+#| fig-cap: "初始状态面板，九个数据项都为空。"
 ```
 
-上图中没有字母的三个格子是尚未操作的数据项，都是 CellState::kEmpty。
+上图中没有字母的三个格子是尚未操作的数据项，都是 CellType::kEmpty。
 
 改写（图注已写明九格皆空，图后只留一句图外结论）：
 流程开始时状态面板还没有任何元素，下面的图展示这个初始局面。
@@ -73,7 +73,7 @@ constexpr bool IsInRange(Position position) { … }
 #| fig-cap: "初始状态面板，九个数据项都为空。"
 ```
 
-终端程序打印的三行对应图中每个数据项的 CellState::kEmpty。
+终端程序打印的三行对应图中每个数据项的 CellType::kEmpty。
 ````
 
 判定信号：图后句删掉任一分句中心仍成立；图注或桥接句已写明的信息在图后再讲一遍。图后正文只给图注讲不完的新结论，图后对照与句段侧的冒号分号堆叠见 `writing/examples/04-paragraph-opening.md`「冒号后堆叠分号解释」。
@@ -118,7 +118,7 @@ struct Move { … };
 桥接句：下面的图展示操作目标框。
 
 ```{python}
-#| fig-cap: "图 1：…"
+#| fig-cap: "…"
 ```
 
 - Move：目标数据项坐标与流程用户组成的动作。（图后回头讲代码项）

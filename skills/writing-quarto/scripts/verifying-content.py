@@ -42,9 +42,9 @@ from pathlib import Path
 # Generic prose hygiene. These are writing problems in any technical book; the
 # list stays short on purpose so it does not become one book's style guide.
 GENERIC_FORBIDDEN_TERMS = (
-    "第一版", "探针", "自足", "链路", "四步", "契约链",
-    "本章规划", "众所周知", "毋庸置疑", "综上所述",
-    "务必", "严禁", "千万不要",
+        "第一版", "探针", "自足", "链路", "四步", "契约链",
+        "本章规划", "众所周知", "毋庸置疑", "综上所述",
+        "务必", "严禁", "千万不要",
 )
 
 CHAPTER_NUMBER_RE = re.compile(r"第\s*\d+\s*章")
@@ -61,18 +61,18 @@ OPENING_CLICHE_RE = re.compile(r"^(?:本章|本节|这一章|这一节)(?:将|�
 # 元叙述与清点句：读者不需要作者交代「接下来讲什么」；一句里排到两个序列词，
 # 说明这句话在报清单而不是在讲因果。规则见 steps/04-paragraphs.md 与 steps/05-sentences.md。
 META_NARRATION_RE = re.compile(
-    r"本节将|本章将|这一节将|接下来(?:我们|将|会|介绍|讲)|下面(?:我们)?(?:先|来|看)|"
-    r"值得我们|值得注意的是|需要说明的是|如上所述|如前所述"
+        r"本节将|本章将|这一节将|接下来(?:我们|将|会|介绍|讲)|下面(?:我们)?(?:先|来|看)|"
+        r"值得我们|值得注意的是|需要说明的是|如上所述|如前所述"
 )
 ENUMERATION_RE = re.compile(r"首先|其次|再次|然后|最后|其一|其二|其三|第[一二三四五]是|第[一二三四五]，")
 LADDER_RE = re.compile(r"(?:分别交给|各说一层)")
 SKILL_TONE_RE = re.compile(r"这里不定义|测试也不必|不必为[^。；\n]{0,20}再记|不写双层循环")
 INLINE_NAME_RE = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
 FUNCTION_NAME_RE = re.compile(
-    r"^(?:Is|Get|Set|Has|Can|Completes|Place|Read|Write|Print|Run|Make|Collect|Judge|"
-    r"Score|Search|Choose|Add|Clear|Reset|Find|Build|Parse|Format|Render|Report|Show|"
-    r"Start|Stop|Create|Destroy|Update|Check|Validate|To)[A-Z0-9_]"
-    r"|^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$"
+        r"^(?:Is|Get|Set|Has|Can|Completes|Place|Read|Write|Print|Run|Make|Collect|Judge|"
+        r"Score|Search|Choose|Add|Clear|Reset|Find|Build|Parse|Format|Render|Report|Show|"
+        r"Start|Stop|Create|Destroy|Update|Check|Validate|To)[A-Z0-9_]"
+        r"|^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$"
 )
 TERMINAL_RE = re.compile(r"终端|打印|显示|输入|读入|命令行")
 TEST_RE = re.compile(r"测试|断言|用例|gtest|CTest")
@@ -92,8 +92,8 @@ DECL_SUFFIXES = (".h", ".hpp", ".hh", ".hxx")
 DEF_SUFFIXES = (".cpp", ".cc", ".cxx", ".inl")
 
 TREE_CATEGORY_COMMENTS = frozenset({
-    "头文件", "源文件", "源码", "实现", "测试", "配置文件",
-    "构建脚本", "构建规则", "动态库", "可执行文件",
+        "头文件", "源文件", "源码", "实现", "测试", "配置文件",
+        "构建脚本", "构建规则", "动态库", "可执行文件",
 })
 MAX_TREE_LINES = 20
 MAX_TREE_COMMENT_WIDTH = 28
@@ -129,38 +129,38 @@ LEAD_SKIP_RE = re.compile(r"^\s*(?:::|\||```|~~~|[-*+]\s|\d+\.\s|>|#)")
 
 @dataclass
 class Issue:
-    path: Path
-    line: int
-    message: str
+        path: Path
+        line: int
+        message: str
 
 
 def read_text(path: Path) -> str:
-    # utf-8-sig 兼容带 BOM 的合法 UTF-8 文件；BOM 不进入行号与正文。
-    return path.read_text(encoding="utf-8-sig")
+        # utf-8-sig 兼容带 BOM 的合法 UTF-8 文件；BOM 不进入行号与正文。
+        return path.read_text(encoding="utf-8-sig")
 
 
 def strip_frontmatter(text: str) -> tuple[str, str]:
-    if not text.startswith("---"):
+        if not text.startswith("---"):
+                return "", text
+        lines = text.splitlines(keepends=True)
+        for index in range(1, len(lines)):
+                if lines[index].strip() == "---":
+                        return "".join(lines[1:index]), "".join(lines[index + 1:])
         return "", text
-    lines = text.splitlines(keepends=True)
-    for index in range(1, len(lines)):
-        if lines[index].strip() == "---":
-            return "".join(lines[1:index]), "".join(lines[index + 1:])
-    return "", text
 
 
 def parse_frontmatter_title(front: str) -> str:
-    match = TITLE_RE.search(front)
-    if not match:
-        return ""
-    value = match.group(1).strip()
-    if value.startswith(("'", '"')) and value.endswith(("'", '"')):
-        value = value[1:-1]
-    return value
+        match = TITLE_RE.search(front)
+        if not match:
+                return ""
+        value = match.group(1).strip()
+        if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+                value = value[1:-1]
+        return value
 
 
 def parse_chapters(quarto_yml: Path) -> list[str]:
-    """Return chapter hrefs in declaration order.
+        """Return chapter hrefs in declaration order.
 
     Supports the forms Quarto Book uses:
       chapters:
@@ -172,1069 +172,1069 @@ def parse_chapters(quarto_yml: Path) -> list[str]:
     `part:` 带标题时只是分组标题，不带 .qmd 后缀，因此不会被当成章节；带文件时，
     该文件是分组落地页，也要接受内容检查。嵌套的 `chapters:` 键本身不是章节。
     """
-    if not quarto_yml.is_file():
-        return []
-    chapters: list[str] = []
-    in_chapters = False
-    for raw in read_text(quarto_yml).splitlines():
-        stripped = raw.strip()
-        # chapters 与 appendices 都是正文结构：附录页同样要进内容检查，
-        # 只解析 chapters 会让附录整批漏检，也会在 --strict 下被当成未登记。
-        if re.match(r"^(?:chapters|appendices):\s*$", stripped):
-            in_chapters = True
-            continue
-        if not in_chapters:
-            continue
-        if stripped and not raw.startswith((" ", "\t", "-")):
-            in_chapters = False
-            continue
-        if not stripped:
-            continue
-        item = stripped[1:].strip() if stripped.startswith("-") else stripped
-        key, sep, value = item.partition(":")
-        if sep and re.fullmatch(r"[a-z_]+", key.strip()):
-            # 只接受会落到页面的键：href 与 part 的文件形式。
-            href = value.strip().strip("'\"") if key.strip() in {"href", "part"} else ""
-        else:
-            href = item.strip("'\"")
-        if href.endswith(".qmd"):
-            chapters.append(href)
-    return chapters
+        if not quarto_yml.is_file():
+                return []
+        chapters: list[str] = []
+        in_chapters = False
+        for raw in read_text(quarto_yml).splitlines():
+                stripped = raw.strip()
+                # chapters 与 appendices 都是正文结构：附录页同样要进内容检查，
+                # 只解析 chapters 会让附录整批漏检，也会在 --strict 下被当成未登记。
+                if re.match(r"^(?:chapters|appendices):\s*$", stripped):
+                        in_chapters = True
+                        continue
+                if not in_chapters:
+                        continue
+                if stripped and not raw.startswith((" ", "\t", "-")):
+                        in_chapters = False
+                        continue
+                if not stripped:
+                        continue
+                item = stripped[1:].strip() if stripped.startswith("-") else stripped
+                key, sep, value = item.partition(":")
+                if sep and re.fullmatch(r"[a-z_]+", key.strip()):
+                        # 只接受会落到页面的键：href 与 part 的文件形式。
+                        href = value.strip().strip("'\"") if key.strip() in {"href", "part"} else ""
+                else:
+                        href = item.strip("'\"")
+                if href.endswith(".qmd"):
+                        chapters.append(href)
+        return chapters
 
 
 EXCLUDED_DIRS = {
-    "node_modules", "_book", ".quarto", ".git", "_freeze", "_site",
-    "temp", "build", "dist", "_build",
+        "node_modules", "_book", ".quarto", ".git", "_freeze", "_site",
+        "temp", "build", "dist", "_build",
 }
 EXCLUDED_DIR_PREFIXES = ("build-",)
 
 
 def is_generated_dir(part: str) -> bool:
-    # 生成物与缓存目录整棵跳过：临时试验稿、构建产物里的 .qmd 不属于书稿源，
-    # 整仓扫描时报出它们的问题会让作者去改根本没有交付的文件。
-    return part in EXCLUDED_DIRS or part.startswith(".") or part.startswith(EXCLUDED_DIR_PREFIXES)
+        # 生成物与缓存目录整棵跳过：临时试验稿、构建产物里的 .qmd 不属于书稿源，
+        # 整仓扫描时报出它们的问题会让作者去改根本没有交付的文件。
+        return part in EXCLUDED_DIRS or part.startswith(".") or part.startswith(EXCLUDED_DIR_PREFIXES)
 
 
 def collect_all_qmd(root: Path) -> list[Path]:
-    found: list[Path] = []
-    for candidate in sorted(root.rglob("*.qmd")):
-        rel_parts = candidate.relative_to(root).parts
-        if any(is_generated_dir(part) for part in rel_parts):
-            continue
-        found.append(candidate)
-    return found
+        found: list[Path] = []
+        for candidate in sorted(root.rglob("*.qmd")):
+                rel_parts = candidate.relative_to(root).parts
+                if any(is_generated_dir(part) for part in rel_parts):
+                        continue
+                found.append(candidate)
+        return found
 
 
 def collect_chapter_files(root: Path, chapters: list[str]) -> list[Path]:
-    found: list[Path] = []
-    for rel in chapters:
-        candidate = root / rel
-        if candidate.is_file() and candidate not in found:
-            found.append(candidate)
-    index = root / "index.qmd"
-    if index.is_file() and index not in found:
-        found.append(index)
-    if chapters:
-        return found
-    # No chapter table: audit every .qmd outside generated/vendor dirs.
-    return collect_all_qmd(root)
+        found: list[Path] = []
+        for rel in chapters:
+                candidate = root / rel
+                if candidate.is_file() and candidate not in found:
+                        found.append(candidate)
+        index = root / "index.qmd"
+        if index.is_file() and index not in found:
+                found.append(index)
+        if chapters:
+                return found
+        # No chapter table: audit every .qmd outside generated/vendor dirs.
+        return collect_all_qmd(root)
 
 
 def check_heading(path: Path, line: int, level: int, text: str, issues: list[Issue]) -> None:
-    if level > MAX_HEADING_LEVEL:
-        issues.append(Issue(path, line, f"H{level} 超出允许深度 H{MAX_HEADING_LEVEL}"))
-    if not text:
-        issues.append(Issue(path, line, "空标题"))
-    if re.search(r"[。！？；]$", text):
-        issues.append(Issue(path, line, "标题末尾带句读"))
-    if HEADING_PERSONAL_RE.search(text):
-        issues.append(Issue(path, line, "标题带人称或口语劝诱；改写成对象名或「动词 + 具体宾语」"))
-    if "`" in text:
-        issues.append(Issue(path, line, "标题带行内代码；文件名留给正文，标题写对象"))
-    if level == 3 and re.search(r"[0-9一二三四五六七八九十百]+条", text):
-        issues.append(Issue(path, line, "三级标题在数条目；拆成实体标题或改成承载对象"))
+        if level > MAX_HEADING_LEVEL:
+                issues.append(Issue(path, line, f"H{level} 超出允许深度 H{MAX_HEADING_LEVEL}"))
+        if not text:
+                issues.append(Issue(path, line, "空标题"))
+        if re.search(r"[。！？；]$", text):
+                issues.append(Issue(path, line, "标题末尾带句读"))
+        if HEADING_PERSONAL_RE.search(text):
+                issues.append(Issue(path, line, "标题带人称或口语劝诱；改写成对象名或「动词 + 具体宾语」"))
+        if "`" in text:
+                issues.append(Issue(path, line, "标题带行内代码；文件名留给正文，标题写对象"))
+        if level == 3 and re.search(r"[0-9一二三四五六七八九十百]+条", text):
+                issues.append(Issue(path, line, "三级标题在数条目；拆成实体标题或改成承载对象"))
 
 
 def check_prose_block(
-    path: Path, start_line: int, text: str, issues: list[Issue], is_list: bool = False
+        path: Path, start_line: int, text: str, issues: list[Issue], is_list: bool = False
 ) -> None:
-    compact = text.strip()
-    if not compact:
-        return
-    if CHAPTER_NUMBER_RE.search(compact):
-        issues.append(Issue(path, start_line, "第 N 章式编号指称（用章节标题或链接）"))
-    if SKILL_TONE_RE.search(compact):
-        issues.append(Issue(path, start_line, "技能腔：只约束作者的选择，整句删掉"))
-    if META_NARRATION_RE.search(compact):
-        issues.append(Issue(
-            path, start_line,
-            "元叙述：删掉「本节将 / 下面我们看」这类句子，直接从内容写起",
-        ))
-    if CJK_RE.search(compact):
-        for sentence in re.split(r"(?<=[。！？])", compact):
-            markers = ENUMERATION_RE.findall(sentence)
-            if len(markers) >= 2:
+        compact = text.strip()
+        if not compact:
+                return
+        if CHAPTER_NUMBER_RE.search(compact):
+                issues.append(Issue(path, start_line, "第 N 章式编号指称（用章节标题或链接）"))
+        if SKILL_TONE_RE.search(compact):
+                issues.append(Issue(path, start_line, "技能腔：只约束作者的选择，整句删掉"))
+        if META_NARRATION_RE.search(compact):
                 issues.append(Issue(
-                    path, start_line,
-                    f"清点句：一句里出现 {len(markers)} 个序列词，改成列表或自然衔接",
+                        path, start_line,
+                        "元叙述：删掉「本节将 / 下面我们看」这类句子，直接从内容写起",
                 ))
-                break
-    if not is_list and CJK_RE.search(compact):
-        names = {
-            match.group(1)
-            for match in INLINE_NAME_RE.finditer(compact)
-            if FUNCTION_NAME_RE.search(match.group(1))
-        }
-        if len(names) >= 3 and TERMINAL_RE.search(compact) and TEST_RE.search(compact):
-            issues.append(Issue(
-                path, start_line,
-                f"一段里出现 {len(names)} 个函数名，还同时讲终端与测试；拆成列表，一项一件",
-            ))
-    if CJK_RE.search(compact):
-        visible = LINK_LABEL_RE.sub(r"\1", compact)
-        length = len(re.sub(r"\s+", "", visible))
-        if length > MAX_PARAGRAPH_CHARS:
-            issues.append(Issue(
-                path, start_line,
-                f"段落 {length} 字符，超过 {MAX_PARAGRAPH_CHARS}；拆成两段或删枝蔓",
-            ))
-        for sentence in re.split(r"(?<=[。！？])", visible):
-            sentence = sentence.strip()
-            if len(sentence) > MAX_SENTENCE_CHARS:
-                issues.append(Issue(
-                    path, start_line,
-                    f"句子 {len(sentence)} 字符，超过 {MAX_SENTENCE_CHARS}；先拆主谓再补条件",
-                ))
-                break
+        if CJK_RE.search(compact):
+                for sentence in re.split(r"(?<=[。！？])", compact):
+                        markers = ENUMERATION_RE.findall(sentence)
+                        if len(markers) >= 2:
+                                issues.append(Issue(
+                                        path, start_line,
+                                        f"清点句：一句里出现 {len(markers)} 个序列词，改成列表或自然衔接",
+                                ))
+                                break
+        if not is_list and CJK_RE.search(compact):
+                names = {
+                        match.group(1)
+                        for match in INLINE_NAME_RE.finditer(compact)
+                        if FUNCTION_NAME_RE.search(match.group(1))
+                }
+                if len(names) >= 3 and TERMINAL_RE.search(compact) and TEST_RE.search(compact):
+                        issues.append(Issue(
+                                path, start_line,
+                                f"一段里出现 {len(names)} 个函数名，还同时讲终端与测试；拆成列表，一项一件",
+                        ))
+        if CJK_RE.search(compact):
+                visible = LINK_LABEL_RE.sub(r"\1", compact)
+                length = len(re.sub(r"\s+", "", visible))
+                if length > MAX_PARAGRAPH_CHARS:
+                        issues.append(Issue(
+                                path, start_line,
+                                f"段落 {length} 字符，超过 {MAX_PARAGRAPH_CHARS}；拆成两段或删枝蔓",
+                        ))
+                for sentence in re.split(r"(?<=[。！？])", visible):
+                        sentence = sentence.strip()
+                        if len(sentence) > MAX_SENTENCE_CHARS:
+                                issues.append(Issue(
+                                        path, start_line,
+                                        f"句子 {len(sentence)} 字符，超过 {MAX_SENTENCE_CHARS}；先拆主谓再补条件",
+                                ))
+                                break
 
-    if not is_list and CJK_RE.search(compact):
-        sentences = [
-            sentence.strip()
-            for sentence in re.split(r"(?<=[。！？])", compact)
-            if sentence.strip()
-        ]
-        seen_names: set[str] = set()
-        for index, sentence in enumerate(sentences):
-            if index > 0:
-                if sentence.startswith("它") and len(sentence) > 1 and sentence[1] != "们":
-                    issues.append(Issue(
-                        path, start_line,
-                        "过简断裂：「它」开头的句子没有接住前句句末的对象；写回原对象名",
-                    ))
-                    break
-                lead = INLINE_NAME_RE.match(sentence)
-                if lead and lead.group(1) not in seen_names:
-                    issues.append(Issue(
-                        path, start_line,
-                        f"过简断裂：后句以新标识符「{lead.group(1)}」开头，前句没有承接；先用回指词接住",
-                    ))
-                    break
-            for match in INLINE_NAME_RE.finditer(sentence):
-                seen_names.add(match.group(1))
+        if not is_list and CJK_RE.search(compact):
+                sentences = [
+                        sentence.strip()
+                        for sentence in re.split(r"(?<=[。！？])", compact)
+                        if sentence.strip()
+                ]
+                seen_names: set[str] = set()
+                for index, sentence in enumerate(sentences):
+                        if index > 0:
+                                if sentence.startswith("它") and len(sentence) > 1 and sentence[1] != "们":
+                                        issues.append(Issue(
+                                                path, start_line,
+                                                "过简断裂：「它」开头的句子没有接住前句句末的对象；写回原对象名",
+                                        ))
+                                        break
+                                lead = INLINE_NAME_RE.match(sentence)
+                                if lead and lead.group(1) not in seen_names:
+                                        issues.append(Issue(
+                                                path, start_line,
+                                                f"过简断裂：后句以新标识符「{lead.group(1)}」开头，前句没有承接；先用回指词接住",
+                                        ))
+                                        break
+                        for match in INLINE_NAME_RE.finditer(sentence):
+                                seen_names.add(match.group(1))
 
 
 def visible_length(text: str) -> int:
-    visible = LINK_LABEL_RE.sub(r"\1", text)
-    visible = re.sub(r"[*`]", "", visible)
-    return len(re.sub(r"\s+", "", visible))
+        visible = LINK_LABEL_RE.sub(r"\1", text)
+        visible = re.sub(r"[*`]", "", visible)
+        return len(re.sub(r"\s+", "", visible))
 
 
 def check_list_block(
-    path: Path, items: list[tuple[int, str]], issues: list[Issue], landing: bool = False
+        path: Path, items: list[tuple[int, str]], issues: list[Issue], landing: bool = False
 ) -> None:
-    if len(items) < 2:
-        return
-    guided = [bool(GUIDED_ITEM_RE.match(text)) for _, text in items]
-    if any(guided) and not all(guided):
+        if len(items) < 2:
+                return
+        guided = [bool(GUIDED_ITEM_RE.match(text)) for _, text in items]
+        if any(guided) and not all(guided):
+                issues.append(Issue(
+                        path, items[0][0],
+                        "同一列表混用普通句子和「**引导词**：」句式；统一成多数项使用的那一种",
+                ))
+                return
+        lengths = [
+                (line, visible_length(text))
+                for line, text in items
+                if text.strip()
+        ]
+        lengths = [(line, length) for line, length in lengths if length > 0]
+        if len(lengths) < 2 or landing:
+                return
+        joined = "".join(text for _, text in items)
+        if "出错的原因" in joined and "正确的做法" in joined:
+                return
+        longest = max(lengths, key=lambda pair: pair[1])
+        shortest = min(lengths, key=lambda pair: pair[1])
+        if longest[1] < 2 * shortest[1]:
+                return
         issues.append(Issue(
-            path, items[0][0],
-            "同一列表混用普通句子和「**引导词**：」句式；统一成多数项使用的那一种",
+                path, longest[0],
+                f"列表项字数失衡：最长 {longest[1]} 字，最短 {shortest[1]} 字；删长项多余中心或把长项收成一句",
         ))
-        return
-    lengths = [
-        (line, visible_length(text))
-        for line, text in items
-        if text.strip()
-    ]
-    lengths = [(line, length) for line, length in lengths if length > 0]
-    if len(lengths) < 2 or landing:
-        return
-    joined = "".join(text for _, text in items)
-    if "出错的原因" in joined and "正确的做法" in joined:
-        return
-    longest = max(lengths, key=lambda pair: pair[1])
-    shortest = min(lengths, key=lambda pair: pair[1])
-    if longest[1] < 2 * shortest[1]:
-        return
-    issues.append(Issue(
-        path, longest[0],
-        f"列表项字数失衡：最长 {longest[1]} 字，最短 {shortest[1]} 字；删长项多余中心或把长项收成一句",
-    ))
 
 
 def display_width(text: str) -> int:
-    return sum(2 if unicodedata.east_asian_width(char) in {"W", "F"} else 1 for char in text)
+        return sum(2 if unicodedata.east_asian_width(char) in {"W", "F"} else 1 for char in text)
 
 
 def check_mermaid_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
-    """Check a class diagram's content budget and direction."""
-    diagram_at = next((index for index, (_, raw) in enumerate(block) if "classDiagram" in raw), None)
-    if diagram_at is None:
-        return []
+        """Check a class diagram's content budget and direction."""
+        diagram_at = next((index for index, (_, raw) in enumerate(block) if "classDiagram" in raw), None)
+        if diagram_at is None:
+                return []
 
-    issues: list[Issue] = []
-    start_line = block[diagram_at][0]
-    text = "\n".join(raw for _, raw in block)
-    if "hideEmptyMembersBox" not in text:
-        issues.append(Issue(
-            path, start_line,
-            "类图块缺少 hideEmptyMembersBox 配置（位置不限，通常随 init 放块首）；空类会画出空成员栏",
-        ))
-    caption_at = next(
-        (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%| fig-cap:")),
-        None,
-    )
-    init_at = next(
-        (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%{init")),
-        None,
-    )
-    if caption_at is None:
-        issues.append(Issue(
-            path, start_line,
-            "类图缺少 fig-cap 图注；线型与读图约定应写在图注里",
-        ))
-    elif init_at is not None and caption_at > init_at:
-        issues.append(Issue(
-            path, block[caption_at][0],
-            "fig-cap 必须写在 init 之前；写在 init 之后会原样渲染成 Mermaid 注释",
-        ))
-
-    classes: dict[str, list[tuple[int, str]]] = {}
-    order: list[str] = []
-    direction = ""
-    direction_line = start_line
-    current: str | None = None
-    for number, raw in block[diagram_at:]:
-        line = raw.strip()
-        if not line or line.startswith("%%"):
-            continue
-        if line.startswith("direction "):
-            direction = line.split(None, 1)[1].strip().upper()
-            direction_line = number
-            continue
-        match = CLASS_RE.match(line)
-        if match:
-            name = match.group(1)
-            if name not in classes:
-                classes[name] = []
-                order.append(name)
-            current = name if "{" in line else None
-            continue
-        if current is None:
-            continue
-        if line == "}":
-            current = None
-            continue
-        if line.startswith("<<") and line.endswith(">>"):
-            continue
-        classes[current].append((number, line))
-
-    total_members = sum(len(lines) for lines in classes.values())
-    if len(order) > MAX_CLASS_DIAGRAM_TYPES:
-        issues.append(Issue(
-            path, start_line,
-            f"类图有 {len(order)} 个类型，超过 {MAX_CLASS_DIAGRAM_TYPES} 个；删节点或拆图",
-        ))
-    if total_members > MAX_CLASS_DIAGRAM_MEMBERS:
-        issues.append(Issue(
-            path, start_line,
-            f"类图成员共 {total_members} 行，超过 {MAX_CLASS_DIAGRAM_MEMBERS} 行；只留本章连边要用的成员",
-        ))
-    for name in order:
-        members = classes[name]
-        if len(members) > MAX_CLASS_MEMBERS:
-            issues.append(Issue(
-                path, members[MAX_CLASS_MEMBERS][0],
-                f"类 {name} 有 {len(members)} 行成员，超过 {MAX_CLASS_MEMBERS} 行；删到本章要用的",
-            ))
-        for number, line in members:
-            width = display_width(line)
-            if width > MAX_CLASS_MEMBER_COLUMNS:
+        issues: list[Issue] = []
+        start_line = block[diagram_at][0]
+        text = "\n".join(raw for _, raw in block)
+        if "hideEmptyMembersBox" not in text:
                 issues.append(Issue(
-                    path, number,
-                    f"类图成员行 {width} 列，超过 {MAX_CLASS_MEMBER_COLUMNS} 列；参数省略类型名",
+                        path, start_line,
+                        "类图块缺少 hideEmptyMembersBox 配置（位置不限，通常随 init 放块首）；空类会画出空成员栏",
                 ))
-    if direction == "LR" and total_members:
-        issues.append(Issue(
-            path, direction_line,
-            "类图有成员却用 LR；改成 TB，让类型上下排",
-        ))
-    return issues
+        caption_at = next(
+                (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%| fig-cap:")),
+                None,
+        )
+        init_at = next(
+                (index for index, (_, raw) in enumerate(block) if raw.lstrip().startswith("%%{init")),
+                None,
+        )
+        if caption_at is None:
+                issues.append(Issue(
+                        path, start_line,
+                        "类图缺少 fig-cap 图注；线型与读图约定应写在图注里",
+                ))
+        elif init_at is not None and caption_at > init_at:
+                issues.append(Issue(
+                        path, block[caption_at][0],
+                        "fig-cap 必须写在 init 之前；写在 init 之后会原样渲染成 Mermaid 注释",
+                ))
+
+        classes: dict[str, list[tuple[int, str]]] = {}
+        order: list[str] = []
+        direction = ""
+        direction_line = start_line
+        current: str | None = None
+        for number, raw in block[diagram_at:]:
+                line = raw.strip()
+                if not line or line.startswith("%%"):
+                        continue
+                if line.startswith("direction "):
+                        direction = line.split(None, 1)[1].strip().upper()
+                        direction_line = number
+                        continue
+                match = CLASS_RE.match(line)
+                if match:
+                        name = match.group(1)
+                        if name not in classes:
+                                classes[name] = []
+                                order.append(name)
+                        current = name if "{" in line else None
+                        continue
+                if current is None:
+                        continue
+                if line == "}":
+                        current = None
+                        continue
+                if line.startswith("<<") and line.endswith(">>"):
+                        continue
+                classes[current].append((number, line))
+
+        total_members = sum(len(lines) for lines in classes.values())
+        if len(order) > MAX_CLASS_DIAGRAM_TYPES:
+                issues.append(Issue(
+                        path, start_line,
+                        f"类图有 {len(order)} 个类型，超过 {MAX_CLASS_DIAGRAM_TYPES} 个；删节点或拆图",
+                ))
+        if total_members > MAX_CLASS_DIAGRAM_MEMBERS:
+                issues.append(Issue(
+                        path, start_line,
+                        f"类图成员共 {total_members} 行，超过 {MAX_CLASS_DIAGRAM_MEMBERS} 行；只留本章连边要用的成员",
+                ))
+        for name in order:
+                members = classes[name]
+                if len(members) > MAX_CLASS_MEMBERS:
+                        issues.append(Issue(
+                                path, members[MAX_CLASS_MEMBERS][0],
+                                f"类 {name} 有 {len(members)} 行成员，超过 {MAX_CLASS_MEMBERS} 行；删到本章要用的",
+                        ))
+                for number, line in members:
+                        width = display_width(line)
+                        if width > MAX_CLASS_MEMBER_COLUMNS:
+                                issues.append(Issue(
+                                        path, number,
+                                        f"类图成员行 {width} 列，超过 {MAX_CLASS_MEMBER_COLUMNS} 列；参数省略类型名",
+                                ))
+        if direction == "LR" and total_members:
+                issues.append(Issue(
+                        path, direction_line,
+                        "类图有成员却用 LR；改成 TB，让类型上下排",
+                ))
+        return issues
 
 
 def check_mermaid_wrapper(path: Path, lines: list[str], block: list[tuple[int, str]]) -> list[Issue]:
-    """Check a class diagram sits in the .class-diagram scroll container."""
-    if not any("classDiagram" in raw for _, raw in block):
+        """Check a class diagram sits in the .class-diagram scroll container."""
+        if not any("classDiagram" in raw for _, raw in block):
+                return []
+        start = block[0][0]
+        index = start - 2
+        if 0 <= index < len(lines) and lines[index].lstrip().startswith("```"):
+                index -= 1
+        while index >= 0 and not lines[index].strip():
+                index -= 1
+        if index < 0 or ".class-diagram" not in lines[index]:
+                return [Issue(
+                        path, start,
+                        "类图缺少 .class-diagram 包裹；无法应用类图的宽度与居中规则",
+                )]
         return []
-    start = block[0][0]
-    index = start - 2
-    if 0 <= index < len(lines) and lines[index].lstrip().startswith("```"):
-        index -= 1
-    while index >= 0 and not lines[index].strip():
-        index -= 1
-    if index < 0 or ".class-diagram" not in lines[index]:
-        return [Issue(
-            path, start,
-            "类图缺少 .class-diagram 包裹；无法应用类图的宽度与居中规则",
-        )]
-    return []
 
 
 def check_tree_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
-    """Check tree glyph lines: size, marker, width, items, and two marker columns."""
-    tree_lines = [(number, raw) for number, raw in block if "├──" in raw or "└──" in raw]
-    if len(tree_lines) < 2:
-        return []
-    issues: list[Issue] = []
-    if len(tree_lines) > MAX_TREE_LINES:
-        issues.append(Issue(
-            path, tree_lines[0][0],
-            f"树有 {len(tree_lines)} 行，超过 {MAX_TREE_LINES} 行；只留本章会点名的文件",
-        ))
-    dirs: list[tuple[int, int]] = []
-    files: list[tuple[int, int]] = []
-    text_columns: list[tuple[int, int]] = []
-    for number, raw in tree_lines:
-        hash_index = raw.find("#")
-        if hash_index < 0:
-            issues.append(Issue(path, number, "树行缺少行尾注释"))
-            continue
-        prefix = raw[:hash_index]
-        entry = prefix.rstrip()
-        if display_width(prefix) - display_width(entry) < MIN_TREE_GAP:
-            issues.append(Issue(path, number, "节点与注释之间至少留四个空格"))
-        rest = raw[hash_index:]
-        marker = "#/" if rest.startswith("#/") else "#"
-        after = rest[len(marker):]
-        if not after.startswith(" ") or (len(after) > 1 and after[1] == " "):
-            issues.append(Issue(path, number, "标记后只留一个空格"))
-        is_directory = entry.endswith("/")
-        if is_directory and marker != "#/":
-            issues.append(Issue(path, number, "目录行的注释以 #/ 开头"))
-        if not is_directory and marker == "#/":
-            issues.append(Issue(path, number, "文件行的注释以 # 开头"))
-        comment = after.strip()
-        if not comment:
-            issues.append(Issue(path, number, "树行注释为空"))
-            continue
-        if is_directory:
-            if "：" in comment or ":" in comment:
+        """Check tree glyph lines: size, marker, width, items, and two marker columns."""
+        tree_lines = [(number, raw) for number, raw in block if "├──" in raw or "└──" in raw]
+        if len(tree_lines) < 2:
+                return []
+        issues: list[Issue] = []
+        if len(tree_lines) > MAX_TREE_LINES:
                 issues.append(Issue(
-                    path, number,
-                    "目录注释只写这里装什么，不加冒号或子项职责",
+                        path, tree_lines[0][0],
+                        f"树有 {len(tree_lines)} 行，超过 {MAX_TREE_LINES} 行；只留本章会点名的文件",
                 ))
-            if "、" in comment:
-                issues.append(Issue(
-                    path, number,
-                    "目录注释不列清单，用名词短语",
-                ))
-            if display_width(comment) > MAX_TREE_DIR_COMMENT_WIDTH:
-                issues.append(Issue(
-                    path, number,
-                    f"目录注释 {display_width(comment)} 列，超过 {MAX_TREE_DIR_COMMENT_WIDTH} 列；只留名词短语",
-                ))
-        else:
-            if display_width(comment) > MAX_TREE_COMMENT_WIDTH:
-                issues.append(Issue(
-                    path, number,
-                    f"注释 {display_width(comment)} 列，超过 {MAX_TREE_COMMENT_WIDTH} 列；缩成短名词短语",
-                ))
-            elif comment.rstrip("：:") in TREE_CATEGORY_COMMENTS:
-                issues.append(Issue(path, number, f"注释只写类别词「{comment}」；写对象与用途"))
-            separators = comment.count("、") + len(re.findall(r"(?<!参)与", comment))
-            if separators > 1:
-                issues.append(Issue(
-                    path, number, f"注释列了 {separators + 1} 项；压到 1 到 2 项",
-                ))
-        column = display_width(prefix)
-        if is_directory:
-            dirs.append((number, column))
-        else:
-            files.append((number, column))
-        text_columns.append((number, column + len(marker) + len(after) - len(after.lstrip(" "))))
-    if dirs:
-        dir_column = dirs[0][1]
-        if any(column != dir_column for _, column in dirs[1:]):
-            issues.append(Issue(path, dirs[0][0], "目录 #/ 未对齐"))
-        for number, column in files:
-            if column != dir_column + 1:
-                issues.append(Issue(
-                    path, number,
-                    f"文件 # 应比目录 # 右移一列（目录在 {dir_column}，文件在 {column}）",
-                ))
-                break
-    elif files:
-        file_column = files[0][1]
-        if any(column != file_column for _, column in files[1:]):
-            issues.append(Issue(path, files[0][0], "文件 # 未对齐"))
-    if text_columns:
-        text_column = text_columns[0][1]
-        for number, column in text_columns[1:]:
-            if column != text_column:
-                issues.append(Issue(path, number, "注释文字未对齐"))
-                break
-    return issues
+        dirs: list[tuple[int, int]] = []
+        files: list[tuple[int, int]] = []
+        text_columns: list[tuple[int, int]] = []
+        for number, raw in tree_lines:
+                hash_index = raw.find("#")
+                if hash_index < 0:
+                        issues.append(Issue(path, number, "树行缺少行尾注释"))
+                        continue
+                prefix = raw[:hash_index]
+                entry = prefix.rstrip()
+                if display_width(prefix) - display_width(entry) < MIN_TREE_GAP:
+                        issues.append(Issue(path, number, "节点与注释之间至少留四个空格"))
+                rest = raw[hash_index:]
+                marker = "#/" if rest.startswith("#/") else "#"
+                after = rest[len(marker):]
+                if not after.startswith(" ") or (len(after) > 1 and after[1] == " "):
+                        issues.append(Issue(path, number, "标记后只留一个空格"))
+                is_directory = entry.endswith("/")
+                if is_directory and marker != "#/":
+                        issues.append(Issue(path, number, "目录行的注释以 #/ 开头"))
+                if not is_directory and marker == "#/":
+                        issues.append(Issue(path, number, "文件行的注释以 # 开头"))
+                comment = after.strip()
+                if not comment:
+                        issues.append(Issue(path, number, "树行注释为空"))
+                        continue
+                if is_directory:
+                        if "：" in comment or ":" in comment:
+                                issues.append(Issue(
+                                        path, number,
+                                        "目录注释只写这里装什么，不加冒号或子项职责",
+                                ))
+                        if "、" in comment:
+                                issues.append(Issue(
+                                        path, number,
+                                        "目录注释不列清单，用名词短语",
+                                ))
+                        if display_width(comment) > MAX_TREE_DIR_COMMENT_WIDTH:
+                                issues.append(Issue(
+                                        path, number,
+                                        f"目录注释 {display_width(comment)} 列，超过 {MAX_TREE_DIR_COMMENT_WIDTH} 列；只留名词短语",
+                                ))
+                else:
+                        if display_width(comment) > MAX_TREE_COMMENT_WIDTH:
+                                issues.append(Issue(
+                                        path, number,
+                                        f"注释 {display_width(comment)} 列，超过 {MAX_TREE_COMMENT_WIDTH} 列；缩成短名词短语",
+                                ))
+                        elif comment.rstrip("：:") in TREE_CATEGORY_COMMENTS:
+                                issues.append(Issue(path, number, f"注释只写类别词「{comment}」；写对象与用途"))
+                        separators = comment.count("、") + len(re.findall(r"(?<!参)与", comment))
+                        if separators > 1:
+                                issues.append(Issue(
+                                        path, number, f"注释列了 {separators + 1} 项；压到 1 到 2 项",
+                                ))
+                column = display_width(prefix)
+                if is_directory:
+                        dirs.append((number, column))
+                else:
+                        files.append((number, column))
+                text_columns.append((number, column + len(marker) + len(after) - len(after.lstrip(" "))))
+        if dirs:
+                dir_column = dirs[0][1]
+                if any(column != dir_column for _, column in dirs[1:]):
+                        issues.append(Issue(path, dirs[0][0], "目录 #/ 未对齐"))
+                for number, column in files:
+                        if column != dir_column + 1:
+                                issues.append(Issue(
+                                        path, number,
+                                        f"文件 # 应比目录 # 右移一列（目录在 {dir_column}，文件在 {column}）",
+                                ))
+                                break
+        elif files:
+                file_column = files[0][1]
+                if any(column != file_column for _, column in files[1:]):
+                        issues.append(Issue(path, files[0][0], "文件 # 未对齐"))
+        if text_columns:
+                text_column = text_columns[0][1]
+                for number, column in text_columns[1:]:
+                        if column != text_column:
+                                issues.append(Issue(path, number, "注释文字未对齐"))
+                                break
+        return issues
 
 
 def check_html_figure_block(path: Path, block: list[tuple[int, str]]) -> list[Issue]:
-    """原生 HTML/SVG 图要用 <figure> 包住，<figcaption> 放在图后。"""
-    issues: list[Issue] = []
-    svg_line: int | None = None
-    figure_line: int | None = None
-    caption_line: int | None = None
-    for number, raw in block:
-        if "<figure" in raw and figure_line is None:
-            figure_line = number
-        if "<svg" in raw and svg_line is None:
-            svg_line = number
-            if figure_line is None:
-                issues.append(Issue(
-                    path, number,
-                    "原生 SVG 图要用 <figure> 包住，并在图后写 <figcaption>",
-                ))
-        if "<figcaption" in raw and caption_line is None:
-            caption_line = number
-    if svg_line is not None and figure_line is not None:
-        if caption_line is None:
-            issues.append(Issue(
-                path, svg_line,
-                "原生 SVG 图缺 <figcaption>（图注要落在图下）",
-            ))
-        elif caption_line < svg_line:
-            issues.append(Issue(
-                path, caption_line,
-                "<figcaption> 要放在图后，不能放在图前",
-            ))
-    return issues
+        """原生 HTML/SVG 图要用 <figure> 包住，<figcaption> 放在图后。"""
+        issues: list[Issue] = []
+        svg_line: int | None = None
+        figure_line: int | None = None
+        caption_line: int | None = None
+        for number, raw in block:
+                if "<figure" in raw and figure_line is None:
+                        figure_line = number
+                if "<svg" in raw and svg_line is None:
+                        svg_line = number
+                        if figure_line is None:
+                                issues.append(Issue(
+                                        path, number,
+                                        "原生 SVG 图要用 <figure> 包住，并在图后写 <figcaption>",
+                                ))
+                if "<figcaption" in raw and caption_line is None:
+                        caption_line = number
+        if svg_line is not None and figure_line is not None:
+                if caption_line is None:
+                        issues.append(Issue(
+                                path, svg_line,
+                                "原生 SVG 图缺 <figcaption>（图注要落在图下）",
+                        ))
+                elif caption_line < svg_line:
+                        issues.append(Issue(
+                                path, caption_line,
+                                "<figcaption> 要放在图后，不能放在图前",
+                        ))
+        return issues
 
 
 def visible_chars(text: str) -> int:
-    label = LINK_LABEL_RE.sub(r"\1", text)
-    return len(re.sub(r"\s+", "", label))
+        label = LINK_LABEL_RE.sub(r"\1", text)
+        return len(re.sub(r"\s+", "", label))
 
 
 def check_lead(
-    path: Path, front: str, lines: list[str], issues: list[Issue], limits: list[int]
+        path: Path, front: str, lines: list[str], issues: list[Issue], limits: list[int]
 ) -> None:
-    """检查 title 与第一个标题之间的首段导语长度。
+        """检查 title 与第一个标题之间的首段导语长度。
 
     着陆页（body-classes 里有 index-page 或 homepage）按卡片组织，不受限。
     """
-    if "body-classes:" in front and ("index-page" in front or "homepage" in front):
-        return
-    first = len(lines)
-    for index, raw in enumerate(lines):
-        if HEADING_RE.match(raw):
-            first = index
-            break
-    paragraph: list[str] = []
-    start = 1
-    for index, raw in enumerate(lines[:first], start=1):
-        if not raw.strip() or LEAD_SKIP_RE.match(raw):
-            if paragraph:
-                break
-            continue
+        if "body-classes:" in front and ("index-page" in front or "homepage" in front):
+                return
+        first = len(lines)
+        for index, raw in enumerate(lines):
+                if HEADING_RE.match(raw):
+                        first = index
+                        break
+        paragraph: list[str] = []
+        start = 1
+        for index, raw in enumerate(lines[:first], start=1):
+                if not raw.strip() or LEAD_SKIP_RE.match(raw):
+                        if paragraph:
+                                break
+                        continue
+                if not paragraph:
+                        start = index
+                paragraph.append(raw.strip())
         if not paragraph:
-            start = index
-        paragraph.append(raw.strip())
-    if not paragraph:
-        return
-    length = visible_chars(" ".join(paragraph))
-    low, high = limits[0], limits[1]
-    if length < low:
-        issues.append(Issue(
-            path, start,
-            f"导语 {length} 字符，短于 {low}；补一句本章要解决什么",
-        ))
-    elif length > high:
-        issues.append(Issue(
-            path, start,
-            f"导语 {length} 字符，超过 {high}；先删下一块已经摆出来的内容",
-        ))
+                return
+        length = visible_chars(" ".join(paragraph))
+        low, high = limits[0], limits[1]
+        if length < low:
+                issues.append(Issue(
+                        path, start,
+                        f"导语 {length} 字符，短于 {low}；补一句本章要解决什么",
+                ))
+        elif length > high:
+                issues.append(Issue(
+                        path, start,
+                        f"导语 {length} 字符，超过 {high}；先删下一块已经摆出来的内容",
+                ))
 
 
 def check_fence_semantics(path: Path, lines: list[str]) -> list[Issue]:
-    """声明围栏只能配契约文字：小节内没有定义围栏却讲实现时报错。"""
-    issues: list[Issue] = []
-    section_title: str | None = None
-    section_line = 0
-    fences: list[str] = []
-    prose: list[str] = []
-    in_fence = False
-    in_section = False
+        """声明围栏只能配契约文字：小节内没有定义围栏却讲实现时报错。"""
+        issues: list[Issue] = []
+        section_title: str | None = None
+        section_line = 0
+        fences: list[str] = []
+        prose: list[str] = []
+        in_fence = False
+        in_section = False
 
-    def flush() -> None:
-        nonlocal fences, prose
-        if section_title is None:
-            return
-        if not FENCE_SKIP_SECTION_RE.search(section_title):
-            has_decl = any(name.endswith(DECL_SUFFIXES) for name in fences if name)
-            has_def = any(name.endswith(DEF_SUFFIXES) for name in fences if name)
-            if has_decl and not has_def and prose:
-                text = " ".join(prose)
-                marker = IMPL_MARKER_RE.search(text)
-                if marker:
-                    issues.append(Issue(
-                        path, section_line,
-                        f"小节「{section_title}」只有声明围栏，正文却讲实现（{marker.group(0)}）；"
-                        "按 quarto/05-fence-semantics.md 改成契约文字，或补定义围栏",
-                    ))
+        def flush() -> None:
+                nonlocal fences, prose
+                if section_title is None:
+                        return
+                if not FENCE_SKIP_SECTION_RE.search(section_title):
+                        has_decl = any(name.endswith(DECL_SUFFIXES) for name in fences if name)
+                        has_def = any(name.endswith(DEF_SUFFIXES) for name in fences if name)
+                        if has_decl and not has_def and prose:
+                                text = " ".join(prose)
+                                marker = IMPL_MARKER_RE.search(text)
+                                if marker:
+                                        issues.append(Issue(
+                                                path, section_line,
+                                                f"小节「{section_title}」只有声明围栏，正文却讲实现（{marker.group(0)}）；"
+                                                "按 quarto/05-fence-semantics.md 改成契约文字，或补定义围栏",
+                                        ))
+                fences = []
+                prose = []
+
+        section_title = None
         fences = []
         prose = []
-
-    section_title = None
-    fences = []
-    prose = []
-    in_fence = False
-    in_section = False
-    for number, raw in enumerate(lines, start=1):
-        if FENCE_RE.match(raw):
-            if not in_fence:
-                match = FENCE_FILENAME_RE.search(raw)
-                fences.append(match.group(1) if match else "")
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        heading = HEADING_RE.match(raw)
-        if heading:
-            level = len(heading.group(1))
-            if level in (2, 3):
-                flush()
-                section_title = heading.group(2)
-                section_line = number
-                in_section = True
-            elif level == 1:
-                flush()
-                section_title = None
-                in_section = False
-            continue
-        if not in_section or not raw.strip():
-            continue
-        stripped = raw.strip()
-        if stripped.startswith(("|", ">", ":::", "-", "*", "+")) or re.match(r"^\d+\.\s", stripped):
-            continue
-        prose.append(stripped)
-    flush()
-    return issues
+        in_fence = False
+        in_section = False
+        for number, raw in enumerate(lines, start=1):
+                if FENCE_RE.match(raw):
+                        if not in_fence:
+                                match = FENCE_FILENAME_RE.search(raw)
+                                fences.append(match.group(1) if match else "")
+                        in_fence = not in_fence
+                        continue
+                if in_fence:
+                        continue
+                heading = HEADING_RE.match(raw)
+                if heading:
+                        level = len(heading.group(1))
+                        if level in (2, 3):
+                                flush()
+                                section_title = heading.group(2)
+                                section_line = number
+                                in_section = True
+                        elif level == 1:
+                                flush()
+                                section_title = None
+                                in_section = False
+                        continue
+                if not in_section or not raw.strip():
+                        continue
+                stripped = raw.strip()
+                if stripped.startswith(("|", ">", ":::", "-", "*", "+")) or re.match(r"^\d+\.\s", stripped):
+                        continue
+                prose.append(stripped)
+        flush()
+        return issues
 
 
 def normalize_code(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
+        return re.sub(r"\s+", " ", text).strip()
 
 
 def collect_excerpt_links(lines: list[str]) -> list[tuple[int, str]]:
-    """Return GitHub blob links in reading order, including reference-style uses."""
-    definitions: dict[str, str] = {}
-    for raw in lines:
-        definition = REF_DEFINITION_RE.match(raw)
-        if definition:
-            definitions.setdefault(definition.group(1), definition.group(2))
-    links: list[tuple[int, str]] = []
-    for number, raw in enumerate(lines, start=1):
-        for match in LINK_RE.finditer(raw):
-            links.append((number, match.group(1).strip()))
-        for match in REF_USE_RE.finditer(raw):
-            target = definitions.get(match.group(1))
-            if target:
-                links.append((number, target))
-    links.sort()
-    return links
+        """Return GitHub blob links in reading order, including reference-style uses."""
+        definitions: dict[str, str] = {}
+        for raw in lines:
+                definition = REF_DEFINITION_RE.match(raw)
+                if definition:
+                        definitions.setdefault(definition.group(1), definition.group(2))
+        links: list[tuple[int, str]] = []
+        for number, raw in enumerate(lines, start=1):
+                for match in LINK_RE.finditer(raw):
+                        links.append((number, match.group(1).strip()))
+                for match in REF_USE_RE.finditer(raw):
+                        target = definitions.get(match.group(1))
+                        if target:
+                                links.append((number, target))
+        links.sort()
+        return links
 
 
 def excerpt_fence_blocks(lines: list[str]) -> list[tuple[int, str, list[tuple[int, str]]]]:
-    """Return (opening line, filename, body) for every fence with a filename."""
-    blocks: list[tuple[int, str, list[tuple[int, str]]]] = []
-    in_fence = False
-    start = 0
-    filename = ""
-    body: list[tuple[int, str]] = []
-    for number, raw in enumerate(lines, start=1):
-        fence = FENCE_RE.match(raw)
-        if fence:
-            if not in_fence:
-                in_fence = True
-                start = number
-                opening = FENCE_FILENAME_RE.search(raw)
-                filename = opening.group(1) if opening else ""
-                body = []
-            else:
-                in_fence = False
-                if filename:
-                    blocks.append((start, filename, body))
-                filename = ""
-                body = []
-            continue
-        if in_fence:
-            body.append((number, raw))
-    return blocks
+        """Return (opening line, filename, body) for every fence with a filename."""
+        blocks: list[tuple[int, str, list[tuple[int, str]]]] = []
+        in_fence = False
+        start = 0
+        filename = ""
+        body: list[tuple[int, str]] = []
+        for number, raw in enumerate(lines, start=1):
+                fence = FENCE_RE.match(raw)
+                if fence:
+                        if not in_fence:
+                                in_fence = True
+                                start = number
+                                opening = FENCE_FILENAME_RE.search(raw)
+                                filename = opening.group(1) if opening else ""
+                                body = []
+                        else:
+                                in_fence = False
+                                if filename:
+                                        blocks.append((start, filename, body))
+                                filename = ""
+                                body = []
+                        continue
+                if in_fence:
+                        body.append((number, raw))
+        return blocks
 
 
 def source_doc_above(source: list[str], index: int) -> list[str]:
-    """Collect the contiguous `///` block that sits directly above index."""
-    block: list[str] = []
-    cursor = index - 1
-    while cursor >= 0:
-        raw = source[cursor]
-        if not DOC_COMMENT_RE.match(raw) or raw.lstrip().startswith("///<"):
-            break
-        block.append(raw)
-        cursor -= 1
-    block.reverse()
-    return block
+        """Collect the contiguous `///` block that sits directly above index."""
+        block: list[str] = []
+        cursor = index - 1
+        while cursor >= 0:
+                raw = source[cursor]
+                if not DOC_COMMENT_RE.match(raw) or raw.lstrip().startswith("///<"):
+                        break
+                block.append(raw)
+                cursor -= 1
+        block.reverse()
+        return block
 
 
 def resolve_blob_path(root: Path, relative: str) -> Path | None:
-    """按书根与它的祖先目录依次找 blob 路径。
+        """按书根与它的祖先目录依次找 blob 路径。
 
     书根可能只是仓库的一个子目录（`book/`、`docs/book/`），源码在仓库根；
     只从书根拼路径会让子目录书静默跳过摘录核对。
     """
-    for base in (root, *root.parents):
-        candidate = (base / relative).resolve()
-        if candidate.is_file():
-            return candidate
-    return None
+        for base in (root, *root.parents):
+                candidate = (base / relative).resolve()
+                if candidate.is_file():
+                        return candidate
+        return None
 
 
 def check_excerpts(path: Path, root: Path, lines: list[str]) -> list[Issue]:
-    """Reader text carries no file headers; kept doc comments match the source."""
-    issues: list[Issue] = []
-    for number, raw in enumerate(lines, start=1):
-        if EXCERPT_HEADER_RE.search(raw):
-            issues.append(Issue(
-                path, number,
-                "读者正文不摘文件级 Doxygen 头（@file、@brief、文件范围段）；"
-                "删掉这段，围栏从它之后开始",
-            ))
+        """Reader text carries no file headers; kept doc comments match the source."""
+        issues: list[Issue] = []
+        for number, raw in enumerate(lines, start=1):
+                if EXCERPT_HEADER_RE.search(raw):
+                        issues.append(Issue(
+                                path, number,
+                                "读者正文不摘文件级 Doxygen 头（@file、@brief、文件范围段）；"
+                                "删掉这段，围栏从它之后开始",
+                        ))
 
-    links = collect_excerpt_links(lines)
-    for start, filename, body in excerpt_fence_blocks(lines):
-        candidates = [
-            (number, target)
-            for number, target in links
-            if number < start and target.rsplit("/", 1)[-1] == filename
-        ]
-        if not candidates:
-            continue
-        target = candidates[-1][1]
-        blob = BLOB_URL_RE.match(target)
-        if not blob:
-            continue
-        relative = blob.group(1)
-        source_path = resolve_blob_path(root, relative)
-        if source_path is None:
-            continue
-        source = read_text(source_path).splitlines()
+        links = collect_excerpt_links(lines)
+        for start, filename, body in excerpt_fence_blocks(lines):
+                candidates = [
+                        (number, target)
+                        for number, target in links
+                        if number < start and target.rsplit("/", 1)[-1] == filename
+                ]
+                if not candidates:
+                        continue
+                target = candidates[-1][1]
+                blob = BLOB_URL_RE.match(target)
+                if not blob:
+                        continue
+                relative = blob.group(1)
+                source_path = resolve_blob_path(root, relative)
+                if source_path is None:
+                        continue
+                source = read_text(source_path).splitlines()
 
-        pending: list[tuple[int, str]] = []
-        pending_start = start
-        for number, raw in body:
-            stripped = raw.strip()
-            if DOC_COMMENT_RE.match(raw) and not stripped.startswith("///<"):
-                if not pending:
-                    pending_start = number
-                pending.append((number, raw))
-                continue
-            if not pending:
-                continue
-            if not stripped:
-                pending = []
-                continue
-            declaration = normalize_code(raw)
-            fence_block = [item.strip() for _, item in pending]
-            pending = []
-            if not declaration or declaration.startswith(("#", "}", "{", "...")):
-                continue
-            matches = [
-                index for index, item in enumerate(source)
-                if normalize_code(item) == declaration
-            ]
-            if not matches:
-                continue
-            # 同一行声明可能在多个类里重复（如各实现类的 override）；任一处注释
-            # 与围栏整段一致即通过，避免把第一个同名声明当成唯一出处。
-            source_blocks = [
-                [item.strip() for item in source_doc_above(source, index)]
-                for index in matches
-            ]
-            if any(block == fence_block for block in source_blocks):
-                continue
-            if not fence_block:
-                continue
-            prefixes = [
-                block for block in source_blocks
-                if len(block) > len(fence_block) and block[: len(fence_block)] == fence_block
-            ]
-            if prefixes:
-                issues.append(Issue(
-                    path, pending_start,
-                    f"围栏只摘了 {filename} 注释的前 {len(fence_block)} 行；"
-                    "整段补上 @param、@return 与空 /// 行，或整段不摘",
-                ))
-            elif all(not block for block in source_blocks):
-                issues.append(Issue(
-                    path, pending_start,
-                    f"围栏带有注释，但 {filename} 对应声明上方没有 /// 注释；整段删掉",
-                ))
-            else:
-                issues.append(Issue(
-                    path, pending_start,
-                    f"围栏注释与 {filename} 对应声明上方的不一致；整段照抄或整段不摘",
-                ))
-    return issues
+                pending: list[tuple[int, str]] = []
+                pending_start = start
+                for number, raw in body:
+                        stripped = raw.strip()
+                        if DOC_COMMENT_RE.match(raw) and not stripped.startswith("///<"):
+                                if not pending:
+                                        pending_start = number
+                                pending.append((number, raw))
+                                continue
+                        if not pending:
+                                continue
+                        if not stripped:
+                                pending = []
+                                continue
+                        declaration = normalize_code(raw)
+                        fence_block = [item.strip() for _, item in pending]
+                        pending = []
+                        if not declaration or declaration.startswith(("#", "}", "{", "...")):
+                                continue
+                        matches = [
+                                index for index, item in enumerate(source)
+                                if normalize_code(item) == declaration
+                        ]
+                        if not matches:
+                                continue
+                        # 同一行声明可能在多个类里重复（如各实现类的 override）；任一处注释
+                        # 与围栏整段一致即通过，避免把第一个同名声明当成唯一出处。
+                        source_blocks = [
+                                [item.strip() for item in source_doc_above(source, index)]
+                                for index in matches
+                        ]
+                        if any(block == fence_block for block in source_blocks):
+                                continue
+                        if not fence_block:
+                                continue
+                        prefixes = [
+                                block for block in source_blocks
+                                if len(block) > len(fence_block) and block[: len(fence_block)] == fence_block
+                        ]
+                        if prefixes:
+                                issues.append(Issue(
+                                        path, pending_start,
+                                        f"围栏只摘了 {filename} 注释的前 {len(fence_block)} 行；"
+                                        "整段补上 @param、@return 与空 /// 行，或整段不摘",
+                                ))
+                        elif all(not block for block in source_blocks):
+                                issues.append(Issue(
+                                        path, pending_start,
+                                        f"围栏带有注释，但 {filename} 对应声明上方没有 /// 注释；整段删掉",
+                                ))
+                        else:
+                                issues.append(Issue(
+                                        path, pending_start,
+                                        f"围栏注释与 {filename} 对应声明上方的不一致；整段照抄或整段不摘",
+                                ))
+        return issues
 
 
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
-    issues: list[Issue] = []
-    text = read_text(path)
-    front, body = strip_frontmatter(text)
-    rel = path.relative_to(root).as_posix()
+        issues: list[Issue] = []
+        text = read_text(path)
+        front, body = strip_frontmatter(text)
+        rel = path.relative_to(root).as_posix()
 
-    if not front and path.name != "index.qmd":
-        issues.append(Issue(path, 1, "缺少 YAML frontmatter（章节 title 从这里读取）"))
-    elif front and not parse_frontmatter_title(front):
-        issues.append(Issue(path, 1, "frontmatter 缺少 title"))
+        if not front and path.name != "index.qmd":
+                issues.append(Issue(path, 1, "缺少 YAML frontmatter（章节 title 从这里读取）"))
+        elif front and not parse_frontmatter_title(front):
+                issues.append(Issue(path, 1, "frontmatter 缺少 title"))
 
-    # 保留 frontmatter 的行数，后续行号才是文件里的真实行号。
-    leading = text[: len(text) - len(body)] if body else ""
-    if leading:
-        body = "\n" * leading.count("\n") + body
-    lines = body.splitlines()
-    limits = project.get("lead_chars")
-    if isinstance(limits, list) and len(limits) == 2 and all(isinstance(v, int) for v in limits):
-        check_lead(path, front, lines, issues, limits)
-    in_fence = False
-    fence_lang = ""
-    fence_start = 0
-    fence_lines: list[tuple[int, str]] = []
-    fence_blocks: list[list[tuple[int, str]]] = []
-    mermaid_blocks: list[list[tuple[int, str]]] = []
-    html_blocks: list[list[tuple[int, str]]] = []
-    fence_is_html = False
-    paragraph: list[str] = []
-    paragraph_start = 0
-    list_items: list[tuple[int, str]] = []
-    last_fence_end: int | None = None
-    landing = path.resolve() == (root / "index.qmd").resolve()
+        # 保留 frontmatter 的行数，后续行号才是文件里的真实行号。
+        leading = text[: len(text) - len(body)] if body else ""
+        if leading:
+                body = "\n" * leading.count("\n") + body
+        lines = body.splitlines()
+        limits = project.get("lead_chars")
+        if isinstance(limits, list) and len(limits) == 2 and all(isinstance(v, int) for v in limits):
+                check_lead(path, front, lines, issues, limits)
+        in_fence = False
+        fence_lang = ""
+        fence_start = 0
+        fence_lines: list[tuple[int, str]] = []
+        fence_blocks: list[list[tuple[int, str]]] = []
+        mermaid_blocks: list[list[tuple[int, str]]] = []
+        html_blocks: list[list[tuple[int, str]]] = []
+        fence_is_html = False
+        paragraph: list[str] = []
+        paragraph_start = 0
+        list_items: list[tuple[int, str]] = []
+        last_fence_end: int | None = None
+        landing = path.resolve() == (root / "index.qmd").resolve()
 
-    def flush_paragraph() -> None:
-        nonlocal paragraph
-        if paragraph:
-            check_prose_block(path, paragraph_start, " ".join(paragraph), issues)
-            paragraph = []
+        def flush_paragraph() -> None:
+                nonlocal paragraph
+                if paragraph:
+                        check_prose_block(path, paragraph_start, " ".join(paragraph), issues)
+                        paragraph = []
 
-    def flush_list() -> None:
-        nonlocal list_items
-        if len(list_items) >= 2:
-            check_list_block(path, list_items, issues, landing=landing)
-        list_items = []
+        def flush_list() -> None:
+                nonlocal list_items
+                if len(list_items) >= 2:
+                        check_list_block(path, list_items, issues, landing=landing)
+                list_items = []
 
-    for number, raw in enumerate(lines, start=1):
-        fence = FENCE_RE.match(raw)
-        if fence:
-            flush_paragraph()
-            flush_list()
-            if not in_fence:
-                in_fence = True
-                fence_start = number
-                if last_fence_end is not None and number == last_fence_end + 1:
-                    issues.append(Issue(
-                        path, number,
-                        "相邻围栏之间至少留一个空行（DOC-E11）；空行不等于桥接正文",
-                    ))
-                fence_lang = (fence.group(2) or "").strip()
-                fence_lines = []
-                fence_is_html = False
-                if not fence_lang:
-                    issues.append(Issue(path, number, "代码围栏未声明语言"))
-                elif fence_lang == "mermaid":
-                    issues.append(Issue(path, number, "plain mermaid 围栏（改用 ```{mermaid}）"))
-                elif fence_lang.startswith("{"):
-                    inner = fence_lang.strip("{}").strip()
-                    fence_is_html = inner == "=html"
-                    if inner.startswith(".") and "mermaid" in inner:
-                        issues.append(Issue(
-                            path, number,
-                            "Mermaid 围栏写成 `{.mermaid}`，Quarto 不会载入图表脚本，图会退化成代码块；改成 `{mermaid ...}`",
-                        ))
-                    elif inner and not inner.startswith((".", "=")) and "mermaid" not in inner:
-                        # ```{python} style attribute fences are valid.
-                        pass
-            else:
-                in_fence = False
-                last_fence_end = number
-                if fence_lines:
-                    fence_blocks.append(fence_lines)
-                    if "mermaid" in fence_lang:
-                        mermaid_blocks.append(fence_lines)
-                        has_name = any(
-                            re.match(r"\s*acc(?:Title|Descr):", raw)
-                            for _, raw in fence_lines
-                        )
-                        has_container_label = any(
-                            raw.lstrip().startswith("%%| aria-label:")
-                            for _, raw in fence_lines
-                        )
-                        if "aria-label=" in fence_lang or "role=" in fence_lang:
-                            issues.append(Issue(
-                                path, number,
-                                'mermaid 围栏头属性不会写入 HTML；把无障碍名称写进图源 `accTitle: …`',
-                            ))
-                        elif has_container_label:
-                            issues.append(Issue(
-                                path, number,
-                                "mermaid 的 `%%| aria-label` 只标记外层 div，SVG 没有可访问名称；改用图源 `accTitle: …`（长描述用 `accDescr:`）",
-                            ))
-                        elif not has_name:
-                            issues.append(Issue(
-                                path, number,
-                                "mermaid 图缺少无障碍名称：在图源里写 `accTitle: …`（长描述用 `accDescr:`）",
-                            ))
-                    if fence_is_html:
-                        html_blocks.append(fence_lines)
-                    fence_lines = []
-                    fence_is_html = False
-            continue
+        for number, raw in enumerate(lines, start=1):
+                fence = FENCE_RE.match(raw)
+                if fence:
+                        flush_paragraph()
+                        flush_list()
+                        if not in_fence:
+                                in_fence = True
+                                fence_start = number
+                                if last_fence_end is not None and number == last_fence_end + 1:
+                                        issues.append(Issue(
+                                                path, number,
+                                                "相邻围栏之间至少留一个空行（DOC-E11）；空行不等于桥接正文",
+                                        ))
+                                fence_lang = (fence.group(2) or "").strip()
+                                fence_lines = []
+                                fence_is_html = False
+                                if not fence_lang:
+                                        issues.append(Issue(path, number, "代码围栏未声明语言"))
+                                elif fence_lang == "mermaid":
+                                        issues.append(Issue(path, number, "plain mermaid 围栏（改用 ```{mermaid}）"))
+                                elif fence_lang.startswith("{"):
+                                        inner = fence_lang.strip("{}").strip()
+                                        fence_is_html = inner == "=html"
+                                        if inner.startswith(".") and "mermaid" in inner:
+                                                issues.append(Issue(
+                                                        path, number,
+                                                        "Mermaid 围栏写成 `{.mermaid}`，Quarto 不会载入图表脚本，图会退化成代码块；改成 `{mermaid ...}`",
+                                                ))
+                                        elif inner and not inner.startswith((".", "=")) and "mermaid" not in inner:
+                                                # ```{python} style attribute fences are valid.
+                                                pass
+                        else:
+                                in_fence = False
+                                last_fence_end = number
+                                if fence_lines:
+                                        fence_blocks.append(fence_lines)
+                                        if "mermaid" in fence_lang:
+                                                mermaid_blocks.append(fence_lines)
+                                                has_name = any(
+                                                        re.match(r"\s*acc(?:Title|Descr):", raw)
+                                                        for _, raw in fence_lines
+                                                )
+                                                has_container_label = any(
+                                                        raw.lstrip().startswith("%%| aria-label:")
+                                                        for _, raw in fence_lines
+                                                )
+                                                if "aria-label=" in fence_lang or "role=" in fence_lang:
+                                                        issues.append(Issue(
+                                                                path, number,
+                                                                'mermaid 围栏头属性不会写入 HTML；把无障碍名称写进图源 `accTitle: …`',
+                                                        ))
+                                                elif has_container_label:
+                                                        issues.append(Issue(
+                                                                path, number,
+                                                                "mermaid 的 `%%| aria-label` 只标记外层 div，SVG 没有可访问名称；改用图源 `accTitle: …`（长描述用 `accDescr:`）",
+                                                        ))
+                                                elif not has_name:
+                                                        issues.append(Issue(
+                                                                path, number,
+                                                                "mermaid 图缺少无障碍名称：在图源里写 `accTitle: …`（长描述用 `accDescr:`）",
+                                                        ))
+                                        if fence_is_html:
+                                                html_blocks.append(fence_lines)
+                                        fence_lines = []
+                                        fence_is_html = False
+                        continue
+
+                if in_fence:
+                        if "\t" in raw:
+                                issues.append(Issue(path, number, "代码含制表符（改用空格）"))
+                        fence_lines.append((number, raw))
+                        continue
+
+                heading = HEADING_RE.match(raw)
+                if heading:
+                        flush_paragraph()
+                        flush_list()
+                        level = len(heading.group(1))
+                        heading_text = heading.group(2)
+                        if level == 1:
+                                issues.append(Issue(path, number, "正文出现 H1；书名由 YAML title 提供"))
+                        check_heading(path, number, level, heading_text, issues)
+                        continue
+
+                if PLACEHOLDER_RE.search(raw):
+                        issues.append(Issue(path, number, "残留占位内容"))
+                if TRAILING_SPACE_RE.search(raw):
+                        issues.append(Issue(path, number, "行尾空白"))
+
+                if not raw.strip():
+                        flush_paragraph()
+                        continue
+
+                if raw.lstrip().startswith("|"):
+                        flush_paragraph()
+                        flush_list()
+                        # 表格行按列组织，不套散文句长阈值；列数与表头一致性靠人工检查清单，本脚本不查。
+                        continue
+
+                if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
+                        flush_paragraph()
+                        item_text = re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw)
+                        if LIST_LINE_RE.match(raw):
+                                list_items.append((number, item_text))
+                        else:
+                                flush_list()
+                        check_prose_block(path, number, item_text, issues, is_list=True)
+                        continue
+
+                flush_list()
+                if not paragraph:
+                        paragraph_start = number
+                paragraph.append(raw.strip())
+
+        flush_paragraph()
+        flush_list()
 
         if in_fence:
-            if "\t" in raw:
-                issues.append(Issue(path, number, "代码含制表符（改用空格）"))
-            fence_lines.append((number, raw))
-            continue
+                issues.append(Issue(path, fence_start, "代码围栏未闭合"))
 
-        heading = HEADING_RE.match(raw)
-        if heading:
-            flush_paragraph()
-            flush_list()
-            level = len(heading.group(1))
-            heading_text = heading.group(2)
-            if level == 1:
-                issues.append(Issue(path, number, "正文出现 H1；书名由 YAML title 提供"))
-            check_heading(path, number, level, heading_text, issues)
-            continue
+        issues.extend(check_fence_semantics(path, lines))
+        issues.extend(check_excerpts(path, root, lines))
 
-        if PLACEHOLDER_RE.search(raw):
-            issues.append(Issue(path, number, "残留占位内容"))
-        if TRAILING_SPACE_RE.search(raw):
-            issues.append(Issue(path, number, "行尾空白"))
+        for block in fence_blocks:
+                issues.extend(check_tree_block(path, block))
 
-        if not raw.strip():
-            flush_paragraph()
-            continue
+        for block in mermaid_blocks:
+                issues.extend(check_mermaid_block(path, block))
+                issues.extend(check_mermaid_wrapper(path, lines, block))
 
-        if raw.lstrip().startswith("|"):
-            flush_paragraph()
-            flush_list()
-            # 表格行按列组织，不套散文句长阈值；列数与表头一致性靠人工检查清单，本脚本不查。
-            continue
+        for block in html_blocks:
+                issues.extend(check_html_figure_block(path, block))
 
-        if raw.lstrip().startswith((">", "-", "*", "+", "1.")):
-            flush_paragraph()
-            item_text = re.sub(r"^\s*(?:[>|]|[-*+]|\d+\.)\s*", "", raw)
-            if LIST_LINE_RE.match(raw):
-                list_items.append((number, item_text))
-            else:
-                flush_list()
-            check_prose_block(path, number, item_text, issues, is_list=True)
-            continue
+        fenced_lines: set[int] = set()
+        inside_fence = False
+        for number, raw in enumerate(lines, start=1):
+                if FENCE_RE.match(raw):
+                        fenced_lines.add(number)
+                        inside_fence = not inside_fence
+                elif inside_fence:
+                        fenced_lines.add(number)
 
-        flush_list()
-        if not paragraph:
-            paragraph_start = number
-        paragraph.append(raw.strip())
-
-    flush_paragraph()
-    flush_list()
-
-    if in_fence:
-        issues.append(Issue(path, fence_start, "代码围栏未闭合"))
-
-    issues.extend(check_fence_semantics(path, lines))
-    issues.extend(check_excerpts(path, root, lines))
-
-    for block in fence_blocks:
-        issues.extend(check_tree_block(path, block))
-
-    for block in mermaid_blocks:
-        issues.extend(check_mermaid_block(path, block))
-        issues.extend(check_mermaid_wrapper(path, lines, block))
-
-    for block in html_blocks:
-        issues.extend(check_html_figure_block(path, block))
-
-    fenced_lines: set[int] = set()
-    inside_fence = False
-    for number, raw in enumerate(lines, start=1):
-        if FENCE_RE.match(raw):
-            fenced_lines.add(number)
-            inside_fence = not inside_fence
-        elif inside_fence:
-            fenced_lines.add(number)
-
-    blob_links: dict[str, list[int]] = {}
-    first_heading = next(
-        (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
-        len(lines) + 1,
-    )
-    # 章首（第一个标题之前）只放自然段与列表：Callout 会把导语压成旁注，开篇套话则先讲
-    # 章节安排、不讲读者要做的事。着陆页是目录页，不受这条限制。
-    if path.name != "index.qmd":
-        opening_line = 0
-        opening_text = ""
+        blob_links: dict[str, list[int]] = {}
+        first_heading = next(
+                (n for n, raw in enumerate(lines, start=1) if HEADING_RE.match(raw)),
+                len(lines) + 1,
+        )
+        # 章首（第一个标题之前）只放自然段与列表：Callout 会把导语压成旁注，开篇套话则先讲
+        # 章节安排、不讲读者要做的事。着陆页是目录页，不受这条限制。
+        if path.name != "index.qmd":
+                opening_line = 0
+                opening_text = ""
+                for index, raw in enumerate(lines, start=1):
+                        if index >= first_heading:
+                                break
+                        if index in fenced_lines:
+                                continue
+                        if CALLOUT_OPEN_RE.match(raw):
+                                issues.append(Issue(
+                                        path, index,
+                                        "章首出现 Callout；第一个标题之前的导语只用自然段与列表（steps/02-structure.md）",
+                                ))
+                                continue
+                        if not opening_text and raw.strip() and not raw.lstrip().startswith(("|", ">", "-", "*", "+")):
+                                opening_line = index
+                                opening_text = raw.strip()
+                if opening_text and OPENING_CLICHE_RE.match(opening_text):
+                        issues.append(Issue(
+                                path, opening_line,
+                                "引言以「本章将…／下面介绍…」开场；第一句写读者要做成的事（steps/02-structure.md）",
+                        ))
+        intro_blob_targets: set[str] = set()
         for index, raw in enumerate(lines, start=1):
-            if index >= first_heading:
-                break
-            if index in fenced_lines:
-                continue
-            if CALLOUT_OPEN_RE.match(raw):
-                issues.append(Issue(
-                    path, index,
-                    "章首出现 Callout；第一个标题之前的导语只用自然段与列表（steps/02-structure.md）",
-                ))
-                continue
-            if not opening_text and raw.strip() and not raw.lstrip().startswith(("|", ">", "-", "*", "+")):
-                opening_line = index
-                opening_text = raw.strip()
-        if opening_text and OPENING_CLICHE_RE.match(opening_text):
-            issues.append(Issue(
-                path, opening_line,
-                "引言以「本章将…／下面介绍…」开场；第一句写读者要做成的事（steps/02-structure.md）",
-            ))
-    intro_blob_targets: set[str] = set()
-    for index, raw in enumerate(lines, start=1):
-        if index >= first_heading or index in fenced_lines:
-            continue
-        for match in LINK_RE.finditer(raw):
-            target = match.group(1).strip()
-            if target.startswith("https://github.com/") and "/blob/" in target:
-                intro_blob_targets.add(target)
+                if index >= first_heading or index in fenced_lines:
+                        continue
+                for match in LINK_RE.finditer(raw):
+                        target = match.group(1).strip()
+                        if target.startswith("https://github.com/") and "/blob/" in target:
+                                intro_blob_targets.add(target)
 
-    for index, raw in enumerate(lines, start=1):
-        if index in fenced_lines:
-            continue
-        for match in LINK_RE.finditer(raw):
-            target = match.group(1).strip()
-            if target.startswith(("http://", "https://", "mailto:", "#", "data:", "//")):
-                if target.startswith("https://github.com/") and "/blob/" in target:
-                    blob_links.setdefault(target, []).append(index)
-                continue
-            clean = target.split("#", 1)[0].split("?", 1)[0]
-            if not clean or "<" in clean:
-                continue
-            if not (path.parent / clean).exists() and not (root / clean).exists():
-                issues.append(Issue(path, index, f"本地链接不可达：{target}"))
-
-    for target, numbers in blob_links.items():
-        if len(numbers) > 1 and target not in intro_blob_targets:
-            issues.append(Issue(
-                path, numbers[1],
-                f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；"
-                "只有章引言挂过的本章主源文件可重复，其他仓库路径每章至多一条",
-            ))
-
-    # 章引言（第一个标题之前）只留承接上一章的一个章节链接；其余章节引用下沉到正文。
-    # 着陆页 index.qmd 是目录页，不受这条预算约束。
-    if path.name != "index.qmd":
-        intro_links: list[tuple[int, str]] = []
         for index, raw in enumerate(lines, start=1):
-            if index >= first_heading or index in fenced_lines:
-                continue
-            for match in LINK_RE.finditer(raw):
-                target = match.group(1).strip()
-                if target.endswith(".qmd"):
-                    intro_links.append((index, target))
-        if len(intro_links) > 1:
-            issues.append(Issue(
-                path, intro_links[1][0],
-                f"章引言有 {len(intro_links)} 个章节链接（{'、'.join(t for _, t in intro_links)}）；"
-                "只留承接上一章的一个，其余移到正文首次用到处",
-            ))
+                if index in fenced_lines:
+                        continue
+                for match in LINK_RE.finditer(raw):
+                        target = match.group(1).strip()
+                        if target.startswith(("http://", "https://", "mailto:", "#", "data:", "//")):
+                                if target.startswith("https://github.com/") and "/blob/" in target:
+                                        blob_links.setdefault(target, []).append(index)
+                                continue
+                        clean = target.split("#", 1)[0].split("?", 1)[0]
+                        if not clean or "<" in clean:
+                                continue
+                        if not (path.parent / clean).exists() and not (root / clean).exists():
+                                issues.append(Issue(path, index, f"本地链接不可达：{target}"))
 
-    for term in GENERIC_FORBIDDEN_TERMS:
+        for target, numbers in blob_links.items():
+                if len(numbers) > 1 and target not in intro_blob_targets:
+                        issues.append(Issue(
+                                path, numbers[1],
+                                f"同章重复文件链接：{target}（首次在第 {numbers[0]} 行）；"
+                                "只有章引言挂过的本章主源文件可重复，其他仓库路径每章至多一条",
+                        ))
+
+        # 章引言（第一个标题之前）只留承接上一章的一个章节链接；其余章节引用下沉到正文。
+        # 着陆页 index.qmd 是目录页，不受这条预算约束。
+        if path.name != "index.qmd":
+                intro_links: list[tuple[int, str]] = []
+                for index, raw in enumerate(lines, start=1):
+                        if index >= first_heading or index in fenced_lines:
+                                continue
+                        for match in LINK_RE.finditer(raw):
+                                target = match.group(1).strip()
+                                if target.endswith(".qmd"):
+                                        intro_links.append((index, target))
+                if len(intro_links) > 1:
+                        issues.append(Issue(
+                                path, intro_links[1][0],
+                                f"章引言有 {len(intro_links)} 个章节链接（{'、'.join(t for _, t in intro_links)}）；"
+                                "只留承接上一章的一个，其余移到正文首次用到处",
+                        ))
+
+        for term in GENERIC_FORBIDDEN_TERMS:
+                for index, raw in enumerate(lines, start=1):
+                        if term in raw and not raw.lstrip().startswith(("```", "    ")):
+                                issues.append(Issue(path, index, f"禁用词「{term}」"))
+                                break
+
+        for term in project.get("forbidden_terms", []):
+                for index, raw in enumerate(lines, start=1):
+                        if term and term in raw:
+                                issues.append(Issue(path, index, f"项目禁用词「{term}」"))
+                                break
+
+        later_names = project.get("later_chapter_names", {}).get(rel, [])
+        if later_names:
+                for index, raw in enumerate(lines, start=1):
+                        if index in fenced_lines or raw.lstrip().startswith(("```", "    ")):
+                                continue
+                        for name in later_names:
+                                if name and re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", raw):
+                                        issues.append(Issue(
+                                                path, index,
+                                                f"对象章点到后章类型「{name}」；删掉这句，留给后章",
+                                        ))
+
         for index, raw in enumerate(lines, start=1):
-            if term in raw and not raw.lstrip().startswith(("```", "    ")):
-                issues.append(Issue(path, index, f"禁用词「{term}」"))
-                break
+                if raw.lstrip().startswith(("```", "    ")):
+                        continue
+                match = QA_PROSE_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                f"问答式讲解「{match.group(0)}」；改成返回值、判断结果或直接陈述",
+                        ))
+                match = CODE_META_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                f"代码字面复述「{match.group(0)}」；改成围栏没给出的行为或约束",
+                        ))
+                match = COINED_RELATION_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                f"自造关系词「{match.group(0)}」；用组成、调用、依赖、继承等通行词",
+                        ))
+                match = CARRIER_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                "类型或字段不用「承载」描述；改用表示、保存、记录或对应",
+                        ))
+                match = NEXT_SECTION_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                f"小节导航「{match.group(0)}」；删除后用新节首句承接，章末预告保留",
+                        ))
+                match = LADDER_RE.search(raw)
+                if match:
+                        issues.append(Issue(
+                                path, index,
+                                f"拉链句「{match.group(0)}」；拆句或改成一项一行",
+                        ))
 
-    for term in project.get("forbidden_terms", []):
-        for index, raw in enumerate(lines, start=1):
-            if term and term in raw:
-                issues.append(Issue(path, index, f"项目禁用词「{term}」"))
-                break
+        required = project.get("chapter_titles", {}).get(rel)
+        if required:
+                title = parse_frontmatter_title(front)
+                if required not in title:
+                        issues.append(Issue(path, 1, f"章节 title 应包含「{required}」，实际为「{title}」"))
 
-    later_names = project.get("later_chapter_names", {}).get(rel, [])
-    if later_names:
-        for index, raw in enumerate(lines, start=1):
-            if index in fenced_lines or raw.lstrip().startswith(("```", "    ")):
-                continue
-            for name in later_names:
-                if name and re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", raw):
-                    issues.append(Issue(
-                        path, index,
-                        f"对象章点到后章类型「{name}」；删掉这句，留给后章",
-                    ))
+        if rel not in chapters and path.name != "index.qmd" and path.parent.name != "":
+                issues.append(Issue(path, 1, "文件未列入 _quarto.yml 的 chapters/appendices（目录会漏章）"))
 
-    for index, raw in enumerate(lines, start=1):
-        if raw.lstrip().startswith(("```", "    ")):
-            continue
-        match = QA_PROSE_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                f"问答式讲解「{match.group(0)}」；改成返回值、判断结果或直接陈述",
-            ))
-        match = CODE_META_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                f"代码字面复述「{match.group(0)}」；改成围栏没给出的行为或约束",
-            ))
-        match = COINED_RELATION_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                f"自造关系词「{match.group(0)}」；用组成、调用、依赖、继承等通行词",
-            ))
-        match = CARRIER_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                "类型或字段不用「承载」描述；改用表示、保存、记录或对应",
-            ))
-        match = NEXT_SECTION_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                f"小节导航「{match.group(0)}」；删除后用新节首句承接，章末预告保留",
-            ))
-        match = LADDER_RE.search(raw)
-        if match:
-            issues.append(Issue(
-                path, index,
-                f"拉链句「{match.group(0)}」；拆句或改成一项一行",
-            ))
-
-    required = project.get("chapter_titles", {}).get(rel)
-    if required:
-        title = parse_frontmatter_title(front)
-        if required not in title:
-            issues.append(Issue(path, 1, f"章节 title 应包含「{required}」，实际为「{title}」"))
-
-    if rel not in chapters and path.name != "index.qmd" and path.parent.name != "":
-        issues.append(Issue(path, 1, "文件未列入 _quarto.yml 的 chapters/appendices（目录会漏章）"))
-
-    return issues
+        return issues
 
 
 # 两种目录名都接受：连字符是模板与本书使用的写法，下划线来自 cpp 插件的同构约定。
@@ -1242,120 +1242,120 @@ PROJECT_SKILL_DIRS = ("quarto_book_project", "quarto-book-project")
 
 
 def find_project_skill(root: Path) -> Path | None:
-    """项目技能标记文件；两种书写都接受，同时存在时下划线目录优先。"""
-    for name in PROJECT_SKILL_DIRS:
-        skill = root / ".agents" / "skills" / name / "SKILL.md"
-        if skill.is_file():
-            return skill
-    return None
+        """项目技能标记文件；两种书写都接受，同时存在时下划线目录优先。"""
+        for name in PROJECT_SKILL_DIRS:
+                skill = root / ".agents" / "skills" / name / "SKILL.md"
+                if skill.is_file():
+                        return skill
+        return None
 
 
 def load_project(root: Path) -> tuple[bool, dict]:
-    skill = find_project_skill(root)
-    if skill is None:
-        return False, {}
-    config_path = skill.parent / "checks.json"
-    if not config_path.is_file():
-        return True, {}
-    try:
-        data = json.loads(read_text(config_path))
-    except json.JSONDecodeError as exc:
-        print(f"警告：{config_path} 不是合法 JSON（{exc}），忽略项目规则")
-        return True, {}
-    if not isinstance(data, dict):
-        print(f"警告：{config_path} 顶层应为对象，忽略项目规则")
-        return True, {}
-    return True, data
+        skill = find_project_skill(root)
+        if skill is None:
+                return False, {}
+        config_path = skill.parent / "checks.json"
+        if not config_path.is_file():
+                return True, {}
+        try:
+                data = json.loads(read_text(config_path))
+        except json.JSONDecodeError as exc:
+                print(f"警告：{config_path} 不是合法 JSON（{exc}），忽略项目规则")
+                return True, {}
+        if not isinstance(data, dict):
+                print(f"警告：{config_path} 顶层应为对象，忽略项目规则")
+                return True, {}
+        return True, data
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="检查 Quarto Book 章节源码")
-    parser.add_argument("--root", default=".", help="书根目录（默认当前目录）")
-    parser.add_argument("--paths", nargs="+", help="只检查这些 qmd 路径（相对 --root）")
-    parser.add_argument("--strict", action="store_true", help="把未列入目录的文件也视为错误")
-    parser.add_argument("--quiet", action="store_true", help="只输出汇总")
-    args = parser.parse_args()
+        parser = argparse.ArgumentParser(description="检查 Quarto Book 章节源码")
+        parser.add_argument("--root", default=".", help="书根目录（默认当前目录）")
+        parser.add_argument("--paths", nargs="+", help="只检查这些 qmd 路径（相对 --root）")
+        parser.add_argument("--strict", action="store_true", help="把未列入目录的文件也视为错误")
+        parser.add_argument("--quiet", action="store_true", help="只输出汇总")
+        args = parser.parse_args()
 
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
-
-    root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"失败  根目录不存在: {root}")
-        return 2
-
-    quarto_yml = root / "_quarto.yml"
-    try:
-        chapters = parse_chapters(quarto_yml)
-    except (OSError, UnicodeDecodeError) as exc:
-        print(f"失败  读取目录表失败: {exc}")
-        return 1
-    files = collect_chapter_files(root, chapters)
-    issues: list[Issue] = []
-    if args.paths:
-        requested: list[Path] = []
-        for raw in args.paths:
-            candidate = (root / raw).resolve()
-            if root not in candidate.parents and candidate != root:
-                issues.append(Issue(quarto_yml, 1, f"--paths 落在书根之外：{raw}"))
-            elif not candidate.is_file():
-                issues.append(Issue(candidate, 1, f"--paths 指定的文件不存在：{raw}"))
-            else:
-                requested.append(candidate)
-        files = requested
-    if not files:
-        print(f"失败  {root} 下没有 .qmd 章节（确认 --root 指向书根目录）")
-        return 1
-
-    try:
-        has_project, project = load_project(root)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        print(f"失败  读取项目规则失败: {exc}")
-        return 1
-
-    missing = [rel for rel in chapters if not (root / rel).is_file()]
-    issues.extend([
-        Issue(quarto_yml, 1, f"目录中的章节不存在：{rel}") for rel in missing
-    ])
-
-    if args.strict:
-        extras = [item for item in collect_all_qmd(root) if item not in files]
-        for item in extras:
-            issues.append(Issue(item, 1, "未列入 _quarto.yml（strict 模式）"))
-        files.extend(extras)
-
-    for path in files:
         try:
-            issues.extend(check_file(path, root, project, chapters))
+                sys.stdout.reconfigure(encoding="utf-8")
+                sys.stderr.reconfigure(encoding="utf-8")
+        except Exception:
+                pass
+
+        root = Path(args.root).resolve()
+        if not root.is_dir():
+                print(f"失败  根目录不存在: {root}")
+                return 2
+
+        quarto_yml = root / "_quarto.yml"
+        try:
+                chapters = parse_chapters(quarto_yml)
         except (OSError, UnicodeDecodeError) as exc:
-            issues.append(Issue(path, 1, f"无法按 UTF-8 读取：{exc}"))
+                print(f"失败  读取目录表失败: {exc}")
+                return 1
+        files = collect_chapter_files(root, chapters)
+        issues: list[Issue] = []
+        if args.paths:
+                requested: list[Path] = []
+                for raw in args.paths:
+                        candidate = (root / raw).resolve()
+                        if root not in candidate.parents and candidate != root:
+                                issues.append(Issue(quarto_yml, 1, f"--paths 落在书根之外：{raw}"))
+                        elif not candidate.is_file():
+                                issues.append(Issue(candidate, 1, f"--paths 指定的文件不存在：{raw}"))
+                        else:
+                                requested.append(candidate)
+                files = requested
+        if not files:
+                print(f"失败  {root} 下没有 .qmd 章节（确认 --root 指向书根目录）")
+                return 1
 
-    if not args.strict:
-        issues = [issue for issue in issues if "未列入 _quarto.yml" not in issue.message]
+        try:
+                has_project, project = load_project(root)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+                print(f"失败  读取项目规则失败: {exc}")
+                return 1
 
-    if not args.quiet:
-        print(f"根目录：{root}")
-        print(f"章节：{len(files)} 个 .qmd；目录声明：{len(chapters)} 条")
-        project_hint = " 或 ".join(f".agents/skills/{name}" for name in PROJECT_SKILL_DIRS)
-        print(f"项目规则：{'已加载' if has_project else f'未发现 {project_hint}，跳过'}")
-        print()
+        missing = [rel for rel in chapters if not (root / rel).is_file()]
+        issues.extend([
+                Issue(quarto_yml, 1, f"目录中的章节不存在：{rel}") for rel in missing
+        ])
 
-    if not issues:
-        print(f"OK：{len(files)} 个章节通过通用检查。")
-        return 0
+        if args.strict:
+                extras = [item for item in collect_all_qmd(root) if item not in files]
+                for item in extras:
+                        issues.append(Issue(item, 1, "未列入 _quarto.yml（strict 模式）"))
+                files.extend(extras)
 
-    issues.sort(key=lambda item: (str(item.path), item.line))
-    print(f"发现 {len(issues)} 个问题：")
-    for issue in issues[:120]:
-        rel = issue.path.relative_to(root).as_posix() if issue.path.is_relative_to(root) else str(issue.path)
-        print(f"  {rel}:{issue.line}: {issue.message}")
-    if len(issues) > 120:
-        print(f"  ……其余 {len(issues) - 120} 条省略")
-    return 1
+        for path in files:
+                try:
+                        issues.extend(check_file(path, root, project, chapters))
+                except (OSError, UnicodeDecodeError) as exc:
+                        issues.append(Issue(path, 1, f"无法按 UTF-8 读取：{exc}"))
+
+        if not args.strict:
+                issues = [issue for issue in issues if "未列入 _quarto.yml" not in issue.message]
+
+        if not args.quiet:
+                print(f"根目录：{root}")
+                print(f"章节：{len(files)} 个 .qmd；目录声明：{len(chapters)} 条")
+                project_hint = " 或 ".join(f".agents/skills/{name}" for name in PROJECT_SKILL_DIRS)
+                print(f"项目规则：{'已加载' if has_project else f'未发现 {project_hint}，跳过'}")
+                print()
+
+        if not issues:
+                print(f"OK：{len(files)} 个章节通过通用检查。")
+                return 0
+
+        issues.sort(key=lambda item: (str(item.path), item.line))
+        print(f"发现 {len(issues)} 个问题：")
+        for issue in issues[:120]:
+                rel = issue.path.relative_to(root).as_posix() if issue.path.is_relative_to(root) else str(issue.path)
+                print(f"  {rel}:{issue.line}: {issue.message}")
+        if len(issues) > 120:
+                print(f"  ……其余 {len(issues) - 120} 条省略")
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+        sys.exit(main())

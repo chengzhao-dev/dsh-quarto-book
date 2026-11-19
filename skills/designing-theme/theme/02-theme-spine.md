@@ -10,15 +10,15 @@
 | --- | --- | --- |
 | 1 定表面 | 这次动的是正文、代码、Callout 还是导航；只判定，还不动 CSS | 本文件的步骤表 |
 | 2 定字体 | 正文中文保持霞鹜楷体路线；标题/导航书名用 `--heading-font` 系统黑体栈（正文内的 `strong` 仍合成加粗）；西文和代码按已有决定，产出字体栈改动 | `theme/03-theme-system.md`「字体栈与字形来源（定字体）」+ `assets/theme/css/fonts.css` + `assets/theme/css/tokens.css` + `assets/theme/palettes/<flexoki|solarized>/theme-<mode>.scss`（山光没有 SCSS，只改同目录 `tokens.css` 与 `syntax.css`） |
-| 3 定尺度 | 字号台阶、行长与栏宽；视口不够时不改字号，只让代码块横向滚动 | `theme/03-theme-system.md`「字号、行长与页面尺度（定尺度）」+ `assets/theme/css/tokens.css` + `assets/theme/css/base.css` |
+| 3 定尺度 | 字号台阶、行长与栏宽；视口不够时不改字号，只让代码块横向滚动；≤767.98px 整站降到 16px 是唯一例外 | `theme/03-theme-system.md`「字号、行长与页面尺度（定尺度）」+ `assets/theme/css/tokens.css` + `assets/theme/css/base.css` |
 | 4 定颜色 | 正文、强调、链接、次要文字、代码标题在 `body` 与 `body.quarto-dark` 各写一套；Solarized 覆盖层写 `html[data-palette="solarized"]`，山光覆盖层写 `html[data-palette="hill-light"][data-mode="…"] body`；代码语法色默认改 `palettes/flexoki/highlight-light.theme` / `highlight-dark.theme` 两份主题文件，Solarized 与山光的语法色写各自 `palettes/<name>/syntax.css`；切换后核对加粗、链接、链接里的加粗、列表小标题和代码文件名没有串色 | `theme/03-theme-system.md`「令牌与色板（定颜色）」+ `assets/theme/palettes/flexoki/tokens.css` + `assets/theme/palettes/flexoki/highlight-*.theme` + `assets/theme/palettes/solarized/syntax.css`；山光再带 `assets/theme/palettes/hill-light/tokens.css` 与 `assets/theme/palettes/hill-light/syntax.css` |
 | 5 定组件 | 只打开要改的那一个 `assets/theme/css/*.css`；导航字重、答案折叠、行内代码、复制按钮、打印换行属于这一步，不在定颜色里顺手改 | `theme/03-theme-system.md`「组件约定（定组件）」对应条目 |
-| 6 通过检查 | 先整本 `render`，再跑 `scripts/checking-layout.py --browser`（读渲染后的 `_book`，干净检出必须先渲染；Node 或 Playwright 不可用时脚本返回 3，先补齐运行时）；需要无障碍交叉验证时在 `format.html` 打开 `axe: true`（Quarto 内置 axe-core）；只检查，不在这一步发明新的字号或颜色 | `scripts/checking-layout.py`；检查项回到本步骤表与 `theme/03-theme-system.md`「组件约定」 |
+| 6 通过检查 | 先整本 `render`，再跑 `scripts/checking-layout.py --browser`（读渲染后的 `_book`，干净检出必须先渲染；加 `--browser` 而 Node/Playwright 不可用、静态项全过时返回 3；不加 `--browser` 只跑静态并返回 0）；需要无障碍交叉验证时在 `format.html` 打开 `axe: true`（Quarto 内置 axe-core）；只检查，不在这一步发明新的字号或颜色 | `scripts/checking-layout.py`；检查项回到本步骤表与 `theme/03-theme-system.md`「组件约定」 |
 
 ## 增量链（改规则）
 
 1. 在 `theme/03-theme-system.md` 找到对应 `##`，只改那一节；没有对应节才考虑新增。
 2. 新规则必须先标明属于哪一步：能放进已有 `##` 就放进去；只有尺度真的变了才允许新开一步。禁止再写一条不标明步骤的禁令。
 3. 字体、栏宽、颜色决定的理由写进 `theme/01-reading-surface.md`，不在 reference 里重复论证。
-4. 同步更新本文件、`SKILL.md`、`theme/03-theme-system.md`、`theme/01-reading-surface.md` 与检查脚本。
+4. 同步点按 `theme/03-theme-system.md` 末尾的同步表逐项核对，不在本文件另留清单。
 5. 改完先做整本渲染（`quarto_render_check`），再运行 `scripts/checking-layout.py`；两者都通过才算完成。

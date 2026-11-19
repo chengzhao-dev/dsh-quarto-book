@@ -1,19 +1,19 @@
 /* dsh-quarto-book · 自托管 Web 字体（均见 theme/assets/fonts/OFL.txt） */
 /* 正文字面只有一份：LXGW Bright Medium（登记为 weight 400）；标题与导航走
-   --heading-font 系统黑体栈，不另加正文字面；代码用 LXGW Bright Code。 */
+      --heading-font 系统黑体栈，不另加正文字面；代码用 LXGW Bright Code。 */
 
 @font-face {
-  font-family: "LXGW Bright Medium";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../assets/fonts/lxgw-bright-medium-common.woff2") format("woff2");
+    font-family: "LXGW Bright Medium";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../assets/fonts/lxgw-bright-medium-common.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "LXGW Bright Code";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../assets/fonts/lxgw-bright-code-common.woff2") format("woff2");
+    font-family: "LXGW Bright Code";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../assets/fonts/lxgw-bright-code-common.woff2") format("woff2");
 }

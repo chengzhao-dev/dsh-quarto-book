@@ -5,7 +5,7 @@
 
 [English](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.en.md) | **简体中文**
 
-把一份 Quarto Book 从章节写到可发布：`writing-quarto` 负责章节骨架、整书次序与中文行文，`designing-theme` 负责主题；渲染后由 `quarto_render_check` 判断 HTML 是否可发布，`quarto_pass_report` 给出收尾回执。两个技能只在 `type: book` 的仓库里出现，运行需要 Quarto CLI 与 Python 3。
+把一份 Quarto Book 从章节写到可发布：`writing-quarto` 负责章节骨架、整书次序与中文行文，`designing-theme` 负责主题；渲染后由 `quarto_render_check` 判断 HTML 是否可发布，`quarto_pass_report` 给出收尾回执。两个技能只在 `type: book` 的 git 检出里出现，运行需要 Quarto CLI 与 Python 3。
 
 ## 提供什么
 
@@ -29,7 +29,7 @@
 2. 在书仓库里打开会话。`_quarto.yml` 要有独立一行的 `type: book`，书根至少有一个 `.qmd` 或 `.md` 章节源文件；两个技能名这时才会出现。
 3. 调用技能：写正文用 `writing-quarto`，改主题用 `designing-theme`。
 
-`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.29`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.29`。
+`--profile` 换成你实际运行的那个 profile。桌面应用固定跑 `desktop` profile，且该 profile 由应用独占管理，`dsh --profile desktop` 直接启动会被拒绝；安装或升级用 `dsh plugin --profile desktop add <包>`，应用拒绝写入时再走「设置 → 插件 → 添加插件」。需要固定版本时写 `npm:@chengzhao-dev/dsh-quarto-book@0.6.30`，跟 GitHub 标签时写 `github:chengzhao-dev/dsh-quarto-book#v0.6.30`。
 
 从旧的无作用域包 `dsh-quarto-book` 升级（该包已随 0.3.4 从 npm 删除，只影响之前装过它的 profile）：先在同一个 profile 里 `dsh plugin --profile <profile> remove dsh-quarto-book`，再装新包。两个包同时留着会以相同的 rank 550 各注册一遍 `writing-quarto` 和 `designing-theme`。
 
@@ -73,7 +73,7 @@ python scripts/checking-names.py --root <book>
 
 `checking-prose.py` 只报中文混排里能直接判断的问题；`checking-names.py` 只在全仓改写时加跑。日常章节检查跑前三条即可。
 
-渲染后的 Callout、HTML 产物与 DOM 结构约定由 `quarto_render_check` 调包内脚本完成，不用手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`；`designing-theme` 的 `scripts/checking-layout.py` 在渲染后的 HTML 上检查配色、对比度和页面结构；溢出与窄屏浮层需要显式传 `--browser` 才检查。`apply()` 不在加载时跑这些脚本，也不跑 `quarto render`。
+渲染后的 Callout、HTML 产物与 DOM 结构约定由 `quarto_render_check` 调包内脚本完成，不用手跑 `checking-callouts.py`、`checking-output.py` 或 `checking-dom.py`；`designing-theme` 的 `scripts/checking-layout.py` 在渲染后的 HTML 上检查配色、对比度和页面结构；溢出与窄屏浮层需要显式传 `--browser` 才检查。两个工具都不在加载时跑这些脚本，也都不跑 `quarto render`。
 
 一轮结束时调用一次 `quarto_pass_report`，把这次执行的结论压成卡片；卡片就是回执，回复里不再复述。
 
@@ -106,7 +106,7 @@ npm run check
 npm run pack
 ```
 
-`npm test` 会先编译再跑工具测试；`npm run check` 做类型检查与技能路径自检；`npm run pack` 把 tarball 只写进 `temp/`，那个目录已在 `.gitignore` 里。
+`npm test` 会先编译再跑工具测试；`npm run check` 做类型检查与技能路径自检；`npm run pack` 把 tarball 写进 `temp/`（该目录已在 `.gitignore` 里），但它会先跑 `prepack` 重新编译 `lib/`。只要检查产物、不重建时用 `npm pack --dry-run --ignore-scripts`；发布内容是否完整由 `npm run check` 里的 `checking-package` 判定。
 
 推送前用一条命令复现 CI 的检查序列：
 
@@ -114,7 +114,7 @@ npm run pack
 npm run ci
 ```
 
-`npm run ci` 依次执行 `npm ci`、`npm test`、`npm run check:lib`、`npm run check` 与 `npm run pack:check`，覆盖 `.github/workflows/ci.yml` 的全部步骤，并在打包前挡住发布内容的问题。
+`npm run ci` 依次执行 `npm ci`、`npm run check:lib`、`npm test`、`npm run check` 与 `npm run pack:check`；`check:lib` 必须在任何构建之前跑，否则比对的只是刚被 `test` 覆盖的产物，覆盖 `.github/workflows/ci.yml` 的全部步骤，并在打包前挡住发布内容的问题。
 
 开发安装：
 
@@ -126,7 +126,7 @@ dsh plugin --profile web add D:\\path\\to\\dsh-quarto-book
 
 插件以 bundle 形式发布：`package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，补丁只插入 `id: quarto-book`、`name: '@chengzhao-dev/dsh-quarto-book'` 一行。入口不 import 宿主实现，因此在 pnpm 的严格依赖布局下也能加载。
 
-旧装机脚本 `scripts/embedding-agents.ps1` 会把两棵技能原样复制进目标仓库的 `.agents/`，按 rank 200 盖住插件；新书不要用它，只有离线归档独立技能树时才执行，命令写在脚本头部。
+旧装机脚本 `scripts/embedding-agents.ps1` 会把两棵技能原样复制进目标仓库的 `.agents/skills/`，按 rank 200 盖住插件；新书不要用它，只有离线归档独立技能树时才执行，命令写在脚本头部。
 
 ## 问题与贡献
 

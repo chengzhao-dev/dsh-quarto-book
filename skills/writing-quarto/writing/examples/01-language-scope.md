@@ -2,6 +2,21 @@
 
 工程旁白的语言边界与零基础读写路径的正反对照。
 
+本文的「首章」指读者跟做的第一章，「示例章」指技能里作模板的完整示例章。示例书固定三个组件：`example/` 是规则库（`include/state.h`、`src/state.cpp`），`apps/` 是终端程序，`tests/` 是 GoogleTest。正文示例固定使用下表的名字：
+
+| 成员 | 用法 |
+| --- | --- |
+| `Board` / `Game` | 规则库的棋盘类与对局类 |
+| `CellType` / `Position` | 数据项的取值枚举；从 0 起算的行列坐标 |
+| `PlaceResult` | `Game::Place` 的结果枚举（`kPlaced` / `kRejected`） |
+| `GetCellType(Position)` / `IsCellEmpty(Position)` | 读取一个数据项的类型 / 判断该数据项是否为空 |
+| `PlaceCell(Position, Player)` | 写入一个数据项，成功返回 `true`，已占用返回 `false` |
+| `HasPlayerLine(Player)` / `GetWinner()` | 判断某用户是否三连 / 取形成三连的取值 |
+| `IsInRange(Position)` / `IsFull()` | 判断坐标是否越界 / 判断状态面板是否已满 |
+
+`Position` 保存从 0 起算的 `row` 与 `col`；尺寸常量是 `kRows`、`kCols` 与 `kCellCount`。
+
+
 ## 语言课旁白与工程旁白
 
 `chapters/**` 正文禁止用旁白讲解 C++ 语言机制或风格指南条目（硬边界见 `writing-quarto` 技能 `steps/01-task.md`「叙事范围（硬边界）」；三个工程问题与反例句式见 `steps/01-task.md`，判定口诀同在该条文）。以下对照收工程旁白的定稿形态：
@@ -23,7 +38,7 @@ Position 携带从 0 起算的行列坐标，越界由 IsInRange 判为非法：
 （代码摘录可含 std::size_t；旁白不解释为什么有符号。）
 ```
 
-对照三：类型形式决策复述（首章与 示例章导语）。
+对照三：类型形式决策复述（首章与示例章导语）。
 
 ```text
 不佳：取值封闭的集合用 enum class，数据组合用 struct 聚合，常量与枚举子以 k 开头，全部定义在 example 命名空间内。
@@ -46,7 +61,7 @@ Position 携带从 0 起算的行列坐标，越界由 IsInRange 判为非法：
 正确（先动作 → 再点名成员 → 后边界）：
 终端程序把「行 列」变成一次操作动作后，只能调用 Game 的三个成员去改状态面板或查结果，
 不能直接改私有数组 cells_。测试也调用同一组成员。
-Game::ApplyMove 负责写入数据项；Game::ReadCellState 负责读某个数据项的状态；
+Game::Place 负责写入数据项；Game::GetCellType 负责读某个数据项的状态；
 Game::GetResult 负责报告流程结果。
 ```
 
@@ -67,7 +82,7 @@ Game 不调用终端程序，也不读键盘。
 
 ## 流程交流不绑定媒介与行为刚性表述
 
-以 首章观察一次流程节改稿前为对照。把交流绑定到具体媒介、把行为写成刚性属性，都会在后续编号目录更换界面或引入协议时与前面冲突（禁用与替换见 `steps/06-wording.md`）：
+以首章观察一次流程节改稿前为对照。把交流绑定到具体媒介、把行为写成刚性属性，都会在后续编号目录更换界面或引入协议时与前面冲突（禁用与替换见 `steps/06-wording.md`）：
 
 ```text
 不佳（媒介绝对化，「只发生在」把流程交流写死在终端）：

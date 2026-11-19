@@ -8,17 +8,17 @@
 
 ```text
 不佳（章引言不挂链，正文才第一次出现链接）：
-规则在 state.h 和 state.cpp。……每个数据项保存 [state.h](…) 中 `CellState` 的三种取值之一。
+规则在 state.h 和 state.cpp。……每个数据项保存 [state.h](…) 中 `CellType` 的三种取值之一。
 
 改写（章引言挂本章主源文件，正文复提时复用）：
-规则写在 [state.h](https://github.com/your-org/your-book/blob/main/src/include/state.h) 和 [state.cpp](https://github.com/your-org/your-book/blob/main/src/state.cpp) 里。……每个数据项保存 [state.h](https://github.com/your-org/your-book/blob/main/src/include/state.h) 中 `CellState` 的三种取值之一。
+规则写在 [state.h](https://github.com/your-org/your-book/blob/main/example/include/state.h) 和 [state.cpp](https://github.com/your-org/your-book/blob/main/example/src/state.cpp) 里。……每个数据项保存 [state.h](https://github.com/your-org/your-book/blob/main/example/include/state.h) 中 `CellType` 的三种取值之一。
 ```
 
 判定信号：章引言没有挂本章主源文件链接；正文链接的文件不在章引言的主源文件集合里（`verifying-content.py` 对非章引言主源文件的同章重复 URL 判失败）；或摘录导语只报文件位置、不预告块内标识符。
 
 ## 摘录导语只报出处
 
-导语点名读者要在块内观察的代码标识符，再给出处；只报出处的句子让读者把「行列坐标」这类中文概念对不上围栏里的名字。条文见 `steps/03-blocks.md`「内容块前后的闭环」。以 示例章定义坐标范围节改稿前为对照：
+导语点名读者要在块内观察的代码标识符，再给出处；只报出处的句子让读者把「行列坐标」这类中文概念对不上围栏里的名字。条文见 `steps/03-blocks.md`「内容块前后的闭环」。以示例章定义坐标范围节改稿前为对照：
 
 ```text
 不佳（导语只报出处，句中没有任何块内标识符）：
@@ -44,14 +44,14 @@
 
 ## 逐条释义代替动机
 
-块后把成员逐个介绍一遍怎么改：删掉逐条释义，换成边界设计加动机。讲解性正文（摘录导语与块后项目解释）要给出设计动机，不是把成员清单散文化重写；`X` 做 A、`Y` 做 B 式的连续释义只回答「是什么」，删掉后读者照样不知道为什么这样设计。条文见 `steps/03-blocks.md`「内容块前后的闭环」。以 示例章检查坐标后读写节改稿前为对照：
+块后把成员逐个介绍一遍怎么改：删掉逐条释义，换成边界设计加动机。讲解性正文（摘录导语与块后项目解释）要给出设计动机，不是把成员清单散文化重写；`X` 做 A、`Y` 做 B 式的连续释义只回答「是什么」，删掉后读者照样不知道为什么这样设计。条文见 `steps/03-blocks.md`「内容块前后的闭环」。以示例章检查坐标后读写节改稿前为对照：
 
 ```text
 不佳（四个成员逐条释义，句子骨架只是行尾注释的排列）：
-`Board` 对外的入口都集中在 `public:` 下：`IsInRange` 检查坐标，`GetCellState` 读取格子，`PlacePiece` 放置元素，`IsFull` 判断状态面板是否下满。
+`Board` 对外的入口都集中在 `public:` 下：`IsInRange` 检查坐标，`GetCellType` 读取格子，`PlaceCell` 放置元素，`IsFull` 判断状态面板是否下满。
 
 改写（导语只留边界设计与四个入口名，各入口接住的流程事务由块后映射）：
-`Board` 把存储和换算收在 `private:` 下，`public:` 下只留下四个入口：`IsInRange`、`GetCellState`、`PlacePiece` 和 `IsFull`。
+`Board` 把存储和换算收在 `private:` 下，`public:` 下只留下四个入口：`IsInRange`、`GetCellType`、`PlaceCell` 和 `IsFull`。
 ```
 
 判定信号：连续两个以上「`标识符`＋动词短语」释义，每个短句都能在围栏或行尾注释里直接读到；全段删掉后读者不知道这些入口为什么长这样。为绕开释义把用途压成并称（「一读一写」）、或省掉从句主语（「报告是否下满」说不出什么满了）同样违规——名字与动作的对应要读者自补，补错无检查可拦。改写不再逐条释义：导语留边界设计与入口名，各入口接住哪件流程事务由块后按需要展开映射（见 `writing/examples/05-block-after.md` 的「块后复述注释」）。
@@ -82,7 +82,7 @@
 
 ## 递进片段合并
 
-同一小节的连续同源片段不再整链合并：只有常量紧接着被下一行使用时才放在同一个围栏；类型定义和后一步使用它的函数是两步，即使函数用到该类型也分成两块，每块各留一句完整导语，中段导语不点名后块才出现的符号。以 示例章状态面板尺寸与位置节改稿前为对照：
+同一小节的连续同源片段不再整链合并：只有常量紧接着被下一行使用时才放在同一个围栏；类型定义和后一步使用它的函数是两步，即使函数用到该类型也分成两块，每块各留一句完整导语，中段导语不点名后块才出现的符号。以示例章状态面板尺寸与位置节改稿前为对照：
 
 ````text
 不佳（常量、坐标类型与判定函数拆成三个连续同源围栏，各配半句导语；首句已点名 IsInRange，中间块里看不到它）：
@@ -133,9 +133,9 @@ constexpr bool IsInRange(Position position) {
 
 判定信号：导语点名了后块才出现的符号，或同一常量的讲解被拆成块前半句加块后半句。类型定义与其使用函数分成两块不是违规；禁的是整份头文件或整条调用链贴进同一个围栏。拆块豁免清单见 `steps/03-blocks.md`「内容块前后的闭环」。
 
-## 函数导语与成员列表的 示例章对照
+## 函数导语与成员列表的示例章对照
 
-以 示例章改稿前三句为对照，规则见 `steps/03-blocks.md`「内容块前后的闭环」、`steps/07-layout.md`「列表选择」、书项目在 `checks.json` 的 `forbidden_terms` 里登记的词表（座位）：
+以示例章改稿前三句为对照，规则见 `steps/03-blocks.md`「内容块前后的闭环」、`steps/07-layout.md`「列表选择」、书项目在 `checks.json` 的 `forbidden_terms` 里登记的词表（座位）：
 
 ```text
 不佳（「另一座位」用了座位术语，且第二句未沿用 PlayerToOpponent 注释的说法）：
@@ -167,10 +167,10 @@ constexpr bool IsInRange(Position position) {
 
 ```text
 不佳（章引言一口气挂三个章节链接，读者还没读正文先被导航到别的页）：
-[程序结构](viewing-program.qmd) 把棋盘、对局和终端连成一份程序。棋盘是 3 行 3 列。接口写在 [board.h](…)，实现放在 [board.cpp](…)。两个文件都在 [工程结构](02-mapping-layout.qmd) 一章。
+[程序结构](viewing-program.qmd) 把棋盘、对局和终端连成一份程序。棋盘是 3 行 3 列。接口写在 [state.h](…)，实现放在 [src/state.cpp](…)。两个文件都在 [工程结构](02-mapping-layout.qmd) 一章。
 
 改写（引言只留本章主源文件；跨章链接下沉到正文真正会用到它的句子）：
-井字棋棋盘是 3 行 3 列，共九个棋盘格子。`Board` 保存这些棋盘格子，并提供写入与读出的接口；接口写在 [board.h](…)，实现放在 [board.cpp](…)。
+井字棋棋盘是 3 行 3 列，共九个棋盘格子。`Board` 保存这些棋盘格子，并提供写入与读出的接口；接口写在 [state.h](…)，实现放在 [src/state.cpp](…)。
 ```
 
 判定信号：章引言（第一个 `##` 之前）出现两个及以上 `.qmd` 链接；除承接上一章的那一个之外，其余都在正文有对应的「首次真正用到」的句子可以迁入。`verifying-content.py` 对引言多余章节链接直接报错。
@@ -182,14 +182,14 @@ constexpr bool IsInRange(Position position) {
 ```text
 不佳（围栏只剩第一行）：
 /// 检查两个坐标是否相同。
-[[nodiscard]] constexpr bool operator==(CellPosition lhs, CellPosition rhs) noexcept {
+[[nodiscard]] constexpr bool operator==(Position lhs, Position rhs) noexcept {
 
 改写（整段照抄）：
 /// 检查两个坐标是否相同。
 ///
 /// @param lhs 左操作数。
 /// @return 相同返回 true。
-[[nodiscard]] constexpr bool operator==(CellPosition lhs, CellPosition rhs) noexcept {
+[[nodiscard]] constexpr bool operator==(Position lhs, Position rhs) noexcept {
 ```
 
 围栏注释是源文件的前缀。条文见 `steps/03-blocks.md`「摘录与源文件注释」。

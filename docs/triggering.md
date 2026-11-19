@@ -8,7 +8,7 @@
 
 | 技能 | 触发信号（出现任意一类） | 不触发（出现任意一类即排除） |
 | --- | --- | --- |
-| `writing-quarto` | 改 `content/**/*.qmd`、`index.qmd`、`_quarto.yml` 的目录或 front matter；新建或重写章节；调整表格、图、列表与代码块的排布；润色句子与用词；中英混排、标点与术语统一；核对链接、`quarto_render_check` 报错、执行回执；改书仓库根 `README.md` 的说明句 | 只改主题颜色、字体、字号、行距、Callout 与导航样式；只改 `.css` / `.scss`；只改 Python 脚本或 CI |
+| `writing-quarto` | 改 `chapters/**/*.qmd`、`index.qmd`、`_quarto.yml` 的目录或 front matter；新建或重写章节；调整表格、图、列表与代码块的排布；润色句子与用词；中英混排、标点与术语统一；核对链接、`quarto_render_check` 报错、执行回执；改书仓库根 `README.md` 的说明句 | 只改主题颜色、字体、字号、行距、Callout 与导航样式；只改 `.css` / `.scss`；只改 Python 脚本或 CI |
 | `designing-theme` | 改 `_quarto.yml` 引用的主题文件；调颜色、字体、字号、行距、页面宽度、表格样式、Callout、导航、页脚；主题与正文的取舍 | 只改章节正文、表格内容或图片；只改 front matter 的章节标题；只改 `_quarto.yml` 的 `book:` 目录 |
 
 两个技能同时出现时先开 `writing-quarto`：正文定稿后才轮到主题承接字号与间距。只改 `theme/` 下的样式时，不开九步。
@@ -50,6 +50,6 @@
 
 ## 验证与维护
 
-- 结构检查：`scripts/checking-skill-links.mjs` 只核对 `writing-quarto` 的 `description`（≤450 字符、含「不用于」）与每个 step 的三节结构；`designing-theme` 的 `description`、本页存在与触发矩阵由人工维护。
+- 结构检查：`scripts/checking-skill-links.mjs` 核对 `writing-quarto` 的 `description`（≤450 字符、含「不用于」）、每个 step 的三节结构、技能文件清单与旧路径残留，并检查反引号路径、`runtime.config` 键注释与树标记落点；`designing-theme` 的 `description`、本页触发矩阵与说明文字由人工维护。
 - 人工抽样：改 description 或步骤表后，用 8–10 条正例、8–10 条反例各跑 3 次，触发率低于一半就改 description 的信号词，不改正文。
 - 改 `SKILL.md` 的 `description` 必须同改本页的判据表与矩阵；只改矩阵不改 description，等于没改。

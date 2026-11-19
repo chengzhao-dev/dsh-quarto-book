@@ -25,6 +25,7 @@ CJK_LATIN = re.compile(f"([{CJK}])([A-Za-z0-9])")
 LATIN_CJK = re.compile(f"([A-Za-z0-9])([{CJK}])")
 HALF_PUNCT_IN_CJK = re.compile(f"([{CJK}])[,.;:?!]([{CJK}])")
 SPACE_BEFORE_PUNCT = re.compile(f"([^\\s])[ \\t]+([，。；：！？、])")
+CJK_SPACE = re.compile(f"([{CJK}]) +([{CJK}])")
 DOUBLE_SPACE = re.compile(r"(?<=\S)[ \t]{2,}(?=\S)")
 FENCE = re.compile(r"^\s*(```+|~~~+)")
 INLINE_CODE = re.compile(r"`[^`\n]*`")
@@ -83,6 +84,8 @@ def check_line(path: str, number: int, line: str) -> list[Issue]:
         issues.append(Issue(path, number, f"中文句里混入半角标点：{match.group(0)}"))
     for match in SPACE_BEFORE_PUNCT.finditer(visible):
         issues.append(Issue(path, number, f"中文标点前多了空格：{match.group(0)}"))
+    for match in CJK_SPACE.finditer(visible):
+        issues.append(Issue(path, number, f"中文与中文之间多了空格：{match.group(0)}"))
     for match in DOUBLE_SPACE.finditer(visible):
         issues.append(Issue(path, number, f"正文里有连续空格：{match.group(0)!r}"))
 

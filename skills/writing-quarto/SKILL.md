@@ -38,7 +38,7 @@ metadata:
 ## 加载规则
 
 - 一次激活只做一类文件：章节正文。写章节时只打开项目技能或 `_quarto.yml` 点名的章节；围栏注释与源文件不一致时回源改围栏，不读无关实现。
-- 只开本文件、当前一步与该步点名的一个文件；第 8 步也一样，同轮不把其余步骤和条文一起打开。
+- 只开本文件、当前一步与该步点名的一个文件；第 8 步可另开 `writing/examples/12-appendix.md`，合计最多两个，同轮不把其余步骤和条文一起打开。
 - 判不准才开步骤点名的 `writing/examples/` 案例；`writing/` 是完整条文，只在排错、整书重构或步骤明确指向时打开。
 - `quarto/` 只在排图、查渲染、写围栏或核对 qmd 语法时按需打开，不整目录读。
 - 同一文件最多退回上一步一次；第二次仍失败就停在检查输出上，不重走整段。
@@ -77,21 +77,8 @@ metadata:
 | 正文检查 | `scripts/` |
 | 篇幅预算 | `token-budget.md` |
 
-## 文件职责
-
-- `steps/`：每步的唯一权威；同一事实不在本文件复述。
-- `writing/`：跨步骤的完整条文（操作、优先级、整书旅程、人物、可读性、散文、重构）。
-- `writing/examples/`：案例；只开步骤点名的一份。
-- `quarto/`：qmd 语法、表格、图、mermaid、终端、编码、渲染与作者工具。
-- `token-budget.md`：篇幅预算的唯一出处。
-- `scripts/`：内容、链接、混排与结构检查。
-
 ## 完成判据
 
-- [ ] 本轮点名的文件走完它对应的步骤；不要求九步全走。
+- [ ] 本轮点名的文件走完对应步骤；完成判据见 `steps/09-check.md`「完成判据」。
 - [ ] 检查命令退出码为 0；项目有检查命令就按它跑，没有就跑本技能 `scripts/` 下的检查。
-- [ ] 新人能按正文独立完成任务：前置、动作、结果与失败出口齐全，术语首用有解释；清单见 `writing/05-readability.md`。
-- [ ] 混排自查通过：`scripts/checking-prose.py --root <book>` 无高置信问题。
-- [ ] 改动章节正文或需要确认整书 HTML 时调 `quarto_render_check`：`dry_run: true` 最多 2 次，确认 `safe_to_render`；`dry_run: false` 最多 1 次，确认 `html_report.usable` 为 true。只改 README、说明页时跳过渲染。渲染优先交给 `quarto_render_check`。
-- [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `writing-quarto`，`mode` 填 `write`、`rewrite` 或 `polish`，改动次数、未改项与检查结论照实填。卡片就是回执，回复里不再复述；未改项传 `[]`，当前文件不是章节时传 `executed: false`。
 - [ ] 只读审查：不改文件，不调 `quarto_render_check`、`quarto_pass_report`，报告写清行号、规则出处与改法。

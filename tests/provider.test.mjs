@@ -6,354 +6,354 @@ import test from 'node:test'
 import { apply } from '../lib/index.js'
 
 function makeHarness() {
-  let provider
-  const tools = new Map()
-  apply({
-    skills: {
-      registerProvider(factory) {
-        provider = factory()
-      },
-    },
-    tools: {
-      register(definition) {
-        tools.set(definition.name, definition)
-      },
-    },
-  })
-  assert.ok(provider, 'apply() must register a provider')
-  const tool = tools.get('quarto_render_check')
-  assert.ok(tool, 'apply() must register the render-check tool')
-  const passReport = tools.get('quarto_pass_report')
-  assert.ok(passReport, 'apply() must register the pass-report tool')
-  return { provider, tool, passReport }
+    let provider
+    const tools = new Map()
+    apply({
+        skills: {
+            registerProvider(factory) {
+                provider = factory()
+            },
+        },
+        tools: {
+            register(definition) {
+                tools.set(definition.name, definition)
+            },
+        },
+    })
+    assert.ok(provider, 'apply() must register a provider')
+    const tool = tools.get('quarto_render_check')
+    assert.ok(tool, 'apply() must register the render-check tool')
+    const passReport = tools.get('quarto_pass_report')
+    assert.ok(passReport, 'apply() must register the pass-report tool')
+    return { provider, tool, passReport }
 }
 
 async function makeRepo({
-  git = true,
-  yaml = 'project:\n  type: book\n',
-  sources = { 'chapter.qmd': '# 章\n' },
+    git = true,
+    yaml = 'project:\n  type: book\n',
+    sources = { 'chapter.qmd': '# 章\n' },
 } = {}) {
-  const root = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-'))
-  if (git) await mkdir(path.join(root, '.git'))
-  if (yaml !== null) await writeFile(path.join(root, '_quarto.yml'), yaml, 'utf8')
-  for (const [name, content] of Object.entries(sources)) {
-    const target = path.join(root, name)
-    await mkdir(path.dirname(target), { recursive: true })
-    await writeFile(target, content, 'utf8')
-  }
-  return root
+    const root = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-'))
+    if (git) await mkdir(path.join(root, '.git'))
+    if (yaml !== null) await writeFile(path.join(root, '_quarto.yml'), yaml, 'utf8')
+    for (const [name, content] of Object.entries(sources)) {
+        const target = path.join(root, name)
+        await mkdir(path.dirname(target), { recursive: true })
+        await writeFile(target, content, 'utf8')
+    }
+    return root
 }
 
 test('book with a qmd source exposes both skills and the tool', async () => {
-  const root = await makeRepo()
-  try {
-    const { provider } = makeHarness()
-    const candidates = await provider.list({ cwd: root })
-    assert.deepEqual(candidates.map((candidate) => candidate.name), ['designing-theme', 'writing-quarto'])
-    for (const candidate of candidates) {
-      assert.equal(candidate.rank, 550)
-      assert.equal(candidate.provider, 'dsh-quarto-book')
-      assert.equal(candidate.source, 'bundled')
+    const root = await makeRepo()
+    try {
+        const { provider } = makeHarness()
+        const candidates = await provider.list({ cwd: root })
+        assert.deepEqual(candidates.map((candidate) => candidate.name), ['designing-theme', 'writing-quarto'])
+        for (const candidate of candidates) {
+            assert.equal(candidate.rank, 550)
+            assert.equal(candidate.provider, 'dsh-quarto-book')
+            assert.equal(candidate.source, 'bundled')
+        }
+        const loaded = await provider.get(candidates[1])
+        assert.match(loaded.content, /^# /)
+    } finally {
+        await rm(root, { recursive: true, force: true })
     }
-    const loaded = await provider.get(candidates[1])
-    assert.match(loaded.content, /^# /)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
 })
 
 test('book with only markdown chapters is still a book', async () => {
-  const root = await makeRepo({ sources: { 'chapter.md': '# 章\n' } })
-  try {
-    const { provider } = makeHarness()
-    assert.equal((await provider.list({ cwd: root })).length, 2)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ sources: { 'chapter.md': '# 章\n' } })
+    try {
+        const { provider } = makeHarness()
+        assert.equal((await provider.list({ cwd: root })).length, 2)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('no cwd or no git checkout yields no skills', async () => {
-  const root = await makeRepo({ git: false })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({}), [])
-    assert.deepEqual(await provider.list({ cwd: '' }), [])
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ git: false })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({}), [])
+        assert.deepEqual(await provider.list({ cwd: '' }), [])
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('a Quarto website is not a book', async () => {
-  const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('a book config without qmd or md sources yields no skills', async () => {
-  const root = await makeRepo({ sources: {} })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ sources: {} })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('README and other repository metadata are not chapters', async () => {
-  const root = await makeRepo({
-    sources: { 'README.md': '# 项目说明\n', 'CHANGELOG.md': '# 变更\n' },
-  })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({
+        sources: { 'README.md': '# 项目说明\n', 'CHANGELOG.md': '# 变更\n' },
+    })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('book type line ignores comments and accepts a trailing comment', async () => {
-  const commented = await makeRepo({ yaml: '# type: book\nproject:\n  type: website\n' })
-  const trailing = await makeRepo({ yaml: 'project:\n  type: book # 本书\n' })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: commented }), [])
-    assert.equal((await provider.list({ cwd: trailing })).length, 2)
-  } finally {
-    await rm(commented, { recursive: true, force: true })
-    await rm(trailing, { recursive: true, force: true })
-  }
+    const commented = await makeRepo({ yaml: '# type: book\nproject:\n  type: website\n' })
+    const trailing = await makeRepo({ yaml: 'project:\n  type: book # 本书\n' })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: commented }), [])
+        assert.equal((await provider.list({ cwd: trailing })).length, 2)
+    } finally {
+        await rm(commented, { recursive: true, force: true })
+        await rm(trailing, { recursive: true, force: true })
+    }
 })
 
 test('sources inside generated or third-party trees are not chapters', async () => {
-  const root = await makeRepo({
-    sources: { '_book/stale.qmd': '# 旧章\n', 'third_party/demo.qmd': '# 示例\n' },
-  })
-  try {
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({
+        sources: { '_book/stale.qmd': '# 旧章\n', 'third_party/demo.qmd': '# 示例\n' },
+    })
+    try {
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('a book config above the git root does not opt in', async () => {
-  const parent = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-parent-'))
-  try {
-    await writeFile(path.join(parent, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
-    await writeFile(path.join(parent, 'chapter.qmd'), '# 章\n', 'utf8')
-    const root = path.join(parent, 'repo')
-    await mkdir(root)
-    await mkdir(path.join(root, '.git'))
-    await writeFile(path.join(root, 'note.qmd'), '# 笔记\n', 'utf8')
-    const { provider } = makeHarness()
-    assert.deepEqual(await provider.list({ cwd: root }), [])
-  } finally {
-    await rm(parent, { recursive: true, force: true })
-  }
+    const parent = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-parent-'))
+    try {
+        await writeFile(path.join(parent, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+        await writeFile(path.join(parent, 'chapter.qmd'), '# 章\n', 'utf8')
+        const root = path.join(parent, 'repo')
+        await mkdir(root)
+        await mkdir(path.join(root, '.git'))
+        await writeFile(path.join(root, 'note.qmd'), '# 笔记\n', 'utf8')
+        const { provider } = makeHarness()
+        assert.deepEqual(await provider.list({ cwd: root }), [])
+    } finally {
+        await rm(parent, { recursive: true, force: true })
+    }
 })
 
 test('the gate works from a nested cwd and get() rejects a different workspace', async () => {
-  const root = await makeRepo({ sources: { 'content/chapter.qmd': '# 章\n' } })
-  const other = await makeRepo({ yaml: 'project:\n  type: website\n' })
-  try {
-    const { provider } = makeHarness()
-    const nested = path.join(root, 'content')
-    const [candidate] = await provider.list({ cwd: nested })
-    assert.ok(candidate)
-    assert.equal(await provider.get(candidate, { cwd: other }), undefined)
-    assert.ok(await provider.get(candidate, { cwd: root }))
-  } finally {
-    await rm(root, { recursive: true, force: true })
-    await rm(other, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ sources: { 'content/chapter.qmd': '# 章\n' } })
+    const other = await makeRepo({ yaml: 'project:\n  type: website\n' })
+    try {
+        const { provider } = makeHarness()
+        const nested = path.join(root, 'content')
+        const [candidate] = await provider.list({ cwd: nested })
+        assert.ok(candidate)
+        assert.equal(await provider.get(candidate, { cwd: other }), undefined)
+        assert.ok(await provider.get(candidate, { cwd: root }))
+    } finally {
+        await rm(root, { recursive: true, force: true })
+        await rm(other, { recursive: true, force: true })
+    }
 })
 
 test('tool refuses a non-book workspace without spawning', async () => {
-  const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
-  try {
-    const { tool } = makeHarness()
-    const result = await tool.execute(
-      { qmd_path: 'index.qmd', dry_run: false },
-      { agent: { session: { header: { cwd: root } } } },
-    )
-    assert.equal(result.safe_to_render, false)
-    assert.match(result.warnings.join('\n'), /不在 Quarto Book 项目内/)
-    assert.equal(result.render_result, null)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
+    try {
+        const { tool } = makeHarness()
+        const result = await tool.execute(
+            { qmd_path: 'index.qmd', dry_run: false },
+            { agent: { session: { header: { cwd: root } } } },
+        )
+        assert.equal(result.safe_to_render, false)
+        assert.match(result.warnings.join('\n'), /不在 Quarto Book 项目内/)
+        assert.equal(result.render_result, null)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('tool refuses when there is no cwd', async () => {
-  const { tool } = makeHarness()
-  const result = await tool.execute({ qmd_path: 'index.qmd', dry_run: true }, {})
-  assert.equal(result.safe_to_render, false)
-  assert.match(result.warnings.join('\n'), /没有 cwd/)
+    const { tool } = makeHarness()
+    const result = await tool.execute({ qmd_path: 'index.qmd', dry_run: true }, {})
+    assert.equal(result.safe_to_render, false)
+    assert.match(result.warnings.join('\n'), /没有 cwd/)
 })
 
 test('tool dry run accepts a real book workspace', async () => {
-  const root = await makeRepo()
-  try {
-    const { tool } = makeHarness()
-    const result = await tool.execute(
-      { qmd_path: 'chapter.qmd', dry_run: true },
-      { agent: { session: { header: { cwd: root } } } },
-    )
-    assert.equal(result.safe_to_render, true)
-    assert.equal(result.render_result, null)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo()
+    try {
+        const { tool } = makeHarness()
+        const result = await tool.execute(
+            { qmd_path: 'chapter.qmd', dry_run: true },
+            { agent: { session: { header: { cwd: root } } } },
+        )
+        assert.equal(result.safe_to_render, true)
+        assert.equal(result.render_result, null)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('tool finds the book from qmd_path when the session cwd is outside it', async () => {
-  const root = await makeRepo()
-  const outside = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-outside-'))
-  try {
-    const { tool } = makeHarness()
-    const result = await tool.execute(
-      { qmd_path: path.join(root, 'chapter.qmd'), dry_run: true },
-      { agent: { session: { header: { cwd: outside } } } },
-    )
-    assert.equal(result.safe_to_render, true)
-    assert.deepEqual(result.warnings, [])
-    assert.equal(result.render_result, null)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-    await rm(outside, { recursive: true, force: true })
-  }
+    const root = await makeRepo()
+    const outside = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-outside-'))
+    try {
+        const { tool } = makeHarness()
+        const result = await tool.execute(
+            { qmd_path: path.join(root, 'chapter.qmd'), dry_run: true },
+            { agent: { session: { header: { cwd: outside } } } },
+        )
+        assert.equal(result.safe_to_render, true)
+        assert.deepEqual(result.warnings, [])
+        assert.equal(result.render_result, null)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+        await rm(outside, { recursive: true, force: true })
+    }
 })
 
 test('tool card reports the dry-run end state and the qmd location', async () => {
-  const root = await makeRepo()
-  try {
-    const { tool } = makeHarness()
-    const args = { qmd_path: 'chapter.qmd', dry_run: true }
-    const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
-    const content = tool.output.render(args, result)
-    const text = content.map((item) => item.text).join('\n')
-    assert.match(text, /可渲染/)
-    assert.match(text, /未执行/)
-    assert.deepEqual(tool.presentResult(args, { content }).content, content)
-    const call = tool.presentCall(args)
-    assert.equal(call.kind, 'execute')
-    assert.equal(call.locations[0].path, 'chapter.qmd')
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo()
+    try {
+        const { tool } = makeHarness()
+        const args = { qmd_path: 'chapter.qmd', dry_run: true }
+        const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
+        const content = tool.output.render(args, result)
+        const text = content.map((item) => item.text).join('\n')
+        assert.match(text, /可渲染/)
+        assert.match(text, /未执行/)
+        assert.deepEqual(tool.presentResult(args, { content }).content, content)
+        const call = tool.presentCall(args)
+        assert.equal(call.kind, 'execute')
+        assert.equal(call.locations[0].path, 'chapter.qmd')
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('refused tool card reports that nothing was rendered', async () => {
-  const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
-  try {
-    const { tool } = makeHarness()
-    const args = { qmd_path: 'index.qmd', dry_run: false }
-    const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
-    const text = tool.output.render(args, result).map((item) => item.text).join('\n')
-    assert.match(text, /未渲染/)
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo({ yaml: 'project:\n  type: website\n' })
+    try {
+        const { tool } = makeHarness()
+        const args = { qmd_path: 'index.qmd', dry_run: false }
+        const result = await tool.execute(args, { agent: { session: { header: { cwd: root } } } })
+        const text = tool.output.render(args, result).map((item) => item.text).join('\n')
+        assert.match(text, /未渲染/)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('an aborted signal returns no candidates', async () => {
-  const root = await makeRepo()
-  try {
-    const { provider } = makeHarness()
-    const controller = new AbortController()
-    controller.abort()
-    assert.deepEqual(await provider.list({ cwd: root, signal: controller.signal }), [])
-  } finally {
-    await rm(root, { recursive: true, force: true })
-  }
+    const root = await makeRepo()
+    try {
+        const { provider } = makeHarness()
+        const controller = new AbortController()
+        controller.abort()
+        assert.deepEqual(await provider.list({ cwd: root, signal: controller.signal }), [])
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
 })
 
 test('the six documented gate categories match provider.list', async (t) => {
-  const created = []
-  const repo = async (options) => {
-    const root = await makeRepo(options)
-    created.push(root)
-    return root
-  }
-  const names = async (cwd) => (await makeHarness().provider.list({ cwd })).map((candidate) => candidate.name)
+    const created = []
+    const repo = async (options) => {
+        const root = await makeRepo(options)
+        created.push(root)
+        return root
+    }
+    const names = async (cwd) => (await makeHarness().provider.list({ cwd })).map((candidate) => candidate.name)
 
-  try {
-    await t.test('no cwd and no git checkout', async () => {
-      const { provider } = makeHarness()
-      assert.deepEqual(await provider.list({}), [])
-      const loose = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-loose-'))
-      created.push(loose)
-      await writeFile(path.join(loose, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
-      await writeFile(path.join(loose, 'chapter.qmd'), '# 章\n', 'utf8')
-      assert.deepEqual(await provider.list({ cwd: loose }), [])
-    })
+    try {
+        await t.test('no cwd and no git checkout', async () => {
+            const { provider } = makeHarness()
+            assert.deepEqual(await provider.list({}), [])
+            const loose = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-loose-'))
+            created.push(loose)
+            await writeFile(path.join(loose, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+            await writeFile(path.join(loose, 'chapter.qmd'), '# 章\n', 'utf8')
+            assert.deepEqual(await provider.list({ cwd: loose }), [])
+        })
 
-    await t.test('no _quarto.yml or no standalone type: book line', async () => {
-      assert.deepEqual(await names(await repo({ yaml: null })), [])
-      assert.deepEqual(await names(await repo({ yaml: 'project:\n  type: website\n' })), [])
-      assert.deepEqual(await names(await repo({ yaml: 'project:\n  # type: book\n' })), [])
-    })
+        await t.test('no _quarto.yml or no standalone type: book line', async () => {
+            assert.deepEqual(await names(await repo({ yaml: null })), [])
+            assert.deepEqual(await names(await repo({ yaml: 'project:\n  type: website\n' })), [])
+            assert.deepEqual(await names(await repo({ yaml: 'project:\n  # type: book\n' })), [])
+        })
 
-    await t.test('book config without chapter sources', async () => {
-      assert.deepEqual(await names(await repo({ sources: { 'README.md': '# 书\n' } })), [])
-      assert.deepEqual(await names(await repo({ sources: { 'README.en.md': '# Book\n' } })), [])
-      assert.deepEqual(await names(await repo({ sources: { 'AGENTS.md': '# 约定\n' } })), [])
-      assert.deepEqual(await names(await repo({ sources: { 'CHANGELOG.md': '# 记录\n' } })), [])
-      assert.deepEqual(
-        await names(await repo({ sources: { '_book/chapter.md': '# 生成\n', 'vendor/chapter.md': '# 依赖\n' } })),
-        [],
-      )
-    })
+        await t.test('book config without chapter sources', async () => {
+            assert.deepEqual(await names(await repo({ sources: { 'README.md': '# 书\n' } })), [])
+            assert.deepEqual(await names(await repo({ sources: { 'README.en.md': '# Book\n' } })), [])
+            assert.deepEqual(await names(await repo({ sources: { 'AGENTS.md': '# 约定\n' } })), [])
+            assert.deepEqual(await names(await repo({ sources: { 'CHANGELOG.md': '# 记录\n' } })), [])
+            assert.deepEqual(
+                await names(await repo({ sources: { '_book/chapter.md': '# 生成\n', 'vendor/chapter.md': '# 依赖\n' } })),
+                [],
+            )
+        })
 
-    await t.test('book above the git root or below the session directory', async () => {
-      const parent = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-parent-'))
-      created.push(parent)
-      await writeFile(path.join(parent, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
-      const child = path.join(parent, 'repo')
-      await mkdir(path.join(child, '.git'), { recursive: true })
-      await writeFile(path.join(child, 'chapter.qmd'), '# 章\n', 'utf8')
-      assert.deepEqual(await names(child), [])
+        await t.test('book above the git root or below the session directory', async () => {
+            const parent = await mkdtemp(path.join(tmpdir(), 'dsh-quarto-book-parent-'))
+            created.push(parent)
+            await writeFile(path.join(parent, '_quarto.yml'), 'project:\n  type: book\n', 'utf8')
+            const child = path.join(parent, 'repo')
+            await mkdir(path.join(child, '.git'), { recursive: true })
+            await writeFile(path.join(child, 'chapter.qmd'), '# 章\n', 'utf8')
+            assert.deepEqual(await names(child), [])
 
-      const nested = await repo({
-        yaml: null,
-        sources: {
-          'book/_quarto.yml': 'project:\n  type: book\n',
-          'book/chapter.qmd': '# 章\n',
-        },
-      })
-      assert.deepEqual(await names(nested), [])
-      assert.deepEqual(await names(path.join(nested, 'book')), ['designing-theme', 'writing-quarto'])
+            const nested = await repo({
+                yaml: null,
+                sources: {
+                    'book/_quarto.yml': 'project:\n  type: book\n',
+                    'book/chapter.qmd': '# 章\n',
+                },
+            })
+            assert.deepEqual(await names(nested), [])
+            assert.deepEqual(await names(path.join(nested, 'book')), ['designing-theme', 'writing-quarto'])
 
-      const withWebsite = await repo({
-        sources: {
-          'chapter.qmd': '# 章\n',
-          'site/_quarto.yml': 'project:\n  type: website\n',
-          'site/page.md': '# 页\n',
-        },
-      })
-      assert.deepEqual(await names(withWebsite), ['designing-theme', 'writing-quarto'])
-      assert.deepEqual(await names(path.join(withWebsite, 'site')), [])
-    })
+            const withWebsite = await repo({
+                sources: {
+                    'chapter.qmd': '# 章\n',
+                    'site/_quarto.yml': 'project:\n  type: website\n',
+                    'site/page.md': '# 页\n',
+                },
+            })
+            assert.deepEqual(await names(withWebsite), ['designing-theme', 'writing-quarto'])
+            assert.deepEqual(await names(path.join(withWebsite, 'site')), [])
+        })
 
-    await t.test('a book that also contains a C++ subproject is still a book', async () => {
-      const root = await repo({ sources: { 'chapter.qmd': '# 章\n', 'CMakeLists.txt': '', 'main.cpp': '' } })
-      assert.deepEqual(await names(root), ['designing-theme', 'writing-quarto'])
-    })
+        await t.test('a book that also contains a C++ subproject is still a book', async () => {
+            const root = await repo({ sources: { 'chapter.qmd': '# 章\n', 'CMakeLists.txt': '', 'main.cpp': '' } })
+            assert.deepEqual(await names(root), ['designing-theme', 'writing-quarto'])
+        })
 
-    await t.test('C++ only, without a book, stays out', async () => {
-      assert.deepEqual(await names(await repo({ yaml: null, sources: { 'CMakeLists.txt': '' } })), [])
-      assert.deepEqual(await names(await repo({ yaml: null, sources: { 'main.cpp': '#include <iostream>\n' } })), [])
-      assert.deepEqual(
-        await names(await repo({ yaml: null, sources: { '.agents/skills/cpp-workflow-project/SKILL.md': '# 技能\n' } })),
-        [],
-      )
-    })
-  } finally {
-    for (const root of created) await rm(root, { recursive: true, force: true })
-  }
+        await t.test('C++ only, without a book, stays out', async () => {
+            assert.deepEqual(await names(await repo({ yaml: null, sources: { 'CMakeLists.txt': '' } })), [])
+            assert.deepEqual(await names(await repo({ yaml: null, sources: { 'main.cpp': '#include <iostream>\n' } })), [])
+            assert.deepEqual(
+                await names(await repo({ yaml: null, sources: { '.agents/skills/cpp-workflow-project/SKILL.md': '# 技能\n' } })),
+                [],
+            )
+        })
+    } finally {
+        for (const root of created) await rm(root, { recursive: true, force: true })
+    }
 })

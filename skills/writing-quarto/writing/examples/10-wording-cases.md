@@ -4,7 +4,7 @@
 
 ## 术语节奏
 
-术语首次出现的写法按对照案例判定（就近放术语卡或写行内括号），条文见 `steps/02-structure.md`「六段块序列」；后续固定一种称呼，写法见 `writing/06-prose.md`「引号与术语」。普通概念不加行内代码；命令、路径、文件名、关键字、API 和配置键使用行内代码。同一对象在同一页保持一种标记方式，链接标签内不嵌套行内代码。
+术语首次出现的写法按对照案例判定（就近放术语卡或写行内括号），条文见 `steps/02-structure.md`「五段块序列」；后续固定一种称呼，写法见 `writing/06-prose.md`「引号与术语」。普通概念不加行内代码；命令、路径、文件名、关键字、API 和配置键使用行内代码。同一对象在同一页保持一种标记方式，链接标签内不嵌套行内代码。
 
 一个概念全书只用一个词，统一术语与替换规则见 `steps/06-wording.md`。对照案例：示例章引言的「实现切片」改「阶段」后统称又停用，最终直接写具体目录路径。
 
@@ -40,12 +40,12 @@
 
 ```text
 不佳（同为完整枚举，一处称定义、两处称声明）：
-Game::ApplyMove 每次操作都返回一个处理结果，定义在 state.h 里：……
+Game::Place 每次操作都返回一个处理结果，定义在 state.h 里：……
 先手是 X。流程用户用枚举表示，声明在 state.h 里：……
 流程结果有四种取值，声明在 state.h 里：……
 
 改写（位置动词只说「定义在 state.h 里」；函数体位置直接写「写在 state.cpp」，不贴声明标签）：
-Game::ApplyMove 每次操作都返回一个处理结果，用枚举 PlaceResult 表示，定义在 state.h 里：……
+Game::Place 每次操作都返回一个处理结果，用枚举 PlaceResult 表示，定义在 state.h 里：……
 先手是 X。流程用户用枚举 Player 表示，定义在 state.h 里：……
 流程结果有四种取值，用枚举 Result 表示，定义在 state.h 里：……
 state.h 里 `private:` 下的 ToFlatIndex 只写函数名与参数表，函数体写在 state.cpp。
@@ -115,7 +115,7 @@ state.h 里 `private:` 下的 ToFlatIndex 只写函数名与参数表，函数�
 
 不佳（列表项尾挂「陷阱见」选型外链）：需要按下标访问容器时用 `std::vector`（陷阱见 cppreference 的 vector 条目）。
 
-改写（删依据句与选型链；源码摘录已展示 `inline constexpr`，旁白只写谁调用、如何验证）：`kRows` 与 `kCols` 定义在 `board.h`，`IsInRange` 用它们判断行列边界。
+改写（删依据句与选型链；源码摘录已展示 `inline constexpr`，旁白只写谁调用、如何验证）：`kRows` 与 `kCols` 定义在 `state.h`，`IsInRange` 用它们判断行列边界。
 
 可选尾置（仅当该小节工程点已讲完且确需系统学语法时，单独成句）：若读者不熟悉 `constexpr` 的求值时机，可对照 ISO C++ 的 [expr.const] 一节。
 ```

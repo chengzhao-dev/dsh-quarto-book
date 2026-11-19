@@ -1,94 +1,94 @@
 {
-  "name": "@chengzhao-dev/dsh-quarto-book",
-  "version": "0.6.29",
-  "description": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。",
-  "type": "module",
-  "main": "./lib/index.js",
-  "exports": {
-    ".": "./lib/index.js",
-    "./package.json": "./package.json",
-    "./cordis.patch.yml": "./cordis.patch.yml",
-    "./locale/*.json": "./locale/*.json"
-  },
-  "files": [
-    "lib",
-    "skills",
-    "cordis.patch.yml",
-    "locale",
-    "icon.svg",
-    "README.md",
-    "README.en.md",
-    "LICENSE",
-    "templates",
-    "!**/__pycache__",
-    "!**/__pycache__/**",
-    "!**/*.pyc"
-  ],
-  "engines": {
-    "node": ">=22",
-    "dsh": ">=0.2.1-rc.1 <0.3.0-0"
-  },
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
+    "name": "@chengzhao-dev/dsh-quarto-book",
+    "version": "0.6.30",
+    "description": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。",
+    "type": "module",
+    "main": "./lib/index.js",
+    "exports": {
+        ".": "./lib/index.js",
+        "./package.json": "./package.json",
+        "./cordis.patch.yml": "./cordis.patch.yml",
+        "./locale/*.json": "./locale/*.json"
     },
-    "catalog": {
-      "category": "skill",
-      "summary": {
-        "zh": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。",
-        "en": "Write, check, and publish a Chinese Quarto Book: a nine-step chapter workflow, structure/link/figure checks, a consistent theme, and render acceptance."
-      },
-      "capabilities": [
+    "files": [
+        "lib",
         "skills",
-        "tools"
-      ]
+        "cordis.patch.yml",
+        "locale",
+        "icon.svg",
+        "README.md",
+        "README.en.md",
+        "LICENSE",
+        "templates",
+        "!**/__pycache__",
+        "!**/__pycache__/**",
+        "!**/*.pyc"
+    ],
+    "engines": {
+        "node": ">=22",
+        "dsh": ">=0.2.1-rc.1 <0.3.0-0"
+    },
+    "dsh": {
+        "bundle": {
+            "patch": "./cordis.patch.yml"
+        },
+        "catalog": {
+            "category": "skill",
+            "summary": {
+                "zh": "把一份 Quarto Book 写成可读、可查、可发布的中文技术书：九步章节写作、结构/链接/图表检查、统一主题与渲染验收。",
+                "en": "Write, check, and publish a Chinese Quarto Book: a nine-step chapter workflow, structure/link/figure checks, a consistent theme, and render acceptance."
+            },
+            "capabilities": [
+                "skills",
+                "tools"
+            ]
+        }
+    },
+    "icon": "./icon.svg",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "test": "npm run build && node scripts/checking-github-workflows.mjs && node --test \"tests/**/*.test.mjs\"",
+        "ci": "npm ci && npm run check:lib && npm test && npm run check && npm run pack:check",
+        "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs && node scripts/checking-skill-budget.mjs && node scripts/checking-package.mjs && node scripts/checking-github-workflows.mjs",
+        "check:lib": "node scripts/checking-lib.mjs",
+        "check:workflows": "node scripts/checking-github-workflows.mjs",
+        "prepack": "npm run build",
+        "prepublishOnly": "npm run check && npm run check:lib",
+        "pack": "node -e \"require('fs').mkdirSync('temp',{recursive:true})\" && npm pack --pack-destination temp",
+        "pack:check": "npm pack --dry-run"
+    },
+    "keywords": [
+        "dsh",
+        "deepseek-harness",
+        "dsh-plugin",
+        "cordis",
+        "quarto",
+        "quarto-book",
+        "technical-writing",
+        "theme",
+        "skill"
+    ],
+    "license": "MIT",
+    "author": "chengzhao-dev",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/chengzhao-dev/dsh-quarto-book.git"
+    },
+    "bugs": {
+        "url": "https://github.com/chengzhao-dev/dsh-quarto-book/issues"
+    },
+    "homepage": "https://github.com/chengzhao-dev/dsh-quarto-book#readme",
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    },
+    "peerDependencies": {
+        "@deepseek-ai/dsh-skill": ">=0.2.1-rc.1 <0.3.0-0"
+    },
+    "devDependencies": {
+        "@deepseek-ai/dsh-skill": ">=0.2.1-rc.1 <0.3.0-0",
+        "@types/node": "^22.20.5",
+        "typescript": "^5.9.3",
+        "yaml": "^2.9.1"
     }
-  },
-  "icon": "./icon.svg",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node scripts/checking-github-workflows.mjs && node --test \"tests/**/*.test.mjs\"",
-    "ci": "npm ci && npm test && npm run check:lib && npm run check && npm run pack:check",
-    "check": "tsc --noEmit -p tsconfig.json && node scripts/checking-skill-links.mjs && node scripts/checking-skill-budget.mjs && node scripts/checking-package.mjs && node scripts/checking-github-workflows.mjs",
-    "check:lib": "node scripts/checking-lib.mjs",
-    "check:workflows": "node scripts/checking-github-workflows.mjs",
-    "prepack": "npm run build",
-    "prepublishOnly": "npm run check && npm run check:lib",
-    "pack": "node -e \"require('fs').mkdirSync('temp',{recursive:true})\" && npm pack --pack-destination temp",
-    "pack:check": "npm pack --dry-run"
-  },
-  "keywords": [
-    "dsh",
-    "deepseek-harness",
-    "dsh-plugin",
-    "cordis",
-    "quarto",
-    "quarto-book",
-    "technical-writing",
-    "theme",
-    "skill"
-  ],
-  "license": "MIT",
-  "author": "chengzhao-dev",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chengzhao-dev/dsh-quarto-book.git"
-  },
-  "bugs": {
-    "url": "https://github.com/chengzhao-dev/dsh-quarto-book/issues"
-  },
-  "homepage": "https://github.com/chengzhao-dev/dsh-quarto-book#readme",
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "peerDependencies": {
-    "@deepseek-ai/dsh-skill": ">=0.2.1-rc.1 <0.3.0-0"
-  },
-  "devDependencies": {
-    "@deepseek-ai/dsh-skill": ">=0.2.1-rc.1 <0.3.0-0",
-    "@types/node": "^22.20.5",
-    "typescript": "^5.9.3",
-    "yaml": "^2.9.1"
-  }
 }

@@ -87,7 +87,6 @@ SHARED_CHECKS = [
 TOKEN_NAME_CHECKS = [
     ("code title background", "--code-title-bg"),
     ("code title foreground", "--code-title-fg"),
-    ("accent dot token", "--dot-accent"),
     ("body emphasis token", "--emphasis-color"),
     ("callout tip (best-practice semantics)", "--callout-tip-border"),
     ("callout warning (key-insight semantics)", "--callout-warning-border"),
@@ -122,6 +121,11 @@ HIGHLIGHT_EXPECTATIONS = {
     },
 }
 
+# .theme 的顶层 LineNumbers 必须与 tokens.css 的 --line-num-color 同步。
+HIGHLIGHT_LINE_NUMBERS = {
+    "flexoki": {"light": "#575653", "dark": "#878580"},
+}
+
 
 def highlight_problems(palette):
     """返回当前色板高亮主题与预期不符的项；非编译期色板没有 .theme，返回空。"""
@@ -140,6 +144,13 @@ def highlight_problems(palette):
             actual = (data.get(node) or {}).get("text-color", "")
             if str(actual).lower() != color.lower():
                 problems.append(f"{path.name}: {node} 的 text-color 是 {actual or '缺失'}，应为 {color}")
+        expected_line_numbers = HIGHLIGHT_LINE_NUMBERS.get(palette, {}).get(mode)
+        actual_line_numbers = data.get("LineNumbers", "")
+        if expected_line_numbers and str(actual_line_numbers).lower() != expected_line_numbers.lower():
+            problems.append(
+                f"{path.name}: LineNumbers 是 {actual_line_numbers or '缺失'}，"
+                f"应为 {expected_line_numbers}"
+            )
     return problems
 
 
@@ -213,6 +224,59 @@ def check_hill_light_modes(tokens_text: str) -> int:
     print_ok = abs(lu(values[4]) - lu(values[0])) < 0.02
     print(f"  {'OK  ' if print_ok else 'MISS'} hill-light night print falls back to dawn paper  ({values[4]})")
     fails += 0 if print_ok else 1
+    return fails
+
+
+def css_block(text: str, selector: str) -> str:
+    """返回第一个 selector 后紧跟的 {...} 块内容，找不到时返回空串。"""
+    index = text.find(selector)
+    if index < 0:
+        return ""
+    start = text.find("{", index)
+    if start < 0:
+        return ""
+    depth = 1
+    pos = start + 1
+    while depth and pos < len(text):
+        if text[pos] == "{":
+            depth += 1
+        elif text[pos] == "}":
+            depth -= 1
+        pos += 1
+    return text[start + 1:pos - 1]
+
+
+def css_declarations(block: str) -> dict:
+    return {
+        match.group(1): match.group(2).strip()
+        for match in re.finditer(r"(--[a-z0-9-]+)s*:s*([^;]+);", block)
+    }
+
+
+def check_hill_light_print_sync(tokens_text: str) -> int:
+    """打印时夜月整段复制晓雾令牌：两份必须逐项相同，避免只改一份。"""
+    dawn = css_declarations(
+        css_block(tokens_text, 'html[data-palette="hill-light"][data-mode="dawn"] body')
+    )
+    print_at = tokens_text.find("@media print")
+    night_print = css_declarations(
+        css_block(
+            tokens_text[print_at:] if print_at >= 0 else "",
+            'html[data-palette="hill-light"][data-mode="night"] body',
+        )
+    )
+    if not dawn or not night_print:
+        print("  MISS hill-light print block (dawn or print declarations not found)")
+        return 1
+    fails = 0
+    for name in sorted(set(dawn) | set(night_print)):
+        if dawn.get(name) != night_print.get(name):
+            print(
+                f"  MISS hill-light print token {name} (dawn={dawn.get(name)} print={night_print.get(name)})"
+            )
+            fails += 1
+    if fails == 0:
+        print(f"  OK   hill-light print matches dawn ({len(dawn)} tokens)")
     return fails
 
 
@@ -841,29 +905,49 @@ def check_palette_contrast():
         ("line numbers", "--line-num-color", "--code-bg"),
         ("code title", "--code-title-fg", "--code-title-bg"),
     )
+    def iter_top_level_blocks(text):
+        depth = 0
+        start = 0
+        body_start = 0
+        prelude = ""
+        for index, char in enumerate(text):
+            if char == "{":
+                if depth == 0:
+                    prelude = text[start:index]
+                    body_start = index + 1
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    yield prelude, text[body_start:index]
+                    start = index + 1
+            elif char == ";" and depth == 0:
+                start = index + 1
+
     failures = []
+    checked = []
     for palette in ("flexoki", "solarized", "hill-light"):
         tokens_path = palette_dir / palette / "tokens.css"
         if not tokens_path.is_file():
             continue
         css = tokens_path.read_text(encoding="utf-8")
         css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
-        for match in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
-            selector = " ".join(match.group(1).split())
-            if "@media" in selector or "prefers-contrast" in selector:
+        for selector, body in iter_top_level_blocks(css):
+            selector = " ".join(selector.split())
+            if selector.startswith("@") or "prefers-contrast" in selector:
                 continue
-            body = match.group(2)
+            if not re.search(r"(^|[\s,>+~])body(?=$|[\s,.:#\[])", selector):
+                continue
             if "--page-bg" not in body:
                 continue
             mode_match = re.search(r'data-mode="(\w+)"', selector)
             if palette == "hill-light":
-                if " body" not in selector:
-                    continue
                 mode = mode_match.group(1) if mode_match else "dawn"
             else:
-                if " body" not in selector:
-                    continue
                 mode = "dark" if "quarto-dark" in selector else "light"
+            key = f"{palette}/{mode}"
+            if key not in checked:
+                checked.append(key)
             values = dict(re.findall(r"(--[a-z0-9-]+)\s*:\s*([^;]+);", body))
             for name, fg_token, bg_token in pairs:
                 fg = _parse_hex_color(values.get(fg_token, ""))
@@ -876,6 +960,190 @@ def check_palette_contrast():
                         f"{palette}/{mode}: {name} {ratio:.2f}:1 "
                         f"({values.get(fg_token).strip()} on {values.get(bg_token).strip()})"
                     )
+    expected = (
+        "flexoki/light",
+        "flexoki/dark",
+        "solarized/light",
+        "solarized/dark",
+        "hill-light/dawn",
+        "hill-light/noon",
+        "hill-light/dusk",
+        "hill-light/night",
+    )
+    for key in expected:
+        if key not in checked:
+            failures.append(f"{key}: missing contrast block")
+    return failures, checked
+
+
+def _code_backgrounds(tokens_path):
+    """按 tokens.css 的 body 块返回 {mode: 代码底色}，供语法对比度断言使用。"""
+
+    css = tokens_path.read_text(encoding="utf-8")
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    backgrounds = {}
+    depth = 0
+    start = 0
+    body_start = 0
+    prelude = ""
+    blocks = []
+    for index, char in enumerate(css):
+        if char == "{":
+            if depth == 0:
+                prelude = css[start:index]
+                body_start = index + 1
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                blocks.append((prelude, css[body_start:index]))
+                start = index + 1
+        elif char == ";" and depth == 0:
+            start = index + 1
+    for selector, body in blocks:
+        selector = " ".join(selector.split())
+        if "@" in selector or "--page-bg" not in body:
+            continue
+        mode_match = re.search(r'data-mode="(\w+)"', selector)
+        if mode_match:
+            mode = mode_match.group(1)
+        elif "quarto-dark" in selector:
+            mode = "dark"
+        else:
+            mode = "light"
+        values = dict(re.findall(r"(--[a-z0-9-]+)\s*:\s*([^;]+);", body))
+        color = _parse_hex_color(values.get("--code-bg", ""))
+        if color:
+            backgrounds[mode] = color
+    return backgrounds
+
+
+def check_syntax_contrast():
+    """语法 token 对它所在模式的代码底也需 >= 4.5:1。
+
+    syntax.css 每条规则可以覆盖一个类，也可以把同一颜色的类写在同一组选择器。
+    这里按选择器里的 data-mode（山光）或 body.quarto-dark（Solarized）分模式，
+    再取对应 tokens.css 的 --code-bg 计算；每个模式还应覆盖 30 个语法类。
+    """
+
+    palette_dir = THEME_DIR / "assets" / "theme" / "palettes"
+    hill_scope = {"an", "co", "cv", "do", "in", "re", "bu", "fu", "va"}
+    all_classes = {
+        "al", "an", "at", "bn", "bu", "cf", "ch", "cn", "co", "cv",
+        "do", "dt", "dv", "er", "ex", "fl", "fu", "im", "in", "kw",
+        "op", "ot", "pp", "re", "sc", "ss", "st", "va", "vs", "wa",
+    }
+    expected = {
+        "solarized": {"dark": all_classes},
+        "hill-light": {mode: hill_scope for mode in ("dawn", "noon", "dusk", "night")},
+    }
+    failures = []
+    checked = {}
+    for palette, mode_counts in expected.items():
+        tokens_path = palette_dir / palette / "tokens.css"
+        syntax_path = palette_dir / palette / "syntax.css"
+        if not tokens_path.is_file() or not syntax_path.is_file():
+            failures.append(f"{palette}: missing tokens.css or syntax.css")
+            continue
+        backgrounds = _code_backgrounds(tokens_path)
+        css = syntax_path.read_text(encoding="utf-8")
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        depth = 0
+        start = 0
+        body_start = 0
+        prelude = ""
+        for index, char in enumerate(css):
+            if char == "{":
+                if depth == 0:
+                    prelude = css[start:index]
+                    body_start = index + 1
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    selector = " ".join(prelude.split())
+                    body = css[body_start:index]
+                    classes = re.findall(r"span\.([a-z][a-z0-9-]*)", selector)
+                    if classes:
+                        mode_match = re.search(r'data-mode="(\w+)"', selector)
+                        if mode_match:
+                            mode = mode_match.group(1)
+                        elif "quarto-dark" in selector:
+                            mode = "dark"
+                        else:
+                            mode = "light"
+                        color_match = re.search(r"color:\s*(#[0-9A-Fa-f]{6})", body)
+                        background = backgrounds.get(mode)
+                        scope = expected.get(palette, {}).get(mode, set())
+                        classes = [name for name in classes if name in scope]
+                        if color_match and background and classes:
+                            foreground = _parse_hex_color(color_match.group(1))
+                            ratio = _contrast_ratio(foreground, background)
+                            for name in classes:
+                                checked[f"{palette}/{mode}"] = checked.get(f"{palette}/{mode}", 0) + 1
+                                if ratio < 4.5:
+                                    failures.append(
+                                        f"{palette}/{mode}: syntax {name} {ratio:.2f}:1 "
+                                        f"({color_match.group(1)} on #{''.join(f'{v:02X}' for v in background)})"
+                                    )
+                    start = index + 1
+            elif char == ";" and depth == 0:
+                start = index + 1
+    for palette, modes in expected.items():
+        for mode, classes in modes.items():
+            actual = checked.get(f"{palette}/{mode}", 0)
+            if actual < len(classes):
+                failures.append(f"{palette}/{mode}: covered {actual}/{len(classes)} syntax classes")
+    return failures, sorted(checked)
+
+
+# 块与块之间的间距只有四档；这几处是曾漂移过的控制点，逐条钉住。
+BLOCK_SPACING_CHECKS = [
+    ("base.css", "#title-block-header .description", "margin", "0 0 1.4rem"),
+    ("landing.css", "section.level2 > p:first-of-type + .feature-grid", "margin-top", "0.9rem"),
+]
+
+
+def check_block_spacing():
+    """块间距控制点必须落在四档内；组件内部 padding/gap 不在此断言。"""
+
+    css_dir = THEME_DIR / "assets" / "theme" / "css"
+    failures = []
+    for filename, selector_needle, prop, expected in BLOCK_SPACING_CHECKS:
+        path = css_dir / filename
+        if not path.is_file():
+            failures.append(f"{filename}: missing file")
+            continue
+        css = re.sub(r"/\*.*?\*/", "", path.read_text(encoding="utf-8"), flags=re.S)
+        found = False
+        depth = 0
+        start = 0
+        body_start = 0
+        prelude = ""
+        for index, char in enumerate(css):
+            if char == "{":
+                if depth == 0:
+                    prelude = css[start:index]
+                    body_start = index + 1
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    selector = " ".join(prelude.split())
+                    if selector == selector_needle or selector.endswith(" " + selector_needle):
+                        body = css[body_start:index]
+                        match = re.search(rf"{re.escape(prop)}\s*:\s*([^;]+);", body)
+                        found = True
+                        if not match or " ".join(match.group(1).split()) != expected:
+                            actual = " ".join(match.group(1).split()) if match else "缺失"
+                            failures.append(
+                                f"{filename}: {selector_needle} 的 {prop} 是 {actual}，应为 {expected}"
+                            )
+                    start = index + 1
+            elif char == ";" and depth == 0:
+                start = index + 1
+        if not found:
+            failures.append(f"{filename}: missing selector {selector_needle}")
     return failures
 
 
@@ -997,6 +1265,7 @@ def main():
                 fail += 1
 
     fail += check_hill_light_modes(hill_texts.get("tokens.css", ""))
+    fail += check_hill_light_print_sync(hill_texts.get("tokens.css", ""))
 
     callouts_css = (
         THEME_DIR / "assets" / "theme" / "css" / "callouts.css"
@@ -1021,11 +1290,31 @@ def main():
         if found:
             fail += 1
 
-    contrast_failures = check_palette_contrast()
-    print(f"  {'MISS' if contrast_failures else 'OK  '} palette text contrast >= 4.5:1")
+    contrast_failures, checked_modes = check_palette_contrast()
+    print(
+        f"  {'MISS' if contrast_failures else 'OK  '} palette text contrast >= 4.5:1"
+        f"  ({', '.join(checked_modes)})"
+    )
     if contrast_failures:
         for line in contrast_failures:
             print(f"       {line}")
+        fail += 1
+
+    syntax_failures, syntax_modes = check_syntax_contrast()
+    print(
+        f"  {'MISS' if syntax_failures else 'OK  '} syntax token contrast >= 4.5:1"
+        f"  ({', '.join(syntax_modes)})"
+    )
+    if syntax_failures:
+        for line in syntax_failures:
+            print(f"       {line}")
+        fail += 1
+
+    spacing_failures = check_block_spacing()
+    print(f"  {'MISS' if spacing_failures else 'OK  '} block spacing stays on the four-step scale")
+    for line in spacing_failures:
+        print(f"       {line}")
+    if spacing_failures:
         fail += 1
 
     css_defined = set(re.findall(r"(--[a-z0-9-]+)\s*:", theme_text))

@@ -28,225 +28,225 @@ const PACKAGE_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 const SKILLS_ROOT = path.join(PACKAGE_ROOT, 'skills')
 
 interface SkillCandidate {
-  name: string
-  description: string
-  whenToUse?: string
-  invocation: { modelInvocable: boolean; userInvocable: boolean }
-  source: string
-  provider: string
-  rank: number
-  locator: string
-  resourceBase: { kind: 'directory'; path: string }
-  path: string
-  metadata?: Record<string, unknown>
+    name: string
+    description: string
+    whenToUse?: string
+    invocation: { modelInvocable: boolean; userInvocable: boolean }
+    source: string
+    provider: string
+    rank: number
+    locator: string
+    resourceBase: { kind: 'directory'; path: string }
+    path: string
+    metadata?: Record<string, unknown>
 }
 
 interface ListOptions {
-  cwd?: string
-  signal?: AbortSignal
+    cwd?: string
+    signal?: AbortSignal
 }
 
 interface SkillProvider {
-  name: string
-  list: (options?: ListOptions) => Promise<SkillCandidate[]>
-  get: (candidate: SkillCandidate | undefined, options?: ListOptions) => Promise<unknown>
+    name: string
+    list: (options?: ListOptions) => Promise<SkillCandidate[]>
+    get: (candidate: SkillCandidate | undefined, options?: ListOptions) => Promise<unknown>
 }
 
 export interface DshContext {
-  skills: {
-    registerProvider: (factory: () => SkillProvider) => unknown
-  }
-  tools?: ToolRegistry
+    skills: {
+        registerProvider: (factory: () => SkillProvider) => unknown
+    }
+    tools?: ToolRegistry
 }
 
 /** 读取 SKILL.md 实际用到的几个键，只做最小的 YAML frontmatter 解析。 */
 function parseFrontmatter(source: string): { data: Record<string, unknown>; body: string } {
-  const normalized = source.replace(/^\uFEFF/, '')
-  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(normalized)
-  if (!match) return { data: {}, body: normalized }
+    const normalized = source.replace(/^\uFEFF/, '')
+    const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(normalized)
+    if (!match) return { data: {}, body: normalized }
 
-  const data: Record<string, unknown> = {}
-  const stack: Array<{ indent: number; target: Record<string, unknown> }> = [{ indent: -1, target: data }]
-  const lines = match[1].split(/\r?\n/)
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index].replace(/\t/g, '  ')
-    if (!line.trim() || line.trimStart().startsWith('#')) continue
-    const indent = line.length - line.trimStart().length
-    const pair = /^([A-Za-z0-9_.-]+):(?:\s*(.*))?$/.exec(line.trim())
-    if (!pair) continue
-    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop()
-    const parent = stack[stack.length - 1].target
-    const key = pair[1]
-    const value = stripInlineComment(pair[2] ?? '').trim()
-    if (value === '') {
-      const child: Record<string, unknown> = {}
-      parent[key] = child
-      stack.push({ indent, target: child })
-      continue
-    }
-    if (/^[>|][+-]?\d?$/.test(value)) {
-      const block: string[] = []
-      let cursor = index + 1
-      for (; cursor < lines.length; cursor += 1) {
-        const next = lines[cursor].replace(/\t/g, '  ')
-        if (!next.trim()) {
-          block.push('')
-          continue
+    const data: Record<string, unknown> = {}
+    const stack: Array<{ indent: number; target: Record<string, unknown> }> = [{ indent: -1, target: data }]
+    const lines = match[1].split(/\r?\n/)
+    for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index].replace(/\t/g, '  ')
+        if (!line.trim() || line.trimStart().startsWith('#')) continue
+        const indent = line.length - line.trimStart().length
+        const pair = /^([A-Za-z0-9_.-]+):(?:\s*(.*))?$/.exec(line.trim())
+        if (!pair) continue
+        while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop()
+        const parent = stack[stack.length - 1].target
+        const key = pair[1]
+        const value = stripInlineComment(pair[2] ?? '').trim()
+        if (value === '') {
+            const child: Record<string, unknown> = {}
+            parent[key] = child
+            stack.push({ indent, target: child })
+            continue
         }
-        const nextIndent = next.length - next.trimStart().length
-        if (nextIndent <= indent) break
-        block.push(next)
-      }
-      const nonBlank = block.filter((item) => item.trim())
-      const cut = nonBlank.length > 0 ? Math.min(...nonBlank.map((item) => item.length - item.trimStart().length)) : 0
-      const text = block.map((item) => item.slice(cut)).join('\n')
-      parent[key] = value[0] === '|' ? text : text.replace(/([^\n])\n(?=[^\n])/g, '$1 ').replace(/\n{2,}/g, '\n')
-      index = cursor - 1
-      continue
+        if (/^[>|][+-]?\d?$/.test(value)) {
+            const block: string[] = []
+            let cursor = index + 1
+            for (; cursor < lines.length; cursor += 1) {
+                const next = lines[cursor].replace(/\t/g, '  ')
+                if (!next.trim()) {
+                    block.push('')
+                    continue
+                }
+                const nextIndent = next.length - next.trimStart().length
+                if (nextIndent <= indent) break
+                block.push(next)
+            }
+            const nonBlank = block.filter((item) => item.trim())
+            const cut = nonBlank.length > 0 ? Math.min(...nonBlank.map((item) => item.length - item.trimStart().length)) : 0
+            const text = block.map((item) => item.slice(cut)).join('\n')
+            parent[key] = value[0] === '|' ? text : text.replace(/([^\n])\n(?=[^\n])/g, '$1 ').replace(/\n{2,}/g, '\n')
+            index = cursor - 1
+            continue
+        }
+        parent[key] = parseScalar(value)
     }
-    parent[key] = parseScalar(value)
-  }
-  return { data, body: normalized.slice(match[0].length) }
+    return { data, body: normalized.slice(match[0].length) }
 }
 
 /** 去掉 plain scalar 末尾的 ` # 注释`；引号内的 # 保留。 */
 function stripInlineComment(value: string): string {
-  let quote: string | undefined
-  for (let index = 0; index < value.length; index += 1) {
-    const char = value[index]
-    if (quote) {
-      if (char === quote && value[index - 1] !== '\\') quote = undefined
-      continue
+    let quote: string | undefined
+    for (let index = 0; index < value.length; index += 1) {
+        const char = value[index]
+        if (quote) {
+            if (char === quote && value[index - 1] !== '\\') quote = undefined
+            continue
+        }
+        if (char === '"' || char === "'") {
+            quote = char
+            continue
+        }
+        if (char === '#' && (index === 0 || /\s/.test(value[index - 1]))) return value.slice(0, index)
     }
-    if (char === '"' || char === "'") {
-      quote = char
-      continue
-    }
-    if (char === '#' && (index === 0 || /\s/.test(value[index - 1]))) return value.slice(0, index)
-  }
-  return value
+    return value
 }
 
 function parseScalar(value: string): unknown {
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    const quote = value[0]
-    const inner = value.slice(1, -1)
-    return quote === '"'
-      ? inner.replace(/\\"/g, '"').replace(/\\n/g, '\n')
-      : inner.replace(/''/g, "'")
-  }
-  if (value === 'true') return true
-  if (value === 'false') return false
-  if (value === 'null' || value === '~') return null
-  if (/^\[.*\]$/.test(value)) {
+    if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+    ) {
+        const quote = value[0]
+        const inner = value.slice(1, -1)
+        return quote === '"'
+            ? inner.replace(/\\"/g, '"').replace(/\\n/g, '\n')
+            : inner.replace(/''/g, "'")
+    }
+    if (value === 'true') return true
+    if (value === 'false') return false
+    if (value === 'null' || value === '~') return null
+    if (/^\[.*\]$/.test(value)) {
+        return value
+            .slice(1, -1)
+            .split(',')
+            .map((item) => parseScalar(item.trim()))
+            .filter((item) => item !== '')
+    }
     return value
-      .slice(1, -1)
-      .split(',')
-      .map((item) => parseScalar(item.trim()))
-      .filter((item) => item !== '')
-  }
-  return value
 }
 
 async function readCandidate(skillDir: string): Promise<SkillCandidate | undefined> {
-  const skillFile = path.join(skillDir, 'SKILL.md')
-  let source: string
-  try {
-    source = await readFile(skillFile, 'utf8')
-  } catch {
-    return undefined
-  }
-  const { data } = parseFrontmatter(source)
-  if (typeof data.name !== 'string' || !SKILL_NAME_RE.test(data.name)) return undefined
-  if (typeof data.description !== 'string' || data.description.trim() === '') return undefined
-  if (data.name !== path.basename(skillDir)) return undefined
+    const skillFile = path.join(skillDir, 'SKILL.md')
+    let source: string
+    try {
+        source = await readFile(skillFile, 'utf8')
+    } catch {
+        return undefined
+    }
+    const { data } = parseFrontmatter(source)
+    if (typeof data.name !== 'string' || !SKILL_NAME_RE.test(data.name)) return undefined
+    if (typeof data.description !== 'string' || data.description.trim() === '') return undefined
+    if (data.name !== path.basename(skillDir)) return undefined
 
-  const candidate: SkillCandidate = {
-    name: data.name,
-    description: data.description.trim(),
-    invocation: { modelInvocable: true, userInvocable: true },
-    source: 'bundled',
-    provider: PROVIDER,
-    rank: RANK,
-    locator: skillDir,
-    resourceBase: { kind: 'directory', path: skillDir },
-    path: skillFile,
-  }
-  if (typeof data.whenToUse === 'string' && data.whenToUse.trim()) {
-    candidate.whenToUse = data.whenToUse.trim()
-  }
-  if (data.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)) {
-    candidate.metadata = data.metadata as Record<string, unknown>
-  }
-  return candidate
+    const candidate: SkillCandidate = {
+        name: data.name,
+        description: data.description.trim(),
+        invocation: { modelInvocable: true, userInvocable: true },
+        source: 'bundled',
+        provider: PROVIDER,
+        rank: RANK,
+        locator: skillDir,
+        resourceBase: { kind: 'directory', path: skillDir },
+        path: skillFile,
+    }
+    if (typeof data.whenToUse === 'string' && data.whenToUse.trim()) {
+        candidate.whenToUse = data.whenToUse.trim()
+    }
+    if (data.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)) {
+        candidate.metadata = data.metadata as Record<string, unknown>
+    }
+    return candidate
 }
 
 async function listSkills(options: ListOptions = {}): Promise<SkillCandidate[]> {
-  if (options.signal?.aborted) return []
-  if (!(await findBookRoot(options.cwd))) return []
-  if (options.signal?.aborted) return []
-  let entries
-  try {
-    entries = await readdir(SKILLS_ROOT, { withFileTypes: true })
-  } catch {
-    return []
-  }
-  const candidates: SkillCandidate[] = []
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue
     if (options.signal?.aborted) return []
-    const candidate = await readCandidate(path.join(SKILLS_ROOT, entry.name))
-    if (candidate) candidates.push(candidate)
-  }
-  candidates.sort((a, b) => a.name.localeCompare(b.name))
-  return candidates
+    if (!(await findBookRoot(options.cwd))) return []
+    if (options.signal?.aborted) return []
+    let entries
+    try {
+        entries = await readdir(SKILLS_ROOT, { withFileTypes: true })
+    } catch {
+        return []
+    }
+    const candidates: SkillCandidate[] = []
+    for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        if (options.signal?.aborted) return []
+        const candidate = await readCandidate(path.join(SKILLS_ROOT, entry.name))
+        if (candidate) candidates.push(candidate)
+    }
+    candidates.sort((a, b) => a.name.localeCompare(b.name))
+    return candidates
 }
 
 async function getSkill(candidate: SkillCandidate | undefined, options: ListOptions = {}) {
-  if (options.signal?.aborted) return undefined
-  if (!candidate || candidate.provider !== PROVIDER) return undefined
-  // 候选可能在同一次会话中因目录切换而失效。仅在调用方传入 cwd 时重新检查；
-  // 普通的 `get()` 仍对当前工作区里已经发现过的候选有效。
-  if (options.cwd !== undefined && !(await findBookRoot(options.cwd))) return undefined
-  const skillDir = candidate.locator
-  if (typeof skillDir !== 'string') return undefined
-  const resolved = path.resolve(skillDir)
-  if (resolved !== SKILLS_ROOT && !resolved.startsWith(SKILLS_ROOT + path.sep)) return undefined
+    if (options.signal?.aborted) return undefined
+    if (!candidate || candidate.provider !== PROVIDER) return undefined
+    // 候选可能在同一次会话中因目录切换而失效。仅在调用方传入 cwd 时重新检查；
+    // 普通的 `get()` 仍对当前工作区里已经发现过的候选有效。
+    if (options.cwd !== undefined && !(await findBookRoot(options.cwd))) return undefined
+    const skillDir = candidate.locator
+    if (typeof skillDir !== 'string') return undefined
+    const resolved = path.resolve(skillDir)
+    if (resolved !== SKILLS_ROOT && !resolved.startsWith(SKILLS_ROOT + path.sep)) return undefined
 
-  let source: string
-  try {
-    source = await readFile(path.join(resolved, 'SKILL.md'), 'utf8')
-  } catch {
-    return undefined
-  }
-  const { data, body } = parseFrontmatter(source)
-  if (data.name !== candidate.name) return undefined
+    let source: string
+    try {
+        source = await readFile(path.join(resolved, 'SKILL.md'), 'utf8')
+    } catch {
+        return undefined
+    }
+    const { data, body } = parseFrontmatter(source)
+    if (data.name !== candidate.name) return undefined
 
-  return {
-    name: candidate.name,
-    description: candidate.description,
-    ...(candidate.whenToUse ? { whenToUse: candidate.whenToUse } : {}),
-    invocation: candidate.invocation,
-    source: candidate.source,
-    provider: PROVIDER,
-    resourceBase: { kind: 'directory', path: resolved },
-    path: path.join(resolved, 'SKILL.md'),
-    ...(candidate.metadata ? { metadata: candidate.metadata } : {}),
-    content: body.trim(),
-  }
+    return {
+        name: candidate.name,
+        description: candidate.description,
+        ...(candidate.whenToUse ? { whenToUse: candidate.whenToUse } : {}),
+        invocation: candidate.invocation,
+        source: candidate.source,
+        provider: PROVIDER,
+        resourceBase: { kind: 'directory', path: resolved },
+        path: path.join(resolved, 'SKILL.md'),
+        ...(candidate.metadata ? { metadata: candidate.metadata } : {}),
+        content: body.trim(),
+    }
 }
 
 export function apply(ctx: DshContext): void {
-  ctx.skills.registerProvider(() => ({
-    name: PROVIDER,
-    list: listSkills,
-    get: getSkill,
-  }))
-  if (ctx.tools && typeof ctx.tools.register === 'function') {
-    registerRenderCheckTool(ctx.tools)
-    registerPassReportTool(ctx.tools)
-  }
+    ctx.skills.registerProvider(() => ({
+        name: PROVIDER,
+        list: listSkills,
+        get: getSkill,
+    }))
+    if (ctx.tools && typeof ctx.tools.register === 'function') {
+        registerRenderCheckTool(ctx.tools)
+        registerPassReportTool(ctx.tools)
+    }
 }

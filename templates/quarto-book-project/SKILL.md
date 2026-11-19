@@ -39,9 +39,9 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 - 内容检查：`<插件技能目录>/scripts/verifying-content.py --root <book>`。
 - 链接检查：`<插件技能目录>/scripts/checking-links.py --root <book>`。
-- HTML 可用性：只调 `quarto_render_check`，`qmd_path` 传当前章节；`dry_run: true` 最多 2 次，`dry_run: false` 最多 1 次。
-- 优先用工具渲染并检查；不手跑 `checking-output.py` 或 `checking-callouts.py`，这些检查由工具按书配置调用。只有工具报产物缺失或需要人工复现排版时才在书根手跑一次 `quarto render`。
-- 项目专属词表：同目录 `checks.json`（`forbidden_terms`、`lead_chars`、`chapter_titles`、`later_chapter_names`）；模板带一份空文件，复制后按项目填写，不写就只跑通用规则。
+- HTML 可用性：只调 `quarto_render_check`，`qmd_path` 传当前章节；`dry_run: true` 的工作流最多尝试 2 次；`dry_run: false` 每次检查最多运行 1 次。工具不记录跨调用次数。
+- 优先用工具渲染并检查；不手跑 `checking-output.py` 或 `checking-callouts.py`，这些检查由工具按书配置调用。只有工具报产物缺失或需要人工复现排版时，才在书根手跑一次 `quarto render` 并记录。
+- 项目专属词表：同目录 `checks.json`（`forbidden_terms`、`lead_chars`、`chapter_titles`、`later_chapter_names`）；模板已带一份可用的默认文件，`lead_chars` 预填 `[60, 140]`，其余三项为空。复制后按项目填写；删掉某项就不再核对那一项。
 - 项目自己的检查命令（如有）与它覆盖的 profile：
 - 命令在哪个环境执行（本机 / WSL / 容器）：
 - 检查命令只写终端，输出不落盘；需要留证据时写已忽略的 `temp/`。

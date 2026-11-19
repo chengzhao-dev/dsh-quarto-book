@@ -11,7 +11,6 @@ Quarto 接受 `.qmd`、`.md`、`.ipynb`、`.Rmd` 四种章节源文件；Book �
 ```yaml
 ---
 title: "文档标题"
-description: "一句话说明"
 format: html
 ---
 
@@ -71,36 +70,36 @@ Quarto Book 的核心配置在书根 `_quarto.yml`：
 
 ```yaml
 project:
-  type: book
+    type: book
 
 book:
-  # 1. 身份
-  title: "<书名>"
-  # 2. 说明
-  description: "<一句话说明>"
-  # 3. 站点与仓库
-  site-url: "https://<用户名>.github.io/<仓库>"
-  repo-url: "https://github.com/<用户名>/<仓库>"
-  repo-actions: [source]
-  # 4. 外观
-  favicon: "<主题内 favicon 的相对路径>"
-  # 5. 阅读界面
-  page-navigation: true
-  search: true
-  sidebar:
-    collapse-level: 2
-  navbar:
+    # 1. 身份
     title: "<书名>"
-  # 7. 正文结构：章节清单永远最后
-  chapters:
-    - index.qmd
-    - part: chapters/<part>/index.qmd
-      chapters:
-        - chapters/<part>/01_intro.qmd
-        - chapters/<part>/02_topic.qmd
-    - chapters/<part>/99_bibliography.qmd     # 书目页：#refs 留在 chapters
-  appendices:
-    - chapters/appendix/references.qmd
+    # 2. 说明
+    description: "<一句话说明>"
+    # 3. 站点与仓库
+    site-url: "https://<用户名>.github.io/<仓库>"
+    repo-url: "https://github.com/<用户名>/<仓库>"
+    repo-actions: [source]
+    # 4. 外观
+    favicon: "<主题内 favicon 的相对路径>"
+    # 5. 阅读界面
+    page-navigation: true
+    search: true
+    sidebar:
+        collapse-level: 2
+    navbar:
+        title: "<书名>"
+    # 7. 正文结构：章节清单永远最后
+    chapters:
+        - index.qmd
+        - part: chapters/<part>/index.qmd
+          chapters:
+              - chapters/<part>/01_intro.qmd
+              - chapters/<part>/02_topic.qmd
+        - chapters/<part>/99_bibliography.qmd     # 书目页：#refs 留在 chapters
+    appendices:
+        - chapters/appendix/references.qmd
 ```
 
 - **`index.qmd` 必须存在**，作为 Book 首页/入口；根首页只承担这一层导航。

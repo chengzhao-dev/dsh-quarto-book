@@ -10,5 +10,5 @@
 #   dsh plugin --profile web add npm:@chengzhao-dev/dsh-quarto-book
 #
 - insert:
-    - id: quarto-book
-      name: '@chengzhao-dev/dsh-quarto-book'
+      - id: quarto-book
+        name: '@chengzhao-dev/dsh-quarto-book'

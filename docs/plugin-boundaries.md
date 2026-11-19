@@ -1,6 +1,6 @@
 # 书门禁：什么时候出现
 
-本插件（模块短名 `dsh-quarto-book`，npm 包 `@chengzhao-dev/dsh-quarto-book`）只在会话位于一本书里时出现。安装只把包放进 profile，不等于启用技能；插件没有常驻进程，每次 `list({ cwd })` 重新判定。
+本插件（模块短名 `dsh-quarto-book`，npm 包 `@chengzhao-dev/dsh-quarto-book`）只在会话位于一本书的 git 检出里时出现。安装只把包放进 profile，不等于启用技能；插件没有常驻进程，每次 `list({ cwd })` 重新判定。
 
 ## 六类情形
 

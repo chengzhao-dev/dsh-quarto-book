@@ -5,7 +5,7 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Take a Quarto Book from chapters to publishable output: `writing-quarto` owns the chapter skeleton, whole-book order and Chinese prose; `designing-theme` owns the theme; after a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt. Both skills appear only inside `type: book` repositories, and the workflow needs Quarto CLI and Python 3.
+Take a Quarto Book from chapters to publishable output: `writing-quarto` owns the chapter skeleton, whole-book order and Chinese prose; `designing-theme` owns the theme; after a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt. Both skills appear only inside `type: book` git checkouts, and the workflow needs Quarto CLI and Python 3.
 
 ## What it provides
 
@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.29`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.29`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.30`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.30`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -73,7 +73,7 @@ python scripts/checking-names.py --root <book>
 
 `checking-prose.py` reports only mixed Chinese-English problems that can be judged directly; `checking-names.py` is for repository-wide refactors. For everyday chapter work, the first three are enough.
 
-Post-render callouts, HTML output and DOM contracts are checked by `quarto_render_check`, which calls the bundled scripts; run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand only when debugging a script. `designing-theme`'s `scripts/checking-layout.py` checks overflow, contrast and page structure on rendered HTML. Neither tool runs those scripts at load time, and neither runs `quarto render`.
+Post-render callouts, HTML output and DOM contracts are checked by `quarto_render_check`, which calls the bundled scripts; you do not need to run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme`'s `scripts/checking-layout.py` checks palette, contrast and page structure on rendered HTML; overflow and narrow-viewport overlays require an explicit `--browser`. Neither tool runs those scripts at load time, and neither runs `quarto render`.
 
 Call `quarto_pass_report` once at the end of a run; the card is the receipt, and the reply should not repeat it.
 
@@ -106,7 +106,7 @@ npm run check
 npm run pack
 ```
 
-`npm test` compiles and runs the tool tests; `npm run check` type-checks and validates skill paths; `npm run pack` writes the tarball into `temp/`, which is already in `.gitignore`.
+`npm test` compiles and runs the tool tests; `npm run check` type-checks and validates skill paths; `npm run pack` writes the tarball into `temp/` (gitignored) but runs `prepack` first, rebuilding `lib/`. To inspect artifacts without rebuilding, use `npm pack --dry-run --ignore-scripts`; whether the package contains everything is decided by `checking-package` inside `npm run check`.
 
 Replay the CI sequence locally with one command before pushing:
 
@@ -114,7 +114,7 @@ Replay the CI sequence locally with one command before pushing:
 npm run ci
 ```
 
-It runs `npm ci`, `npm test`, `npm run check:lib`, `npm run check`, and `npm run pack:check` — the same steps as `.github/workflows/ci.yml`, plus the publish-time package gate.
+It runs `npm ci`, `npm run check:lib`, `npm test`, `npm run check`, and `npm run pack:check`; `check:lib` must run before any build, or it compares artifacts just overwritten by `test` — the same steps as `.github/workflows/ci.yml`, plus the publish-time package gate.
 
 Development install:
 
@@ -126,7 +126,7 @@ dsh plugin --profile web add D:\\path\\to\\dsh-quarto-book
 
 The plugin ships as a bundle: `package.json` has `dsh.bundle.patch` pointing at `cordis.patch.yml`, and the patch inserts only the `id: quarto-book`, `name: '@chengzhao-dev/dsh-quarto-book'` line. The entry does not import host internals, so it also loads under pnpm's strict dependency layout.
 
-The legacy `scripts/embedding-agents.ps1` copies both skill trees into a target repository's `.agents/`, which shadows the plugin at rank 200. Do not use it for new books; run it only to archive a standalone skill tree offline. The command is at the top of the script.
+The legacy `scripts/embedding-agents.ps1` copies both skill trees into a target repository's `.agents/skills/`, which shadows the plugin at rank 200. Do not use it for new books; run it only to archive a standalone skill tree offline. The command is at the top of the script.
 
 ## Issues and contributing
 

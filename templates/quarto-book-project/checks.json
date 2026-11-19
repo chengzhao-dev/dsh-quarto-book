@@ -1,6 +1,6 @@
 {
-  "forbidden_terms": [],
-  "lead_chars": [60, 140],
-  "chapter_titles": {},
-  "later_chapter_names": {}
+    "forbidden_terms": [],
+    "lead_chars": [60, 140],
+    "chapter_titles": {},
+    "later_chapter_names": {}
 }
