@@ -8,7 +8,7 @@ Mermaid 只承担流程图、分层图与调用链；坐标轴类网格图（状
 
 Quarto 只执行 ` ```{mermaid} ` 属性围栏；plain 的 ` ```mermaid ` 围栏实测输出 `<pre class="mermaid">`，不带 `mermaid-js` 运行时，图不会渲染。`verifying-content.py` 在围栏语言检查中拦截 plain `mermaid` 围栏。
 
-渲染核对方法：调用 `quarto_render_check`，在返回的 `html_report` 对应 HTML 中应出现 mermaid 图表容器（`mermaid-js` 或 `quarto-diagram` 类名），不应出现 `sourceCode mermaid` 高亮代码块。
+渲染核对方法：调用 `quarto_render_check`，打开 `html_report.output_files` 中的对应页面核对：应出现 mermaid 图表容器（`mermaid-js` 或 `quarto-diagram` 类名），不应出现 `sourceCode mermaid` 高亮代码块。
 
 ## 无障碍名称
 
@@ -56,8 +56,7 @@ mermaid 用 init 指令中的字体测量标签宽度，页面 CSS 按 `--ui-fon
 ## 流程图与类图的方向
 
 - 分层结构用 `TB`；单向推进链节点数 ≥ 5 时默认 `TB` 单列，一屏过高时拆成两张图，禁止长 `LR` 挤爆视口；节点数 ≤ 4 的短链可用 `LR`；
-- 类图有成员时用 `TB`，基类在上、派生类在下；无成员的纯类型关系图才用 `LR`；
-- 单图节点不超过 6 个，一图一事不变，超出优先拆图而不是压缩标签。
+- 一图一事不变；超出优先拆图，不压缩标签。
 
 ## 节点与边标签写法
 
@@ -68,6 +67,6 @@ mermaid 用 init 指令中的字体测量标签宽度，页面 CSS 按 `--ui-fon
 
 ## 图注
 
-每个 `{mermaid}` 图块在围栏开头、init 之前写一行 `%%| fig-cap: "程序结构总览。实线箭头表示调用或依赖，……"`。`fig-cap` 只写图意和读图约定，不手写“图 1：”这类编号；Quarto 按 `lang: zh` 自动在正文中排成“图 1：”。图注紧跟图块开头、落在图下。线型、箭头方向、读图范围这类说明只写进该图的图注，图后正文不再复述；图后只补图外的新信息或从图带走的结论，不点名被省略的成员，也不写“其余成员见某章”。`fig-cap` 是 Quarto 对 Mermaid 的单元选项语法，`%%|` 必须直接写在围栏开头、init 之前（Quarto 只解析块首选项；写在 init 之后会被当成 Mermaid 注释原样渲染），不能改成 `#|` 或图后引用块。
+每个 `{mermaid}` 图块在围栏开头、init 之前写一行 `%%| fig-cap: "程序结构总览。实线箭头表示调用或依赖，……"`。`fig-cap` 只写图意和读图约定，不手写“图 1：”这类编号；Quarto 按 `lang: zh` 自动在正文中排成“图 3.1: ”（章号.图号 + 半角冒号加空格）。图注紧跟图块开头、落在图下。线型、箭头方向、读图范围这类说明只写进该图的图注，图后正文不再复述；图后只补图外的新信息或从图带走的结论，不点名被省略的成员，也不写“其余成员见某章”。`fig-cap` 是 Quarto 对 Mermaid 的单元选项语法，`%%|` 必须直接写在围栏开头、init 之前（Quarto 只解析块首选项；写在 init 之后会被当成 Mermaid 注释原样渲染），不能改成 `#|` 或图后引用块。
 
 图注文字概括图意，不与图后正文逐句重复；需要交叉引用时同时写 `label: fig-...`，正文用 `@fig-...` 引用。图注与图前句的统一分工、原生 HTML/SVG 的图注写法见 `quarto/09-figures.md`。

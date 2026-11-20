@@ -35,16 +35,16 @@
 
 ### 验证
 
-渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py` 与 `checking-callouts.py` 自动核对；页面宽度与视觉依据见 `designing-theme`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
+渲染后确认：目录深度与位置符合预期、明暗两套高亮都可读。渲染产物结构由 `checking-output.py`、`checking-callouts.py` 与 `checking-dom.py` 自动核对；页面宽度与视觉依据见 `designing-theme`。主题或目录看起来没生效时先硬刷新排除缓存，再核对选项嵌套层级。
 
 ## 排查顺序
 
 先确定失败在哪一层，再查症状。一次只改一层，改完复跑同一层；不要用改 YAML 或重装依赖来碰运气。
 
-1. **内容层**：先跑 `verifying-content.py`（或项目技能的内容检查命令）。章节表、标题、句段长度、围栏与链接的失败都在这一层修。
+1. **内容层**：先跑 `verifying-content.py`（或项目技能的内容检查命令）。章节表、标题、句段长度与围栏的失败都在这一层修；链接另跑 `checking-links.py`。
 2. **混排层**：跑 `checking-prose.py`。缺空格、中文句里的半角标点在这一层修；不要顺手改句子结构。
 3. **渲染层**：调 `quarto_render_check` 的 `dry_run: false`。失败时先读 `render_result` 末尾的报错块，判断是 YAML、Lua 过滤器还是代码执行。
-4. **HTML 层**：读 `html_report.checks`。`index_html`、`utf8`、`charset` 失败回写作层；`dom` 或版式失败转 `designing-theme`。
+4. **HTML 层**：读 `html_report.checks`。`index_html`、`utf8`、`charset` 失败回写作层；`dom` 或版式失败先回第 7 步改版式，或转 `designing-theme`。
 
 排查时守住三条：
 
@@ -83,7 +83,7 @@
 
 ### 5. 中文乱码/编码
 
-- **症状**：中文变成乱码特征串，或文件带 BOM、行尾变 CRLF。
+- **症状**：中文变成乱码特征串；BOM 与 CRLF 不由检查脚本判定，需人工确认。
 - **处置**：改 `.qmd` 或规范文档后先跑 `verifying-content.py`。失败时从 Git 可读版本恢复再重做修改，**不要**对已乱码文本反向转码。用 `verifying-content.py` 复查结构，并在编辑器里确认 UTF-8 无 BOM。
 - **注意**：PowerShell 5.1 的 `Out-File`/`Set-Content -Encoding utf8` 会附带 BOM，需显式无 BOM 或改用 Python 写入。
 - 编码与行尾的完整规则见 `quarto/02-encoding.md`；本文件只处理渲染后的症状。
@@ -97,7 +97,7 @@
 
 ### 7. 发布到 GitHub 但页面没更新 / 打不开 / 乱码
 
-- **处置顺序**：先看 Actions 是否成功（失败查日志）→ 分支部署核对分支与目录 → `gh-pages` 方式确认推送成功且远端存在该分支 → 用 `GET /repos/:repo/pages` 核对 Pages 源配置（404 = 源从未配置，线上就是 404）→ 最后才考虑缓存或 CDN 延迟。
+- **处置顺序**：先看 Actions 是否成功（失败查日志）→ 分支部署核对分支与目录 → `gh-pages` 方式确认推送成功且远端存在该分支 → 用带认证的 `GET /repos/:repo/pages` 核对 Pages 源配置（认证后 404 才是源未配置，线上就是 404）→ 最后才考虑缓存或 CDN 延迟。
 - **发布前拦截**：先跑 `verifying-content.py`（结构与 UTF-8 解码失败；BOM 与 CRLF 不检查），渲染后读 `quarto_render_check` 的 `html_report.checks` 做产物 smoke（工具内部已跑 checking-output/callouts/dom）。渲染成功不代表线上可读。
 - **错误必须阻断**：workflow 里以**读回判定**收尾——`POST`/`PUT /repos/:repo/pages` 尽力而为（`PUT` 成功返回 204），最后 `GET` 读回 source，不是 `gh-pages` `/` 即 `exit 1`，不允许降级成 warning。`GITHUB_TOKEN` 首次创建 Pages 可能 403，需一次性用 PAT 或在 Settings → Pages 手动启用；未认证的 `GET /pages` 恒为 404，不能当作「未启用」的判据。
 - **发布架构**：Actions 渲染校验后推 `_book/` 到 `gh-pages`，Pages legacy 源 = `gh-pages /`，`gh-pages` 只由 Actions 更新。legacy 模式下 `GITHUB_TOKEN` 改不动 Pages 配置（403），读回判定只检测不自愈，漂移需 PAT 或手动改回。
@@ -128,12 +128,12 @@
 
 - **症状**：源文件写了未登记的 callout 类，渲染后没有提示框，且块内标题混进右侧目录。
 - **处置**：只用内置 `note`/`tip`/`warning`/`important`/`caution` 五类，标题写成 `::: {.callout-note title="中文标题"}`。语义映射见 `quarto/03-authoring.md`「Callout 提示框」。
-- **自检**：渲染后读 `quarto_render_check` 返回的 `html_report.checks.callouts`，它扫描 `_book/**/*.html`。
+- **自检**：渲染后读 `quarto_render_check` 返回的 `html_report.checks` 里 `id` 为 `callouts` 的项，它扫描 `_book/**/*.html`。
 
 ### 13. `{{< include >}}` 引用代码文件未加属性围栏 → 乱码式排版、目录被污染
 
 - **症状**：渲染出的脚本失去高亮与等宽底色，`#` 注释行变成大号标题，含 `*`、`_` 的行变成斜体或粗体，右侧目录多出假标题。
-- **处置**：`{{< include >}}` 整体放进 `{.cpp filename="main.cpp"}` 形式的属性围栏，按扩展名选语言并把 `filename` 写成真实文件名短名，**没有一个例外**。规则见 `quarto/03-authoring.md`「代码与媒体」；include 的使用边界见 `quarto/12-quarto-render.md`。
+- **处置**：`{{< include >}}` 整体放进 `{.cpp filename="main.cpp"}` 形式的属性围栏，按扩展名选语言并把 `filename` 写成真实文件名短名，**没有一个例外**。规则见 `quarto/03-authoring.md`「代码与媒体」；include 的使用边界见本文件「include 短代码必须包在围栏代码块内」一节。
 
 本文件记录本书 `chapters/**/*.qmd` 的渲染层约定，供 Agent 编写和评审章节时使用；写作层骨架与元素规则见 `steps/` 下的步骤文件。
 
@@ -146,13 +146,13 @@
 正确写法是包在带语言标注的围栏代码块内（[官方文档](https://quarto.org/docs/authoring/includes.html) 给出了同样模式）：
 
 ````markdown
-```python
+```cmake
 {{< include ../../src/CMakeLists.txt >}}
 ```
 ````
 
 - include 路径相对于 qmd 文件所在目录解析（`chapters/<part>/` 下用 `../../src/...` 指向仓库根的 `src/`）。
-- 语言标注决定语法高亮：Python 用 `python`，C++ 用 `cpp`，Shell 用 `bash`。
+- 语言标注决定语法高亮：Python 用 `python`，C++ 用 `cpp`，Shell 用 `bash`，CMake 用 `cmake`。
 - 新增或修改 include 后在第 9 步渲染，并核对返回的 `html_report`：嵌入内容应出现在 `<pre class="sourceCode ...">` 代码块中，而不是 `<p>` 段落里。
 - include 展示的是 `src/` 下真实源文件，渲染问题只修 qmd 的包裹方式，不改被引用的源文件。
 
@@ -181,4 +181,4 @@ qmd 指向仓库内路径的链接**除章节互引（用相对 `.qmd` 路径）
 - 见 `steps/03-blocks.md`：代码块 filename 标注、盒子密度、Callout、目录树、多命令块；
 - 见 `writing/examples/10-wording-cases.md`：措辞替换与术语节奏；句段对照见 `writing/examples/07-sentence-frame.md`；
 
-本文件只维护 include 包裹、链接使用与 HTML 输出配置三类渲染层约定。
+本文件维护 include 包裹、链接使用、HTML 输出配置与渲染排错索引；章节结构归属见 `steps/`。

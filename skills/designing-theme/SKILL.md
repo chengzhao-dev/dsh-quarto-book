@@ -23,21 +23,14 @@ metadata:
 
 任何主题任务先读 `theme/02-theme-spine.md`（步骤唯一入口）。增量任务只走被改组件所在的那一步，再加第 6 步「通过检查」；从定表面到通过检查依次走完只用于新主题或用户明确要求整体调整。
 
-| 步 | 名称 | 产出 | 文件 |
-| --- | --- | --- | --- |
-| 1 | 定表面 | 这次动的是正文、代码、Callout 还是导航 | `theme/02-theme-spine.md` |
-| 2 | 定字体 | 字体栈与字形来源 | `theme/02-theme-spine.md` |
-| 3 | 定尺度 | 字号台阶、行长与间距 | `theme/02-theme-spine.md` |
-| 4 | 定颜色 | 语义色、明暗分层与对比度 | `theme/02-theme-spine.md` |
-| 5 | 定组件 | 表格、Callout、代码块与导航 | `theme/02-theme-spine.md` |
-| 6 | 通过检查 | 布局、对比度与整本渲染 | `theme/02-theme-spine.md` |
+六步的名称、产出与每步登记的文件和检查点都在 `theme/02-theme-spine.md`「主题步骤」表里，本文件不另列；回执的 `steps` 用那张表的步骤名。
 
 ## 加载与结束
 
 - 只改 `_quarto.yml` 实际引用的主题文件；不打开章节正文，也不打开章节以外的实现文件。
 - 一次激活只开本文件、`theme/02-theme-spine.md`、被改组件对应的那一节及其登记的 CSS；打开集合以 `theme/02-theme-spine.md` 的登记项为准，本文件不另列清单。
 - 同一文件最多退回上一步一次；第二次仍失败就停在检查输出上，不重走整段。
-- `scripts/checking-layout.py` 通过并完成一次整本渲染后，在同一轮结束 goal，不把没失败的步骤留到下一轮。
+- `scripts/checking-layout.py --browser` 通过（浏览器矩阵已执行，不是 SKIP）并完成一次整本渲染后，在同一轮结束 goal，不把没失败的步骤留到下一轮。
 - 不探测同 profile 的其他插件，也不把它们写成依赖；子会话按自己的 cwd 重新判定门禁。
 
 ## 文件职责
@@ -51,14 +44,14 @@ metadata:
 ## P0 硬约束
 
 1. 主题资产被书根 `_quarto.yml` 以相对路径直接消费；移动或改名必须同步 `_quarto.yml`。
-2. `css/` 组件规则不写语义色值或字面色，语义颜色只来自 `palettes/<name>/tokens.css`（默认 Flexoki；Solarized 为运行时覆盖层）；不随明暗与色板变化的界面 chrome 常量（灯光箱遮罩与按钮、色板身份色点）在 `css/tokens.css` 定义、组件用 `var()` 引用；`css/tokens.css` 其余只放结构尺度令牌，明暗共用。
+2. `css/` 组件规则不写语义色值或字面色，组件规则引用的语义颜色只来自 `palettes/<name>/tokens.css`（默认 Flexoki；Solarized 为运行时覆盖层）；不随明暗与色板变化的界面 chrome 常量（灯光箱遮罩与按钮、色板身份色点）在 `css/tokens.css` 定义、组件用 `var()` 引用；`css/tokens.css` 其余只放结构尺度令牌，明暗共用。
 3. 这套资产是本插件主题的唯一来源。项目内若存在副本，先确认哪一份被 `_quarto.yml` 引用，再只改被引用的那一份，不假定两处自动同步。
 4. 修改主题或 `_quarto.yml` 后用 `quarto_render_check` 做整本渲染，验证明暗两套主题；布局调整优先修改 grid 与共享节奏，不用页面局部样式堆叠间距。
 5. 不新增字体文件、不引入新颜色来源：字体与颜色决定的理由在 `theme/01-reading-surface.md`，改决定先改知识再动资产。
 
 ## 完成判据
 
-- [ ] `quarto_render_check` 的 `html_report` 为可用，明暗主题下页面无错位或对比度问题；`scripts/checking-layout.py --browser` 通过（浏览器矩阵已执行，不是 SKIP）。该脚本读消费书渲染后的 `_book`，由消费书执行；插件仓的 `npm test` 只校验脚本可解析与文件齐全。
+- [ ] `quarto_render_check` 的 `html_report` 为可用，明暗主题下页面无错位或对比度问题；`scripts/checking-layout.py --browser` 通过（浏览器矩阵已执行，不是 SKIP）。该脚本读消费书渲染后的 `_book`，由消费书执行；插件仓的 `npm test` 先构建再跑单元测试（workflow 检查在 `npm run check` 里），不跑本脚本的布局测量。
 - [ ] 代码块 filename 标题在长路径输入下不撑破容器，窄屏仍可读；超长代码在块内横向滚动，不出整页横向滚动条。
 - [ ] 若项目内有主题副本，已在交付说明中写清改动是否同步，以及以哪一份为准。
 - [ ] 收尾调用一次 `quarto_pass_report`：`skill` 填 `designing-theme`，`mode` 填 `theme`，`steps` 用主题步骤表的名字（`定表面`、`定字体`、`定尺度`、`定颜色`、`定组件`、`通过检查`），检查结论照实填。卡片就是回执，回复里不再复述。

@@ -26,7 +26,7 @@ flowchart TD
 
 ## 四个域：内容、结构、版式、措辞
 
-域是内容、结构、版式、措辞：内容管任务、行为与页面骨架（第 1–2 步），结构管块序与段落划分（第 3–4 步），措辞管句子与用词（第 5–6 步），版式管标点、混排、列表与加粗（第 7 步），第 8–9 步做回读与检查；整书字体、间距与页面样式归主题技能。域与九步的对应表只在 `skills/writing-quarto/SKILL.md` 的「九步」小节，本页不复制。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
+域是内容、结构、版式、措辞：内容管任务、行为与页面骨架，结构管块序与段落划分，措辞管句子与用词，版式管标点、混排、列表与加粗；第 8–9 步做回读与检查；整书字体、间距与页面样式归主题技能。域与九步的对应表只在 `skills/writing-quarto/SKILL.md` 的「九步地图」小节与它的四类改动表，本页不复制。域只决定入口，不新增加载层：每域仍落到现有步骤与条文，`quarto/` 不按域建子目录，避免同一事实出现两份路径。
 
 ## 四层加载
 
@@ -35,9 +35,9 @@ flowchart TD
 | 常驻元数据 | 两个 `SKILL.md` 的 frontmatter | 每次技能列表查询 | 每个约 100 token |
 | 技能正文 | `SKILL.md` 的 H2 各节 | 技能被选中后整篇载入 | 见 `token-budget.md` |
 | 步骤 | `steps/0N-*.md` | 走到第 N 步时只开对应一份 | 见 `token-budget.md` |
-| 条文与案例 | `writing/`、`writing/examples/`、`quarto/` | 判不准、排错或步骤明确指向时 | 见 `token-budget.md` |
+| 条文与案例 | `writing/`、`writing/examples/`、`quarto/` | 按 `SKILL.md`「加载规则」的条件 | 见 `token-budget.md` |
 
-`SKILL.md` 的九步表与入口表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `writing/examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/08-tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件，口径在 `token-budget.md`。
+`SKILL.md` 的九步表与入口表是唯一的路由表：步号、名称、一句话、文件。`quarto/` 与 `writing/examples/` 不自动加载，必须由步骤或 `SKILL.md` 带条件句指向，例如「表格写法见 `quarto/08-tables.md`」；只写「详见 `quarto/`」不算。整本书的总预算是 140000 token，单次激活上限是 `SKILL.md` + 1 个步骤 + 1 个被点名文件（第 8 步允许 2 个被点名文件），口径在 `token-budget.md`。
 
 ## 调用与常驻开销
 
@@ -51,7 +51,7 @@ flowchart TD
 | `skills/writing-quarto/` 的 `steps/`、`writing/`、`quarto/`、`scripts/` | 各层放什么、怎么新增规则，见 `docs/module-layout.md`，本表不重复 |
 | `skills/designing-theme/SKILL.md` | 触发描述、六步、主题文件入口 |
 | `skills/designing-theme/theme/` | 阅读表面理由、主题步骤与主题系统 |
-| `skills/designing-theme/assets/theme/` | `css/` 的组件样式、`palettes/*/theme-*.scss` 与 `tokens.css`、`includes/` 与 `assets/fonts/` |
+| `skills/designing-theme/assets/theme/` | `css/` 的组件样式、各 `palettes/<name>/tokens.css`、编译期 `palettes/<flexoki|solarized>/theme-*.scss`（山光只有 `tokens.css` 与 `syntax.css`）、`includes/` 与 `assets/fonts/` |
 | `skills/writing-quarto/assets/config/` | 书根运行时配置的骨架：复制为书的 `config/runtime.config` 后填写 |
 | `templates/quarto-book-project/` | 项目技能模板：书名、读者、术语、章节对照 |
 | `src/tools/render-check.ts`、`pass-report.ts` | 工具源码，编译到 `lib/tools/` |
@@ -67,4 +67,4 @@ flowchart TD
 
 ## 检查
 
-`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑工作流检查与 `tests/**/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验；它必须在构建之前跑（`npm run ci`、CI 与发布流程都是先 `check:lib` 再 `test`），否则比对的是刚被覆盖的产物。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先改本页的文件职责表，再改结构检查，最后更新 `docs/module-layout.md` 的目录树。
+`npm run check` 依次跑类型检查、`scripts/checking-skill-links.mjs`、`scripts/checking-skill-budget.mjs`、`scripts/checking-package.mjs` 与 `scripts/checking-github-workflows.mjs`；`npm test` 先构建，随后跑 `tests/**/*.test.mjs`；`lib/` 与源码的一致性由 `npm run check:lib` 校验；它必须在构建之前跑（`npm run ci`、CI 与发布流程都是先 `check:lib` 再 `test`），否则比对的是刚被覆盖的产物。结构检查核对反引号里的文件路径与节名、每份 step 的三节结构、树注释与已跟踪的 Python 缓存；不解析 Markdown 链接，也不校验 README 文档表、`SKILL.md` 的 H2 或触发矩阵。新增或改名文件时先更新 `docs/module-layout.md` 的目录树与本页的文件职责表，再改结构检查。

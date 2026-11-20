@@ -10,8 +10,8 @@
 | syntax 覆盖 | `palettes/solarized/syntax.css` |
 | SCSS light | `palettes/solarized/theme-light.scss` |
 | SCSS dark | `palettes/solarized/theme-dark.scss` |
-| highlight light | `assets/theme/palettes/solarized/highlight-light.theme` |
-| highlight dark | `assets/theme/palettes/solarized/highlight-dark.theme` |
+| highlight light | `palettes/solarized/highlight-light.theme` |
+| highlight dark | `palettes/solarized/highlight-dark.theme` |
 | brand mark | `palettes/solarized/brand-mark.svg` |
 | favicon light | `palettes/solarized/favicon-light.svg` |
 | favicon dark | `palettes/solarized/favicon-dark.svg` |

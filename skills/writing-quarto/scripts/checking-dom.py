@@ -10,6 +10,8 @@
 只有某条契约报 FAIL 时，才需要开诊断模式。诊断时再看具体文件。
 
 契约清单：
+  C0 活跃 palette 与 syntax-highlighting 一致：_quarto.yml 里 palettes/<name>/tokens.css
+     的高亮映射须与同 pack 的 meta.md 一致，且不得出现 custom.theme。
   C1 复制按钮可见性：产物中 button.code-copy-button 必须与 div.sourceCode
      同处 .code-copy-outer-scaffold 之下且互为兄弟，且 CSS 里必须存在
      .code-copy-outer-scaffold:hover .code-copy-button 规则。
@@ -19,7 +21,7 @@
   C3 打印不隐藏代码：@media print 内不得对 .code-copy-outer-scaffold 设 display:none。
      （该层现在包裹代码本身，隐藏它 = 打印/PDF 时代码整块消失。）
   C4 站点图标：每个 HTML 的 <head> 必须含 rel="icon" 且指向 favicon-light.svg
-      或 favicon-dark.svg（编译期默认是 light），且两个色板的明暗图标都已发布。
+      或 favicon-dark.svg（编译期默认是 light），且每个色板目录的明暗两份都已发布；book.favicon 未配置时本项记 N/A，不判失败。
   C5 Mermaid 图表（按产物条件）：产物没有 mermaid-js 占位符，说明正文本就不用图表，
      契约 N/A。一旦出现占位符，就必须同时包含 Quarto Mermaid 运行时，且不得退化为
      普通 sourceCode 代码块。浏览器加载脚本后，占位符会被转换成 SVG。
@@ -34,7 +36,7 @@
       摘要必须等于“查看答案”，且答案区不得混入标题层级；没有答案块时为 N/A。
 
 用法：python checking-dom.py [--root .] [--book-dir _book] [--verbose]
-退出码：0 = 全部契约通过，1 = 有契约失败，2 = 产物目录不存在（需先 quarto render）。
+退出码：0 = 全部契约通过，1 = 有契约失败，2 = 产物目录不存在或其中没有 HTML（需先 quarto render）。
 """
 
 import argparse
@@ -314,19 +316,25 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
         for path in icon_files:
                 if path.name in {"favicon-light.svg", "favicon-dark.svg"}:
                         icon_pairs.setdefault(path.parent.name, set()).add(path.name)
-        icon_file = all(
+        palette_root = root / "theme/palettes"
+        palettes = (
+                sorted(child.name for child in palette_root.iterdir() if child.is_dir())
+                if palette_root.is_dir()
+                else ["flexoki", "solarized", "hill-light"]
+        )
+        icon_file = bool(palettes) and all(
                 icon_pairs.get(name) == {"favicon-light.svg", "favicon-dark.svg"}
-                for name in ("flexoki", "solarized", "hill-light")
+                for name in palettes
         )
         if not require_favicon:
                 results.append((
                         "C4", "站点图标已注入并发布", True,
-                        "N/A（book.favicon 未配置）",
+                        "N/A（book.favicon 未配置，本项不判失败）",
                         ["配置 book.favicon 后，本项才会要求每页 icon 链接与产物图标文件"],
                 ))
         else:
                 c4 = icon_pages == len(htmls) and icon_file and bool(htmls)
-                summary = "%d/%d 页含 icon 链接，六份色板图标已发布=%s" % (icon_pages, len(htmls), icon_file)
+                summary = "%d/%d 页含 icon 链接，每个色板的明暗图标已发布=%s" % (icon_pages, len(htmls), icon_file)
                 if missing:
                         summary += "；缺链接: " + ", ".join(missing[:3])
                         if len(missing) > 3:
@@ -334,7 +342,7 @@ def check_contracts(book_dir, htmls, css_pairs, root=None, require_favicon=True)
                 results.append((
                         "C4", "站点图标已注入并发布", c4, summary,
                         ["每页 <head> 需 <link rel=\"icon\" … favicon-light.svg 或 favicon-dark.svg>；"
-                          "六份源文件见 theme/palettes/{flexoki,solarized,hill-light}/favicon-{light,dark}.svg，"
+                          "每个色板目录各见 theme/palettes/<name>/favicon-{light,dark}.svg，"
                           "book.favicon 指 Flexoki light，另外五份随 resources 发布"],
                 ))
 

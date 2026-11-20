@@ -14,7 +14,7 @@
 | favicon light | `palettes/hill-light/favicon-light.svg`（晓雾/午荫/暮烟共用） |
 | favicon dark | `palettes/hill-light/favicon-dark.svg`（夜月） |
 
-当前 `_quarto.yml` **不**引用本目录的 SCSS 与 highlight 主题，只挂 `tokens.css` + `syntax.css`，原因和 Solarized 不同：Quarto 只能编译一对 light/dark 高亮与一对 Bootstrap 主题，而山光有四种时辰，任何一种都会被编译期固定成两态。所以山光只做运行时层：语法色由 `syntax.css` 按 `html[data-palette="hill-light"][data-mode]` 覆盖 `code span.*`，没有 `.theme` 与 SCSS 素材。
+山光不走编译期主题，`_quarto.yml` 只挂 `tokens.css` + `syntax.css`，不引用 SCSS 与 highlight 主题；原因和 Solarized 不同：Quarto 只能编译一对 light/dark 高亮与一对 Bootstrap 主题，而山光有四种时辰，任何一种都会被编译期固定成两态。所以山光只做运行时层：语法色由 `syntax.css` 按 `html[data-palette="hill-light"][data-mode]` 覆盖 `code span.*`。
 
 ## 四时切换
 
@@ -55,7 +55,7 @@
 | 动作色 / 纸 | 5.43 | 6.00 | 5.28 | 7.44 |
 | 代码字 / 代码底 | 10.00 | 11.15 | 9.45 | 9.67 |
 | 代码标题字 / 标题条 | 4.85 | 5.78 | 5.37 | 5.33 |
-| callout 四型 / 纸（最低） | 5.15 | 6.16 | 4.87 | 6.70 |
+| callout 五型 / 纸（最低） | 5.15 | 6.16 | 4.87 | 6.70 |
 | 边框 / 纸（≥1.3） | 1.32 | 1.39 | 1.33 | 1.65 |
 
 callout 五型条色由山光的低饱和色相派生：note 用次要文字灰、tip 青绿、warning 赭黄、important 靛蓝、caution 砖红；四时各一套，全部 ≥4.5:1。

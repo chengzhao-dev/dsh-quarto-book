@@ -84,7 +84,10 @@ for (const file of cacheFiles) {
 }
 
 // 案例只能经由引用出现：examples 下每个文件至少被一个技能文件点名，否则加了也没人打开。
-const skillMarkdown = walk(skill).filter((path) => path.endsWith('.md'));
+// 案例自身不算引用者，否则一个案例只要提到自己的路径就能通过。
+const skillMarkdown = walk(skill).filter(
+    (path) => path.endsWith('.md') && !path.split(sep).includes('examples'),
+);
 for (const dir of ['writing/examples', 'quarto/examples']) {
     for (const example of readdirSync(join(skill, dir))) {
         if (!example.endsWith('.md')) continue;

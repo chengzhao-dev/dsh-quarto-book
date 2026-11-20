@@ -10,14 +10,17 @@
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 # 命中任意一个特征即判为编码破坏。特征用 \u 转义存放，脚本自身因此不含乱码字符，
 # 不会把自己的源码误判成待检查文本。
+# 与 lib/tools/render-check.js 的 MOJIBAKE_MARKERS 同一清单；改一处必须同步另一处。
 MOJIBAKE_MARKERS = (
-    "\u951f", "\u93c2", "\u941c", "\u7ed4", "\u93b4",
-    "\u7487", "\u6d60", "\u934f", "\u7039", "\u95b8",
+    "\u951f\u65a4\u62f7", "\u70eb\u70eb\u70eb", "\u5c6f\u5c6f\u5c6f",
+    "\u00e2\u20ac", "\u00c3\u00a4", "\u00c3\u00a9",
+    "\u00ef\u00bc", "\u9518\u5321",
 )
 
 
@@ -63,9 +66,9 @@ def main() -> int:
                 break
 
     index_text = index.read_text(encoding="utf-8", errors="replace")
-    if "charset=utf-8" not in index_text.replace('"', "").replace("'", ""):
+    if not re.search(r"charset\s*=\s*[\"']?utf-8", index_text, re.I):
         problems.append("index.html 缺少 charset=utf-8 声明")
-    if "file:///" in index_text:
+    if re.search(r"(?:href|src)\s*=\s*[\"'][^\"']*file:///", index_text, re.I):
         problems.append("index.html 引用 file:/// 本地绝对路径，发布后必然失效")
 
     # sitemap.xml is produced only when book.site-url is configured. Treat it as
@@ -87,7 +90,13 @@ def main() -> int:
         for item in problems[:30]:
             print(f"  {item}")
         return 1
-    print(f"发布产物检查全部通过：{len(html_files)} 个 HTML，编码干净，sitemap 就绪")
+    if sitemap.is_file():
+        sitemap_state = "sitemap 就绪"
+    elif args.require_sitemap:
+        sitemap_state = "缺少 sitemap.xml"
+    else:
+        sitemap_state = "sitemap 不要求（未配置 site-url）"
+    print(f"发布产物检查全部通过：{len(html_files)} 个 HTML，编码干净，{sitemap_state}")
     return 0
 
 

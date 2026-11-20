@@ -43,7 +43,7 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 ## 3 按文件分流
 
-入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`三种操作` 写写作、改写、润色的入口和不变量，`九步地图` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开该步对应的一个文件；判不准才打开 `writing/examples/` 里对应的案例；要排图、查渲染或全仓改写才打开 `quarto/`。
+入口是 `writing-quarto` 的 `SKILL.md`：`适用场景` 说明哪些文件归它管，`三种操作` 写写作、改写、润色的入口和不变量，`九步地图` 列出每一步对应的 `steps/` 文件，`完成判据` 说明什么时候可以停。每一步只打开该步对应的一个文件；判不准才打开 `writing/examples/` 里对应的案例；`quarto/` 的打开条件见 `SKILL.md`「加载规则」。
 
 - 章节（`chapters/**/*.qmd`，目录布局见项目技能；`index.qmd` 在书根）：按操作走对应步骤；新章从第 1 步走到通过检查。每一步的「情况：」标题下是只在特定场景才生效的追加判定，正文里的反引号引用要能在目标文件里找到同名标题。
 - 书仓库根目录的 `README.md`：仓库说明页，不是章节。只走第 5–8 步，不套第 1–4 步的任务与结构骨架，不写「常见错误」「自测问题」，不调 `quarto_render_check`；`README.en.md` 同样处理，`CHANGELOG.md`、`LICENSE`、`AGENTS.md` 不在写作范围。
@@ -53,11 +53,11 @@ profile 里还留着旧的无作用域包 `dsh-quarto-book` 时，先删旧包�
 
 第 9 步先跑内容与链接脚本，再调 `quarto_render_check`：
 
-- 项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py` 与 `checking-links.py`。
-- `dry_run: true` 只判断输出目录：第 1 次返回 `safe_to_render: false` 时只改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。工具不记录跨调用次数，这个「最多 2 次」是工作流上限，不是硬门禁，不要反复重试。
+- 项目技能列了检查命令时按它执行，否则跑本技能 `scripts/verifying-content.py`、`checking-links.py` 与 `checking-prose.py`。
+- `dry_run: true` 只做门禁与安全判断，不启动渲染：先看书根、章节源文件与 `qmd_path` 存在性，再算输出目录。第 1 次返回 `safe_to_render: false` 时先按 `warnings` 修；只有输出目录类警告才改一次 `output-dir`，第 2 次仍不安全就停住，把 `warnings` 交给用户。工具不记录跨调用次数，这个「最多 2 次」是工作流上限，不是硬门禁，不要反复重试。
 - `dry_run: false` 才运行 `quarto render`：每次检查最多运行 1 次；成功时同一次返回 `html_report`，不再为同一份文件重新运行。`html_report.usable` 是最终结论。
 - 工具与技能共用同一道书门禁；工具在 `apply()` 注册、执行前按 `cwd` 拒绝，注册与执行的分工见 `docs/plugin-boundaries.md`。渲染根优先取 `cwd` 向上最近的合法书根；`cwd` 不在书里时，再按 `qmd_path` 所在目录向上找。`qmd_path` 同时用于定位回执卡片。默认不手跑 `quarto render`，也不截图 PNG；只有工具报产物缺失或需要人工复现排版时，才在书根手跑一次并记录；`quarto render` 超时 120 秒，Python 检查脚本超时 60 秒。实现见 `src/tools/render-check.ts`，判定流程见 `steps/09-check.md`。
-- 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`，`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 且没有 `environment_failure` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
+- 返回字段固定为 `warnings`、`errors`、`safe_to_render`、`suggested_output_dir`、`render_result`、`html_report`；渲染完成时 `html_report` 含 `usable`、`checks`、`output_files`、`output_files_total`，`checks` 每项是 `{ id, status, detail }`（环境失败时另带 `environment_failure: true`），`status` 只取 `pass`、`fail`、`skip`，没有 `fail` 且没有 `environment_failure` 时 `usable` 为 true；`output_files` 超过 30 个时只列前 30 个，总数在 `output_files_total`。工具失败后不自动重试。
 
 成功渲染时的返回形状（`output` 只保留末尾若干行）：
 

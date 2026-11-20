@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { findPython } from './helpers/find-python.mjs'
 
 const script = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
@@ -14,13 +15,6 @@ const script = path.join(
     'scripts',
     'checking-dom.py',
 )
-
-function findPython() {
-    for (const candidate of ['python3', 'python']) {
-        if (spawnSync(candidate, ['--version'], { stdio: 'ignore' }).status === 0) return candidate
-    }
-    return ''
-}
 
 const python = findPython()
 
@@ -55,6 +49,63 @@ test('C8 忽略自定义组件里没有 code 子节点的 pre', { skip: python ?
         )
         const result = spawnSync(python, [script], { encoding: 'utf8', cwd: root })
         assert.match(result.stdout, /C8 .*未包裹 pre=0/)
+    } finally {
+        await rm(root, { recursive: true, force: true })
+    }
+})
+
+test('C0 活跃 palette 与 syntax-highlighting 一致', { skip: python ? false : '没有可用的 Python' }, async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'quarto-dom-c0-'))
+    try {
+        await mkdir(path.join(root, 'theme', 'palettes', 'flexoki'), { recursive: true })
+        await mkdir(path.join(root, '_book', 'theme', 'palettes', 'flexoki'), { recursive: true })
+        await writeFile(
+            path.join(root, '_quarto.yml'),
+            [
+                'project:',
+                '  type: book',
+                'format:',
+                '  html:',
+                '    css:',
+                '      - theme/palettes/flexoki/tokens.css',
+                '    syntax-highlighting:',
+                '      light: flexoki-light',
+                '      dark: flexoki-dark',
+                '',
+            ].join('\n'),
+            'utf8',
+        )
+        await writeFile(path.join(root, 'theme', 'palettes', 'flexoki', 'tokens.css'), 'body { color: #111; }\n', 'utf8')
+        await writeFile(
+            path.join(root, 'theme', 'palettes', 'flexoki', 'meta.md'),
+            [
+                '| 项 | 值 |',
+                '| --- | --- |',
+                '| highlight light | `flexoki-light` |',
+                '| highlight dark | `flexoki-dark` |',
+                '',
+            ].join('\n'),
+            'utf8',
+        )
+        for (const name of ['favicon-light.svg', 'favicon-dark.svg']) {
+            await writeFile(path.join(root, '_book', 'theme', 'palettes', 'flexoki', name), '<svg/>', 'utf8')
+        }
+        await writeFile(
+            path.join(root, '_book', 'index.html'),
+            [
+                '<!DOCTYPE html>',
+                '<html><head>',
+                '<link rel="icon" href="theme/palettes/flexoki/favicon-light.svg">',
+                '</head><body></body></html>',
+                '',
+            ].join('\n'),
+            'utf8',
+        )
+        const result = spawnSync(python, [script, '--root', root, '--book-dir', path.join(root, '_book')], {
+            encoding: 'utf8',
+        })
+        assert.match(result.stdout, /C0 活跃 palette 与 syntax-highlighting 一致/)
+        assert.match(result.stdout, /OK\s+C0 /)
     } finally {
         await rm(root, { recursive: true, force: true })
     }

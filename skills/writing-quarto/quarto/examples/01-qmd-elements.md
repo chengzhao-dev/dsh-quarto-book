@@ -49,7 +49,7 @@ constexpr bool IsInRange(Position position) { … }
 `Position` 把坐标交给 `Board`，负数和行列为 `3` 的位置都会被拒绝。下面的图标出可用的 `(row, col)`。左上角是 `(0, 0)`，行向下增加，列向右增加。
 
 改写（方位与图例由 fig-cap 独自说明，正文只留行为句与桥接句）：
-调用方把 `Position` 交给 `Board`，行列出现负数或 `3` 都会被拒绝。图列出可用的 `(row, col)`，桥接句不再交代图面方位。
+调用方把 `Position` 交给 `Board`，行列出现负数或 `3` 都会被拒绝。下图核对 `IsInRange` 接受的坐标范围。
 ```
 
 判定信号：两个围栏之间只有空行；图后直接进入与图无关的下一块；块前引语同时推进多个对象（如 `Position` 与 `IsInRange` 各讲一句）；图注已写明的方位与图例信息，桥接段或图后正文再讲一遍。
@@ -207,15 +207,15 @@ constexpr bool IsInRange(Position position) { … }
 ```text
 正确（片段 + 短 filename + 闭环正文）：
 块前：下面这段规则定义可执行目标 app，产物落在 build/bin。
-块内：```{.cpp filename="CMakeLists.txt"} …
+块内：```{.cmake filename="CMakeLists.txt"} …
 块后：add_test() 把它注册成冒烟测试，看到 PASS 即为通过。
 ```
 
-正例的判定条件：filename 是短显示名；块前导语讲工程语境，块后解释讲看到什么算成功；注释只在片段内、每处不超过 2 行。正确的段落形态在读者正文中的样子即「块前语境 → 块内片段 → 块后判读」三段闭环。
+正例的判定条件：filename 是短显示名；块前导语讲工程语境，块后解释讲看到什么算成功；注释只在片段内、每处不超过 3 行。正确的段落形态在读者正文中的样子即「块前语境 → 块内片段 → 块后判读」三段闭环。
 
 ## Callout 升级与行内括号对照
 
-升级判据见 `writing-quarto` 技能 `quarto/03-authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「元素边界」。
+升级判据见 `writing-quarto` 技能 `quarto/03-authoring.md`「Callout 升级判据」；密度上限见 `steps/03-blocks.md`「盒子密度」。
 
 ```text
 正确（升级：交代超过一句同位短语，术语卡含业界叫法与通过条件）：

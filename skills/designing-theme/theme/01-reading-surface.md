@@ -23,7 +23,7 @@ estimated_tokens: 1500
 
 ### 为什么用系统字体栈，而不是新增字体文件
 
-Noto Sans SC、PingFang SC、微软雅黑在主流桌面已经安装；系统栈不必再分发 17MB 的 CJK 字体，也守住「主题不新增字体文件」的约束。Windows 落到 Noto Sans SC，macOS 落到 PingFang SC，Linux 落到 Noto Sans CJK；缺少这些字体时回退到系统 sans，不落回正文楷体。字体文件仍只有 LXGW Bright Medium 与 Bright Code 两份。
+Noto Sans SC、PingFang SC、微软雅黑在主流桌面已经安装；系统栈不必再分发 17MB 的 CJK 字体，也守住「主题不新增字体文件」的约束。Windows 落到微软雅黑，macOS 落到 PingFang SC，Linux 落到 Noto Sans CJK；缺少这些字体时回退到系统 sans，不落回正文楷体。字体文件仍只有 LXGW Bright Medium 与 Bright Code 两份。
 
 ### 为什么合并成一份 Bright Medium
 

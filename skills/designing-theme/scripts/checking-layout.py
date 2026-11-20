@@ -6,7 +6,7 @@ Node、Playwright 与 Edge 可用时，measuring-pages.mjs 验证真实几何。
 输出明确 SKIP。静态断言不冒充布局验收。
 规范出处：本技能 `theme/03-theme-system.md`。
 
-用法：python checking-layout.py [--root .] [--book-dir _book] [--browser]
+用法：python checking-layout.py [--root .] [--book-dir _book] [--browser] [--verbose]
 退出码：0 = 关键令牌全部存在，1 = 有缺失，2 = 渲染产物目录缺失，3 = 请求了 --browser 但运行时不可用。
 """
 
@@ -29,6 +29,8 @@ MEASURE_SCRIPT = Path(__file__).resolve().parent / "measuring-pages.mjs"
 ROOT = Path.cwd()
 QUARTO_YML = ROOT / "_quarto.yml"
 FONT_FAMILIES = ("LXGW Bright Medium", "LXGW Bright Code")
+# 生成物与缓存目录：字体覆盖统计与主流程共用一份。
+SKIP_PARTS = {"_book", "temp", ".quarto", "build", ".cache"}
 EXPECTED_FONT_FACES = {
     "LXGW Bright Medium": 1,
     "LXGW Bright Code": 1,
@@ -249,7 +251,7 @@ def css_block(text: str, selector: str) -> str:
 def css_declarations(block: str) -> dict:
     return {
         match.group(1): match.group(2).strip()
-        for match in re.finditer(r"(--[a-z0-9-]+)s*:s*([^;]+);", block)
+        for match in re.finditer(r"(--[a-z0-9-]+)\s*:\s*([^;]+);", block)
     }
 
 
@@ -844,7 +846,7 @@ def check_font_coverage(book_dir, root):
     missing = {family: set() for family in FONT_FAMILIES}
     if not any(coverage.values()):
         return coverage, missing
-    skip_parts = {"_book", "temp", ".quarto", "build", ".cache"}
+    skip_parts = SKIP_PARTS
     qmd_paths = [
         path
         for path in sorted(root.rglob("*.qmd"))
@@ -879,7 +881,7 @@ def _relative_luminance(rgb):
     channels = []
     for value in rgb:
         v = value / 255
-        channels.append(v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4)
+        channels.append(v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4)
     return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
 
 
@@ -1023,7 +1025,8 @@ def check_syntax_contrast():
 
     syntax.css 每条规则可以覆盖一个类，也可以把同一颜色的类写在同一组选择器。
     这里按选择器里的 data-mode（山光）或 body.quarto-dark（Solarized）分模式，
-    再取对应 tokens.css 的 --code-bg 计算；每个模式还应覆盖 30 个语法类。
+    再取对应 tokens.css 的 --code-bg 计算；Solarized 每个模式覆盖 30 个语法类，
+    山光四时各覆盖 9 个常用类（hill_scope）。
     """
 
     palette_dir = THEME_DIR / "assets" / "theme" / "palettes"
@@ -1361,7 +1364,7 @@ def main():
     scanned = len([
         path
         for path in ROOT.rglob("*.qmd")
-        if not {"_book", "temp", ".quarto", "build", ".cache"}.intersection(path.parts)
+        if not SKIP_PARTS.intersection(path.parts)
     ])
     coverage_ok = bool(scanned) and not any(missing.values())
     print(

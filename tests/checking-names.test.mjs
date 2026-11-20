@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { findPython } from './helpers/find-python.mjs'
 
 const script = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
@@ -14,13 +15,6 @@ const script = path.join(
     'scripts',
     'checking-names.py',
 )
-
-function findPython() {
-    for (const candidate of ['python3', 'python']) {
-        if (spawnSync(candidate, ['--version'], { stdio: 'ignore' }).status === 0) return candidate
-    }
-    return ''
-}
 
 const python = findPython()
 

@@ -98,7 +98,7 @@ for (const file of files) {
                 if (uses.endsWith(':latest')) fail(`${at}: docker action 不应使用 latest：${uses}`)
                 continue
             }
-            const match = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+@[^\s]+$/.exec(uses)
+            const match = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[^@\s]+)?@[^\s]+$/.exec(uses)
             if (!match) {
                 fail(`${at}: action 引用格式不合法：${uses}`)
                 continue

@@ -9,7 +9,7 @@ book root so links written from `chapters/` still work.
 Usage:
   python checking-links.py [--root PATH] [--paths PATH ...]
 
-Exit code: 0 when every checked link resolves, 1 when any is broken.
+Exit code: 0 when every checked link resolves, 1 when any is broken, 2 when the root or source set is missing.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ INLINE_CODE_RE = re.compile(r"`+[^`]*`+")
 HTML_LINK_RE = re.compile(r"<(?:a|img)\b[^>]*\b(?:href|src)=\"([^\"]+)\"", re.IGNORECASE)
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "tel:", "data:", "#", "//")
-SKIP_DIRS = {".git", ".cache", ".quarto", "_book", "_freeze", "_site", "build", "node_modules", "temp"}
+SKIP_DIRS = {".git", ".cache", ".quarto", "_book", "_freeze", "_site", "build", "node_modules", "temp", "dist", "_build"}
 
 
 def collect_sources(root: Path, paths: list[str]) -> list[Path]:

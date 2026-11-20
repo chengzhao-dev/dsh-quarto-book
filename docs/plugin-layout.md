@@ -26,13 +26,13 @@ dsh-quarto-book/
 └── tests/                  #/ 工具测试
 ```
 
-安装与加载需要 Node.js 22 与 DSH 0.2.1 及以上（<0.3.0）；`src/`、`tests/`、`scripts/` 和 `docs/` 都不进 npm 包，发布包加载编译后的 `lib/`。
+安装与加载需要 Node.js 22 与 DSH 0.2.1-rc.1 及以上（<0.3.0-0）；`src/`、`tests/`、`scripts/` 和 `docs/` 都不进 npm 包，发布包加载编译后的 `lib/`。
 
 发布包内容由 `package.json` 的 `files` 白名单决定：白名单列出 `skills` 后，技能目录下的文件会整棵进包，白名单之外的文件不进包。Python 缓存因此要在白名单里显式排除（`!**/__pycache__`、`!**/*.pyc`），`scripts/checking-skill-links.mjs` 也会在技能目录出现已跟踪的 `__pycache__` 或 `.pyc` 时报错。
 
 内容、链接、命名与混排检查（`verifying-content.py`、`checking-links.py`、`checking-names.py`、`checking-prose.py`）需要 Python 3。`quarto_render_check` 在 `dry_run: false` 时还要 Quarto CLI，渲染后的 HTML 检查同样需要 Python 3。
 
-`skills/writing-quarto/` 各文件的分工见 `docs/module-layout.md`，本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.editorconfig`、`.gitattributes` 与 `.gitignore` 为准。
+`skills/writing-quarto/` 的文件布局见 `docs/module-layout.md`，分层职责见 `docs/architecture.md` 的文件职责表；本页不复述。C++ 工程的行尾与编译选项由 `dsh-cpp-workflow` 维护，本插件不复制它的规则；两侧都以各自仓库根的 `.editorconfig`、`.gitattributes` 与 `.gitignore` 为准。
 
 ## 放置规则
 
@@ -40,8 +40,8 @@ dsh-quarto-book/
 | --- | --- | --- |
 | 写作规则 | `skills/writing-quarto/steps/` | 技能加载时按步读，一步一个文件 |
 | 正反例 | `skills/writing-quarto/writing/examples/` | 判不准时才打开，按该步点名 |
-| 渲染层约定 | `skills/writing-quarto/quarto/` | 排图、查渲染错误、全仓改写时 |
-| 跨步条文与整书次序 | `skills/writing-quarto/writing/` | 整书规划、判操作或冲突时 |
+| 渲染层约定 | `skills/writing-quarto/quarto/` | 按 `SKILL.md`「加载规则」的条件 |
+| 跨步条文与整书次序 | `skills/writing-quarto/writing/` | 判操作、排错或整书重构时，见 `SKILL.md`「加载规则」 |
 | 篇幅预算 | `skills/writing-quarto/token-budget.md` | 判断单文件或总量超限时 |
 | 可机器判定的规则 | `skills/writing-quarto/scripts/` 与同目录测试 | 检查命令与回归用例 |
 | 主题资产 | `skills/designing-theme/assets/theme/` | 主题技能与书内副本 |

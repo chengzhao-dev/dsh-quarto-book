@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """校验渲染产物中的 callout 是否真的渲染成提示框（自定义类的静默退化在这里暴露）。
 
-Quarto 只认内置 5 类 callout（note/tip/warning/important/caution）。未知的
+Quarto 只认内置 5 类命名 callout（note/tip/warning/important/caution）；无类型的
+`::: {.callout}` 渲染成 callout-none，本脚本按这一类识别。未知的
 `.callout-<name>` 类会被静默丢弃。callout 退化成带 <h2> 的 <section>。这个
 <section> 没有提示框样式。它还混进右侧目录。本脚本在 _book/**/*.html 里抓这一回归。
 
@@ -92,7 +93,7 @@ def main():
     print()
     if bad_pages:
         print(f"{bad_pages} 个页面存在 callout 问题。")
-        print('修复：改用内置 5 类，并用 `title="中文标题"` 提供标题（见 quarto/12-quarto-render.md 的 「Callout 类名」节）。')
+        print('修复：改用内置 5 类，并用 `title="中文标题"` 提供标题（见 quarto/12-quarto-render.md 第 12 条「自定义 .callout-* 类被静默丢弃」）。')
         return 1
     print(f"OK：{len(html_files)} 个页面的 callout 均正常渲染。")
     return 0

@@ -9,7 +9,8 @@ directories.
 Rules:
   * Every character is ASCII.
   * Directory and Quarto/asset file names use lower-case words separated by one
-    underscore; a hyphen is rejected, except for tool-owned names in TOOL_FIXED_NAMES.
+    underscore; a hyphen is rejected, except for tool-owned names in TOOL_FIXED_NAMES
+    and files with CODE_SUFFIXES.
   * Code and tool file names follow their language convention; underscores are allowed,
     but they must stay ASCII and contain no spaces.
   * Dots are allowed for extensions and version-like names.
@@ -18,7 +19,7 @@ Rules:
 Usage:
   python checking-names.py [--root PATH]
 
-Exit code: 0 when every path passes, 1 when any path fails.
+Exit code: 0 when every path passes, 1 when any path fails, 2 when --root does not exist.
 """
 
 from __future__ import annotations

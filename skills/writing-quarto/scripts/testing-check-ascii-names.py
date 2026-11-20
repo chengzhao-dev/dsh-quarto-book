@@ -69,7 +69,7 @@ def main() -> int:
                         print(f"  FAIL {line}")
                 return 1
 
-        print(f"PASS：{len(accepted) + len(rejected) + 5} 个用例全部通过")
+        print(f"PASS：{len(accepted) + len(rejected) + 6} 个用例全部通过")
         return 0
 
 

@@ -5,7 +5,7 @@
 
 **English** | [简体中文](https://github.com/chengzhao-dev/dsh-quarto-book/blob/main/README.md)
 
-Take a Quarto Book from chapters to publishable output: `writing-quarto` owns the chapter skeleton, whole-book order and Chinese prose; `designing-theme` owns the theme; after a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt. Both skills appear only inside `type: book` git checkouts, and the workflow needs Quarto CLI and Python 3.
+Take a Quarto Book from chapters to publishable output: `writing-quarto` owns the chapter skeleton, whole-book order and Chinese prose; `designing-theme` owns the theme; after a render, `quarto_render_check` decides whether the HTML is publishable and `quarto_pass_report` prints the closing receipt. Both skills appear only inside `type: book` git checkouts whose book root has at least one `.qmd` or `.md` chapter source file, and the workflow needs Quarto CLI and Python 3.
 
 ## What it provides
 
@@ -29,7 +29,7 @@ Both skills are discovered from the package's `skills/` directory and loaded on 
 2. Open a session in the book repository. `_quarto.yml` needs a standalone `type: book` line, and the book needs at least one `.qmd` or `.md` chapter source; only then do both skill names appear.
 3. Call a skill: `writing-quarto` for prose, `designing-theme` for the theme.
 
-Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.30`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.30`.
+Replace `--profile` with the profile you actually run. The desktop app always runs the `desktop` profile, and that profile is owned by the app, so `dsh --profile desktop` is rejected; install or upgrade with `dsh plugin --profile desktop add <package>`, and use the app's Settings → Plugins → Add plugin only if the app refuses that write. To pin a version, write `npm:@chengzhao-dev/dsh-quarto-book@0.6.31`; to follow a GitHub tag, write `github:chengzhao-dev/dsh-quarto-book#v0.6.31`.
 
 Upgrading from the old unscoped package `dsh-quarto-book` (removed from npm with 0.3.4, so this only affects profiles that installed it earlier): remove it from the same profile first with `dsh plugin --profile <profile> remove dsh-quarto-book`, then add the scoped package. Keeping both installed registers `writing-quarto` and `designing-theme` twice at the same rank 550.
 
@@ -39,7 +39,7 @@ Installation is scoped to a profile, not to a repository: it only affects the pr
 
 | Dependency | Purpose |
 | --- | --- |
-| DSH 0.2.x | Host; the plugin registers skills and both tools through `dsh.bundle.patch` |
+| DSH >=0.2.1-rc.1 <0.3.0-0 | Host; the plugin registers skills and both tools through `dsh.bundle.patch` |
 | Node.js 22 or newer | Plugin runtime and check scripts |
 | Python 3 | Content, link and naming checks, plus post-render HTML checks |
 | Quarto CLI | Only when `quarto_render_check` actually renders |
@@ -50,7 +50,7 @@ The published package already contains compiled `lib/`, so installation needs no
 
 ### Writing chapters
 
-Load `writing-quarto` in a `type: book` repository and follow the nine steps in `SKILL.md`. Each step opens one same-numbered file in `steps/`; read the matching case in `writing/examples/` only when a signal is unclear; open `quarto/` only for figures, render checks or repository-wide refactors.
+Load `writing-quarto` in a `type: book` repository and follow the nine steps in `SKILL.md`. Each step opens one same-numbered file in `steps/`; read the matching case in `writing/examples/` only when a signal is unclear; open `quarto/` only under the conditions in `SKILL.md`.
 
 The repository's root `README.md` is a description page, not a chapter: it takes only steps 5–8, skips the task skeleton and structure of steps 1–4, has no "common errors" or "self-test questions", and never calls `quarto_render_check`. `README.en.md` is treated the same way.
 
@@ -73,7 +73,7 @@ python scripts/checking-names.py --root <book>
 
 `checking-prose.py` reports only mixed Chinese-English problems that can be judged directly; `checking-names.py` is for repository-wide refactors. For everyday chapter work, the first three are enough.
 
-Post-render callouts, HTML output and DOM contracts are checked by `quarto_render_check`, which calls the bundled scripts; you do not need to run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme`'s `scripts/checking-layout.py` checks palette, contrast and page structure on rendered HTML; overflow and narrow-viewport overlays require an explicit `--browser`. Neither tool runs those scripts at load time, and neither runs `quarto render`.
+Post-render callouts, HTML output and DOM contracts are checked by `quarto_render_check`, which calls the bundled scripts; you do not need to run `checking-callouts.py`, `checking-output.py` or `checking-dom.py` by hand. `designing-theme`'s `scripts/checking-layout.py` checks palette, contrast and page structure on rendered HTML; overflow and narrow-viewport overlays require an explicit `--browser`. Neither tool does anything at load time; `quarto_render_check` renders once only when `dry_run: false`.
 
 Call `quarto_pass_report` once at the end of a run; the card is the receipt, and the reply should not repeat it.
 
@@ -114,7 +114,7 @@ Replay the CI sequence locally with one command before pushing:
 npm run ci
 ```
 
-It runs `npm ci`, `npm run check:lib`, `npm test`, `npm run check`, and `npm run pack:check`; `check:lib` must run before any build, or it compares artifacts just overwritten by `test` — the same steps as `.github/workflows/ci.yml`, plus the publish-time package gate.
+It runs `npm ci`, `npm run check:lib`, `npm test`, and `npm run check` (`checking-package.mjs` inside `check` already does the package dry run, so `npm pack` is not repeated); `check:lib` must run before any build, or it compares artifacts just overwritten by `test` — the same steps as `.github/workflows/ci.yml`, plus the publish-time package gate.
 
 Development install:
 

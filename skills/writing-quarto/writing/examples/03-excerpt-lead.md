@@ -26,7 +26,7 @@
 （围栏：kRows / kCols / kCellCount / Position）
 
 改写（导语点名块内对象，再给出处）：
-状态面板多大是示例项目的规则，尺寸常量 `kRows`、`kCols` 和 `kCellCount` 与格子的行列坐标 `Position` 都定义在 state.h 里：
+状态面板的行数、列数和格子总数写成 `kRows`、`kCols` 和 `kCellCount` 三个常量，格子的行列坐标写成结构体 `Position`，都定义在 state.h 里：
 ```
 
 判定信号：导语句里没有一个块内将出现的标识符；「行列坐标」这类中文概念在块内对不上任何标识符；删掉围栏后导语仍完整成立——出处句不依赖块内容。
@@ -50,8 +50,8 @@
 不佳（四个成员逐条释义，句子骨架只是行尾注释的排列）：
 `Board` 对外的入口都集中在 `public:` 下：`IsInRange` 检查坐标，`GetCellType` 读取格子，`PlaceCell` 放置元素，`IsFull` 判断状态面板是否下满。
 
-改写（导语只留边界设计与四个入口名，各入口接住的流程事务由块后映射）：
-`Board` 把存储和换算收在 `private:` 下，`public:` 下只留下四个入口：`IsInRange`、`GetCellType`、`PlaceCell` 和 `IsFull`。
+改写（导语只留边界设计与五个入口名，各入口接住的流程事务由块后映射）：
+`Board` 把存储和换算收在 `private:` 下，`public:` 下只留下五个入口：`IsInRange`、`GetCellType`、`IsCellEmpty`、`PlaceCell` 和 `IsFull`。
 ```
 
 判定信号：连续两个以上「`标识符`＋动词短语」释义，每个短句都能在围栏或行尾注释里直接读到；全段删掉后读者不知道这些入口为什么长这样。为绕开释义把用途压成并称（「一读一写」）、或省掉从句主语（「报告是否下满」说不出什么满了）同样违规——名字与动作的对应要读者自补，补错无检查可拦。改写不再逐条释义：导语留边界设计与入口名，各入口接住哪件流程事务由块后按需要展开映射（见 `writing/examples/05-block-after.md` 的「块后复述注释」）。

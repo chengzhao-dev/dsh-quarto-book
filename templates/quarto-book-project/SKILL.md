@@ -7,8 +7,8 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 > 这是模板，不是可直接加载的技能。复制到目标书的
 > `.agents/skills/quarto-book-project/SKILL.md`，按项目实际内容填写。
-> 插件自带的 `writing-quarto` 与 `designing-theme` 会在这份文件存在时先读它，
-> 再按「章节对照」一节指向 `writing/chapter-map.md`；不存在时跳过，不猜测项目约定。
+> 插件自带的 `writing-quarto` 与 `designing-theme` 会先读插件技能，再读这份文件，
+> 并按「章节对照」一节指向 `writing/chapter-map.md`；这份文件不存在时跳过，不猜测项目约定。
 > 通用写法、结构和主题规则留在插件技能里，本文件只写这本书自己的事实。
 
 ## 书名与读者
@@ -39,8 +39,7 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 - 内容检查：`<插件技能目录>/scripts/verifying-content.py --root <book>`。
 - 链接检查：`<插件技能目录>/scripts/checking-links.py --root <book>`。
-- HTML 可用性：只调 `quarto_render_check`，`qmd_path` 传当前章节；`dry_run: true` 的工作流最多尝试 2 次；`dry_run: false` 每次检查最多运行 1 次。工具不记录跨调用次数。
-- 优先用工具渲染并检查；不手跑 `checking-output.py` 或 `checking-callouts.py`，这些检查由工具按书配置调用。只有工具报产物缺失或需要人工复现排版时，才在书根手跑一次 `quarto render` 并记录。
+- HTML 可用性：只调 `quarto_render_check`，`qmd_path` 传当前章节；检查次数上限、失败处理与「不手跑 `checking-output.py`／`checking-callouts.py`」的约束见 `writing-quarto` 的 `steps/09-check.md`「渲染与 HTML」。
 - 项目专属词表：同目录 `checks.json`（`forbidden_terms`、`lead_chars`、`chapter_titles`、`later_chapter_names`）；模板已带一份可用的默认文件，`lead_chars` 预填 `[60, 140]`，其余三项为空。复制后按项目填写；删掉某项就不再核对那一项。
 - 项目自己的检查命令（如有）与它覆盖的 profile：
 - 命令在哪个环境执行（本机 / WSL / 容器）：
@@ -48,7 +47,7 @@ description: 记录某一本 Quarto Book 的项目级约定：书名、读者、
 
 ## 运行时配置
 
-- 书根 `config/runtime.config` 从 `writing-quarto` 的 `assets/config/runtime.config` 复制，填解释器路径与版本下限；模板里的 `<解释器路径>` 是占位符，未替换时检查会失败。注释写法见 `quarto/04-comments.md`「TOML 与项目配置」。
+- 书根 `config/runtime.config` 从 `writing-quarto` 的 `assets/config/runtime.config` 复制，填解释器路径与版本下限；模板里的 `<解释器路径>` 是占位符，未替换时脚本会退回 `PATH` 上的 `python3` 或 `python`，建议替换成书项目指定的解释器。注释写法见 `quarto/04-comments.md`「TOML 与项目配置」。
 
 ## 主题与过滤器路径
 

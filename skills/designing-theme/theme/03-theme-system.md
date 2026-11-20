@@ -4,7 +4,7 @@
 
 令牌语义与流程见本文件。**颜色**只写在 `palettes/<name>/tokens.css`、同目录的品牌标/标签图标（`brand-mark.svg`、`favicon-light.svg`、`favicon-dark.svg`）与编译期 `palettes/<name>/theme-*.scss`（`$primary`、`$body-color`、`$callout-color-*` 等 Bootstrap 变量，只有默认色板参与编译）；Solarized 与山光的语法色是仅有的 CSS 例外，写在各自的 `palettes/<name>/syntax.css`。**结构尺度**（字号、半径、字体栈、`--content-width`）与不随明暗/色板变化的界面 chrome 常量（灯光箱遮罩与按钮、色板身份色点）写在 `css/tokens.css`。数值以 `css/tokens.css` 与组件 CSS 为准；本文件的表是方便阅读的复述，调值必须同轮同步资产。
 
-编译默认色板是 `palettes/flexoki`（Flexoki Light / Dark）；`palettes/solarized` 与 `palettes/hill-light`（山光四时：晓雾/午荫/暮烟/夜月）是运行时可选覆盖层，不参与编译。每个色板目录带同一枚「打开的书」品牌标与明暗两份标签图标；书标外形全站一份，颜色随色板。换默认色板须同步这些落点：`_quarto.yml` 的 pack SCSS 与 `syntax-highlighting`、`palettes/<name>/tokens.css` 与 `theme-*.scss`、`includes/palette.html` 的 `PALETTES`、`PALETTE_LABELS`、favicon 正则与 `meta-theme-color` 补位、`includes/footer.html` 的 theme-color 兜底纸色、`css/nav.css` 的三组色板面板色与品牌标 mask、`css/tokens.css` 的 `--swatch-*`、`scripts/checking-layout.py` 的期望值表；共享组件 CSS 不动。
+编译默认色板是 `palettes/flexoki`（Flexoki Light / Dark）；`palettes/solarized` 与 `palettes/hill-light`（山光四时：晓雾/午荫/暮烟/夜月）是运行时可选覆盖层，不参与编译。每个色板目录带同一枚「打开的书」品牌标与明暗两份标签图标；书标外形全站一份，颜色随色板。换默认色板须同步这些落点：`_quarto.yml` 的 pack SCSS 与 `syntax-highlighting`、`palettes/<name>/tokens.css` 与 `theme-*.scss`、`includes/palette.html` 的 `PALETTES`、`PALETTE_LABELS`、favicon 正则与 `meta-theme-color` 补位、`includes/footer.html` 的 theme-color 兜底纸色、`css/nav.css` 的三组色板面板色与品牌标 mask、`css/tokens.css` 的 `--swatch-*`、`scripts/checking-layout.py` 的期望值表、`scripts/checking-dom.py` 的 C4 色板图标集合；共享组件 CSS 不动。
 
 ### 令牌索引
 
@@ -19,7 +19,7 @@
 | 顶栏 | `--navbar-*` | 导航、搜索与主题切换 |
 | 标题字面 | `--heading-font` | h1–h6、导航书名、卡片小标题；系统黑体栈 |
 | 覆盖层遮罩 | `--overlay-scrim` | 搜索浮层、源码模态与窄屏侧栏遮罩 |
-| 圆角 | `--radius-sm` / `-md` / `-lg` | 书页与卡片只用 3 / 4 / 6px 三档；胶囊与圆形控件用 999px / 50%，滚动条滑块用 4px，勾选、色点与键盘焦点环微圆用 2px；其余组件一律引用令牌 |
+| 圆角 | `--radius-sm` / `-md` / `-lg` | 书页与卡片只用 3 / 4 / 6px 三档；胶囊与圆形控件用 999px / 50%，滚动条滑块用 4px，勾选与键盘焦点环微圆用 2px，色点用 50%；其余组件一律引用令牌 |
 
 ### callout 色（左条 + 无填充）
 
@@ -102,7 +102,7 @@ Bootstrap 组件沿用 SCSS 的 `$line-height-base: 1.75`，正文与代码另�
 - **`.code-caption`**：次要说明色，紧贴对象；写作见 `../../writing-quarto/quarto/03-authoring.md`。
 - **可折叠答案**：`details.answer-disclosure` 默认收起，用上下发丝线、无圆角、无底色，像书页里的自测折页。
 - **图**：Mermaid 与坐标图用令牌着色、字体随 `--ui-font`；围栏 `%%{init}%%` 用同栈短版；暗色不为白底图加滤镜。
-- **令牌纪律**：样式里每个 `var(--…)` 都必须是色板 `tokens.css` 定义过的令牌。检查器新增断言 `css tokens all defined`，扫主题全部 `.css`/`.scss` 的 `var(--x)` 并减去所有 `--x:` 定义，不允许发明不存在的令牌（曾出现 `--text-primary`、`--surface`、`--text-tertiary` 这类「看着像有、实际透明」的引用，控件失去颜色还不报错）。
+- **令牌纪律**：样式里每个 `var(--…)` 都必须是 `tokens.css` 或组件自身定义过的令牌。检查器新增断言 `css tokens all defined`，扫主题全部 `.css`/`.scss` 的 `var(--x)` 并减去所有 `--x:` 定义，不允许发明不存在的令牌（曾出现 `--text-primary`、`--surface`、`--text-tertiary` 这类「看着像有、实际透明」的引用，控件失去颜色还不报错）。
 - **面板宽度与触摸目标**：色板菜单项在 ≤575.98px 抬到 36px 一行、四时图标按钮 `min-width/min-height` 至少 24×28，菜单与胶囊都不出视口；源码模态 ≥576px 封顶 `min(1000px, 100vw - 2rem)` 并留 1rem 边距；行内代码在窄屏允许 `pre-wrap`，避免 `std::array<…>` 这类无空格类型名把正文列顶宽。棋盘三列、27rem 面板等书内业务尺寸不属于插件资产，写在消费书的项目技能里。
 - **打印**：`pre` 恢复折行；屏幕横向滚动规则不动。
 - **高对比偏好**：`prefers-contrast: more` 段沿用常规色相，只收紧正文、边框、强调与行号，规则见上节「强调、链接与明暗一致性」。
@@ -126,7 +126,7 @@ Quarto Book 三栏；编译默认色板 `palettes/flexoki`，`palettes/solarized
 | `palettes/<name>/syntax.css` | Solarized 与山光的 `code span.*` 语法色覆盖 | 结构尺度、布局 |
 | `palettes/<name>/meta.md` | 来源、highlight 映射、图标接线 | 运行时 CSS |
 | `css/fonts.css` | `@font-face` 声明 | 字体栈选择 |
-| `css/tokens.css` | 字号、半径、字体栈、`--content-width`、`color-scheme` 基线、界面 chrome 常量 | 语义色值、选择器 |
+| `css/tokens.css` | 字号、半径、字体栈、`--content-width`、`color-scheme` 基线、界面 chrome 常量 | 语义色值与组件选择器（只保留 `body` 基线与 reduced-motion 查询） |
 | `css/*.css`（除 tokens） | 组件规则；顺序 = `_quarto.yml` 的 `css:` | Bootstrap 变量 |
 
 ### 切换色板
@@ -148,7 +148,7 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 
 ### 页面结构约定
 
-- 垂直节奏由正文容器与 section 的 `* + *` 控制，不对 `pre`/`p` 另设 `margin-bottom`。正文间距收成四档，档位按「两块内容是不是同一件事」取：**粘连 0.5rem**（标题→首段/列表、标题→callout、caption→其代码块）、**相关 0.9rem**（代码块↔caption、代码块↔callout、列表内代码块→验证句）、**换段 1.4rem**（段落/列表/代码块默认）、**换节 3.25rem**（h2 之前；h3/h4/h5 之前 2.25rem）。h2 的 `margin-bottom` 与相邻 margin-top 折叠取大者，设 0.5rem 避免粘连档被抬高一倍。组件内部微距只登记不立档：callouts 的 0.15/0.4/0.45rem、callout 相邻 1.6rem、代码工具按钮横向 0.45rem；表格、弹窗、折叠块的 padding/gap 按组件自身尺度。档位依据见标识 `bg-reading-surface-v1` 的知识文件。
+- 垂直节奏由正文容器与 section 的 `* + *` 控制，不对 `pre`/`p` 另设 `margin-bottom`。正文间距收成四档，档位按「两块内容是不是同一件事」取：**粘连 0.5rem**（标题→首段/列表、标题→callout、caption→其代码块）、**相关 0.9rem**（代码块↔callout、列表内代码块→验证句）、**换段 1.4rem**（段落/列表/代码块默认）、**换节 3.25rem**（h2 之前；h3/h4/h5 之前 2.25rem）。h2 的 `margin-bottom` 与相邻 margin-top 折叠取大者，设 0.5rem 避免粘连档被抬高一倍。组件内部微距只登记不立档：callouts 的 0.15/0.4/0.45rem、callout 相邻 1.6rem、代码工具按钮横向 0.45rem；表格、弹窗、折叠块的 padding/gap 按组件自身尺度。档位依据见标识 `bg-reading-surface-v1` 的知识文件。
 - 顶栏与页面同底 + 底发丝线，用 `--navbar-*`。
 - 正文链接常态与正文同色（Flexoki 墨色 / Solarized base01 / base1 / 山光墨色）+ 细下划线，hover 才转 `--link-hover-color`；不加 `:visited` 紫色。
 - 表格用 booktabs：表头顶/底 1px、表头下 1px、无竖线、无斑马纹、tbody 无行线；`tbody` 末行底边也是 1px，与全站唯一的发丝线粗细一致（1.5px 已全部收回 1px）。
@@ -158,7 +158,7 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 
 ### 新增 callout
 
-1. 活跃 palette `tokens.css` 只加 `--callout-<type>-border`（亮暗各一对）；不要建 `-bg` 令牌，填充由 `callouts.css` 写死 `transparent`。
+1. 活跃 palette `tokens.css` 只加 `--callout-<type>-border`（亮暗各一对）；填充与不建 `-bg` 令牌的规则同「callout 色（左条 + 无填充）」。
 2. Flexoki、Solarized 在 `theme-*.scss` 加 `$callout-color-*`；山光无 SCSS，直接在 `palettes/hill-light/tokens.css` 的四个 `[data-mode]` 块加 `--callout-*-border`。
 3. `callouts.css` 加 `.callout.callout-<name>`。
 4. 新语义写入本节令牌索引。
@@ -180,7 +180,7 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 - 事件：`book-palette-change`，`detail` 为色板名；山光时辰切换也发同名事件。
 - 函数：`applyPalette(value)`、`applyMode(value)`、`syncBase()`、`syncFavicon()`，唯一实现都在 `includes/palette.html`。
 - 属性：`data-palette`（缺省表示 Flexoki）、`data-mode`（仅山光）、`body.quarto-dark`（Quarto 基座）。
-- DOM：`meta#meta-theme-color`。`includes/fonts.html` 提供时沿用；只复制插件资产的新书由 `includes/palette.html` 在 head 补建，`footer.html` 只更新它的 `content`。
+- DOM：`meta#meta-theme-color`。`includes/fonts.html` 提供时沿用；只复制插件资产的新书由 `includes/palette.html` 在 head 补建，`footer.html` 更新它的 `content`，并在同一观察器里同步 favicon。
 
 ### 同步点
 
@@ -188,7 +188,7 @@ Solarized 是运行时层，不进 `_quarto.yml` 的 theme/syntax-highlighting�
 |---|---|---|
 | 字号、间距、圆角、栏宽 | `assets/theme/css/tokens.css`、组件 CSS、本文件对应表、`01-reading-surface.md` 的理由 | `checking-layout.py` 的 SHARED_CHECKS |
 | 色板取值 | `palettes/<name>/tokens.css`、`meta.md` 对比度表、`includes/palette.html` 的清单、`css/nav.css` 面板色、`css/tokens.css` 的 `--swatch-*`、本文件表格 | `checking-layout.py` 的 palette 对比度与 hill 模式检查 |
-| 默认色板 | `_quarto.yml` 的 theme 与 syntax-highlighting、`book.favicon`、`resources` | `checking-dom.py` C0/C4 |
+| 默认色板 | 完整落点见本文件开头「换默认色板须同步这些落点」 | `checking-dom.py` C0/C4 |
 | 运行时名字 | `includes/palette.html`、`includes/footer.html`、本节 | 仓库内 grep 与浏览器实测 |
 | 规则文字 | 本文件、`02-theme-spine.md`、`SKILL.md`、`01-reading-surface.md` | 无自动断言，评审时逐项对照 |
 

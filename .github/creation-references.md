@@ -12,7 +12,6 @@
   - 不采用：前排 UI 插件用 `dsh.client` 把界面模块带进设置页；这个仓库只导出服务端技能与工具，不声明 `dsh.client`，也不抄那套构建。
 - 技能子系统：<https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills>
   - 采用：提供者接口 `{ name, list, get }`、候选字段 `rank` / `locator` / `resourceBase`、目录型资源基址。
-  - 采用：包内 rank 550，数字大于项目 `.dsh/skills`（100）与 `.agents/skills`（200），优先级更低，同名项目技能可以覆盖。
 
 ## 前 20 下载插件的共同形状
 
@@ -44,6 +43,7 @@
 ## 本仓自己的约束
 
 - 技能只从 `skills/*/SKILL.md` 发现，不递归扫描；模板放在 `templates/`，不会被注册。
+- 包内 rank 550：数字大于项目 `.dsh/skills`（100）与 `.agents/skills`（200），优先级更低，同名项目技能可以覆盖。
 - 主题资产是本插件的一部分，不声称与任何外部仓库共享；项目若复制主题，以项目 `_quarto.yml` 的路径为准。
 - 所有项目专属内容（章节表、术语、命令、专属校验）留在项目的 `quarto-book-project` 技能里，插件正文不写死。
 
@@ -64,7 +64,7 @@
 
 - Anthropic《Equipping agents…》<https://www.anthropic.com/research/equipping-agents-for-the-real-world-with-agent-skills>：启动只预载名称与描述，正文按相关性读取，脚本可直接执行而不读入上下文；原文「If certain contexts are mutually exclusive or rarely used together, keeping the paths separate will reduce the token usage.」
 - [dsh-skill-tier](https://dsh-plugin.org/plugins/pandarayc/dsh-skill-tier)：把 28 个成员的目录从 2,901 token 折成 119 token（约 96%），Tier 0 索引约 +78 至 +121 token，`rank` 默认 350，零依赖、单文件、未配置时零候选；其 FAQ 明确成员目录不能再作扫描根、同层重复 provider 不激活、超过 500 字符的描述会被截断。
-- 采用：`token-budget.md` 的「单次激活上限」与步骤文件只点名一份案例，和三层披露同向；不引入索引插件，技能目录本身已经只有名称与描述。
+- 采用：`token-budget.md`「预算」一节里的单次激活上限，与步骤文件只点名一份案例，和三层披露同向；不引入索引插件，技能目录本身已经只有名称与描述。
 - 不采用：把九步再折成按需生成的索引技能；本仓技能数量少，生成层会多一次发现与失效。
 
 ### 头部插件的边界与联动

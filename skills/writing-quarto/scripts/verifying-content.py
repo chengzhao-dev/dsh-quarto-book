@@ -895,6 +895,10 @@ def check_excerpts(path: Path, root: Path, lines: list[str]) -> list[Issue]:
         return issues
 
 
+def is_prose_line(index: int, raw: str, fenced_lines: set[int]) -> bool:
+        """围栏代码块内的行不算正文；缩进四格的代码行同样跳过。"""
+        return index not in fenced_lines and not raw.lstrip().startswith(("```", "    "))
+
 def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> list[Issue]:
         issues: list[Issue] = []
         text = read_text(path)
@@ -1133,7 +1137,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                         if not clean or "<" in clean:
                                 continue
                         if not (path.parent / clean).exists() and not (root / clean).exists():
-                                issues.append(Issue(path, index, f"本地链接不可达：{target}"))
+                                issues.append(Issue(path, index, f"本地链接不可达：{target}（逐条核对用 checking-links.py）"))
 
         for target, numbers in blob_links.items():
                 if len(numbers) > 1 and target not in intro_blob_targets:
@@ -1163,20 +1167,20 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
 
         for term in GENERIC_FORBIDDEN_TERMS:
                 for index, raw in enumerate(lines, start=1):
-                        if term in raw and not raw.lstrip().startswith(("```", "    ")):
+                        if term in raw and is_prose_line(index, raw, fenced_lines):
                                 issues.append(Issue(path, index, f"禁用词「{term}」"))
                                 break
 
         for term in project.get("forbidden_terms", []):
                 for index, raw in enumerate(lines, start=1):
-                        if term and term in raw:
+                        if term and term in raw and is_prose_line(index, raw, fenced_lines):
                                 issues.append(Issue(path, index, f"项目禁用词「{term}」"))
                                 break
 
         later_names = project.get("later_chapter_names", {}).get(rel, [])
         if later_names:
                 for index, raw in enumerate(lines, start=1):
-                        if index in fenced_lines or raw.lstrip().startswith(("```", "    ")):
+                        if not is_prose_line(index, raw, fenced_lines):
                                 continue
                         for name in later_names:
                                 if name and re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", raw):
@@ -1231,7 +1235,7 @@ def check_file(path: Path, root: Path, project: dict, chapters: list[str]) -> li
                 if required not in title:
                         issues.append(Issue(path, 1, f"章节 title 应包含「{required}」，实际为「{title}」"))
 
-        if rel not in chapters and path.name != "index.qmd" and path.parent.name != "":
+        if rel not in chapters and path.name != "index.qmd":
                 issues.append(Issue(path, 1, "文件未列入 _quarto.yml 的 chapters/appendices（目录会漏章）"))
 
         return issues

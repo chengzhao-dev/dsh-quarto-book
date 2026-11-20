@@ -2,12 +2,16 @@
 """检查 Quarto 章节里的高置信中英混排问题。
 
 只报能直接判断的错误：中文与拉丁字母、数字或行内代码之间缺空格，
-中文句里混入半角标点，中文标点前多了空格。句子长短、术语解释等
-仍需按 writing-quarto 的步骤人工回读。
+中文句里混入半角标点，中文标点前多了空格，中文之间多出空格，
+正文里出现连续两个及以上空格。句子长短、术语解释等仍需按
+writing-quarto 的步骤人工回读。
 
 用法：
     python checking-prose.py --root <book>
     python checking-prose.py --root <book> --json
+    python checking-prose.py --root <book> --quiet
+
+退出码：0 = 通过，1 = 有混排问题或文件不可读，2 = 根目录不存在。
 """
 
 from __future__ import annotations
@@ -33,7 +37,10 @@ URL = re.compile(r"https?://[^\s)>\]]+")
 LINK_TARGET = re.compile(r"\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
 SKIP_PREFIXES = (":::", "| ---", "|---")
-SKIP_DIRS = {"_book", ".quarto", "node_modules", ".git", "temp", ".cache"}
+SKIP_DIRS = {
+    "node_modules", "_book", ".quarto", ".git", "_freeze", "_site",
+    "temp", "build", "dist", "_build", ".cache",
+}
 
 
 @dataclass(frozen=True)
@@ -118,7 +125,10 @@ def scan_file(root: Path, path: Path) -> list[Issue]:
 def collect_files(root: Path) -> list[Path]:
     files: list[Path] = []
     for path in sorted(root.rglob("*.qmd")):
-        if any(part in SKIP_DIRS for part in path.relative_to(root).parts):
+        if any(
+            part in SKIP_DIRS or part.startswith("build-")
+            for part in path.relative_to(root).parts
+        ):
             continue
         files.append(path)
     return files

@@ -1,12 +1,12 @@
 # 版本号与发布顺序
 
-插件自己的版本只有一处：`package.json` 的 `"version"`。`locale/`、`SKILL.md`、`cordis.patch.yml` 都不带版本。
+权威来源只有 `package.json` 的 `"version"`；`package-lock.json`、本文件「当前版本」行与两份 README 的安装命令是同步副本。`locale/`、`SKILL.md`、`cordis.patch.yml` 都不带版本。
 
 `"engines": { "dsh": ">=0.2.1-rc.1 <0.3.0-0" }` 与 peer `@deepseek-ai/dsh-skill` 是宿主兼容范围，表示能装在哪一档 DSH 上；当前宿主是 0.2.1-rc.5，semver 的预发布规则不会让 `>=0.2.0-rc.1` 匹配它，所以三处一起写 0.2.1 的 tuple。改章节约定、案例或主题措辞时不动它。
 
 ## 当前版本
 
-`dsh-quarto-book` 为 **0.6.30**。`dsh-cpp-workflow` 是另一份插件，沿自己的版本线单独递增，本文不记录它的版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废，不再复用。
+`dsh-quarto-book` 为 **0.6.31**。`dsh-cpp-workflow` 是另一份插件，沿自己的版本线单独递增，本文不记录它的版本号。误发的 `0.0.1` 已从 npm 撤回，并删除 GitHub 标签与 Release；该号作废，不再复用。
 
 ## 装上之后怎么看版本
 

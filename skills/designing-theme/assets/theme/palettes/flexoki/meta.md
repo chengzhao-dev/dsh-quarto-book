@@ -11,8 +11,8 @@
 | tokens | `palettes/flexoki/tokens.css` |
 | SCSS light | `palettes/flexoki/theme-light.scss` |
 | SCSS dark | `palettes/flexoki/theme-dark.scss` |
-| highlight light | `assets/theme/palettes/flexoki/highlight-light.theme` |
-| highlight dark | `assets/theme/palettes/flexoki/highlight-dark.theme` |
+| highlight light | `palettes/flexoki/highlight-light.theme` |
+| highlight dark | `palettes/flexoki/highlight-dark.theme` |
 | brand mark | `palettes/flexoki/brand-mark.svg` |
 | favicon light | `palettes/flexoki/favicon-light.svg` |
 | favicon dark | `palettes/flexoki/favicon-dark.svg` |
@@ -36,7 +36,7 @@
 | 正文 / 次要文字 | `#100F0F` / `#6F6E69` | `#CECDC3` / `#9F9D96` |
 | 链接常态 / hover | `#100F0F` / `#24837B` | `#CECDC3` / `#3AA99F` |
 
-Callout 是编辑注：2px 左条、`-bg: transparent`、无圆角；note 用中性 base-600 / base-400，warning 用官方 orange（亮 `#BC5215` / 暗 `#DA702C`），不把黄当警告。
+Callout 是编辑注：2px 左条、无填充（`callouts.css` 写死 `transparent`）、无圆角；note 用中性 base-600 / base-400，warning 用官方 orange（亮 `#BC5215` / 暗 `#DA702C`），不把黄当警告。
 
 暗色次要文字保留 Flexoki base-400 `#9F9D96`：它在墨色底上 7.05:1，介于 base-300 `#B7B5AC` 与 base-500 `#878580` 之间，比正文 `#CECDC3` 低一档，不抢正文但仍高于 4.5:1。
 

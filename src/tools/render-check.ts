@@ -687,8 +687,8 @@ export async function inspectHtml(input: {
             spawnFn,
             input.signal,
         )
-        // C0/C1/C2/C4/C6/C7/C8 依赖主题资产；没有 theme/ 的书只跑通用契约。
-        const hasTheme = await isDirectory(path.join(input.root, 'theme'))
+        // C0/C1/C2/C4/C6/C7/C8 依赖主题资产；书没引用主题资产时只跑通用契约。
+        const hasTheme = await resolveThemeAssets(input.root)
         const universal = ['C3', 'C5', 'C9']
         const themeOwned = ['C0', 'C1', 'C2', 'C4', 'C6', 'C7', 'C8']
         const selected = parseDomLines(dom.output).filter((item) =>
@@ -706,7 +706,7 @@ export async function inspectHtml(input: {
                     : failed.length === 0
                         ? hasTheme
                             ? `${selected.length} 项 DOM 契约通过`
-                            : `${selected.length} 项通用 DOM 契约通过（无 theme/，跳过主题契约）`
+                            : `${selected.length} 项通用 DOM 契约通过（书未引用主题资产，跳过主题契约）`
                         : `${failed.map((item) => `${item.id} ${item.detail}`).join('；')}`,
             ...(domUnavailable ? { environment_failure: true } : {}),
         })
@@ -723,6 +723,21 @@ export async function inspectHtml(input: {
         },
         errors,
     }
+}
+
+/** 主题契约是否适用：_quarto.yml 引用了主题目录下的 CSS，或书根有 theme/ 副本。 */
+async function resolveThemeAssets(root: string): Promise<boolean> {
+    const config = await readUtf8(path.join(root, '_quarto.yml'))
+    if (config) {
+        for (const line of config.split(/\r?\n/)) {
+            const match = /^\s*-\s*['"]?([^'"#\s]+\.(?:css|scss))/.exec(line)
+            if (!match) continue
+            const referenced = match[1]
+            const dir = referenced.includes('/') ? referenced.slice(0, referenced.lastIndexOf('/')) : ''
+            if (dir && (await isDirectory(path.join(root, dir)))) return true
+        }
+    }
+    return isDirectory(path.join(root, 'theme'))
 }
 
 async function isDirectory(dir: string): Promise<boolean> {
